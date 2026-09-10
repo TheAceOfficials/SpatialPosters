@@ -261,15 +261,9 @@ function CustomCatalogEntry({
 }
 
 export function CataloghiView() {
-  const trending = usePSelector((v) => v.trending)
-  const trendingError = usePSelector((v) => v.trendingError)
   const mappings = usePSelector((v) => v.mappings)
   const navigateToPoster = usePSelector((v) => v.navigateToPoster)
-  const STREAMING_PLATFORMS = usePSelector((v) => v.STREAMING_PLATFORMS)
-  const mdblistAnimeList = usePSelector((v) => v.mdblistAnimeList)
   const router = usePSelector((v) => v.router)
-  const streamingCharts = usePSelector((v) => v.streamingCharts)
-  const refreshLists = usePSelector((v) => v.refreshLists)
   const customCatalogs = usePSelector((v) => v.customCatalogs)
   const removeCustomCatalog = usePSelector((v) => v.removeCustomCatalog)
   const toggleCustomCatalog = usePSelector((v) => v.toggleCustomCatalog)
@@ -278,26 +272,12 @@ export function CataloghiView() {
   const tmdbKey = usePSelector((v) => v.tmdbKey)
   const mdblistApiKey = usePSelector((v) => v.mdblistApiKey)
   const { t } = useT()
-  const platformFilters = useMemo(() => [
+  const typeFilters = useMemo(() => [
     { id: "all", label: t("ui.all") },
-    { id: "custom", label: t("ui.customCatalogs") },
-    { id: "justwatch", label: "JustWatch" },
-    { id: "netflix", label: "Netflix" },
-    { id: "amazon-prime", label: "Prime Video" },
-    { id: "disney", label: "Disney+" },
-    { id: "now", label: "NOW / Sky" },
-    { id: "apple-tv", label: "Apple TV+" },
-    { id: "hbo-max", label: "HBO Max" },
-    { id: "paramount-plus", label: "Paramount+" },
-    { id: "crunchyroll", label: "Crunchyroll" },
-    { id: "anime", label: "Anime" },
+    { id: "movie", label: t("ui.movie") },
+    { id: "series", label: t("ui.tvSeries") },
+    { id: "mixed", label: "Misto" },
   ], [t])
-  const ed = usePosterEditor()
-  const regionFlag = getRegionDef(ed.defaultRegion).flag
-  const movieTrending = trending.filter((r) => r.media_type === "movie").slice(0, 20)
-  const tvTrending = trending.filter((r) => r.media_type === "tv").slice(0, 20)
-  const animeMovies = mdblistAnimeList.filter((r) => r.media_type === "movie")
-  const animeTv = mdblistAnimeList.filter((r) => r.media_type !== "movie")
   const [gridItems, setGridItems] = useState<GridViewItem[] | null>(null)
   const [gridTitle, setGridTitle] = useState("")
   const [platformFilter, setPlatformFilter] = useState<string>("all")
@@ -354,15 +334,10 @@ export function CataloghiView() {
     }
   }, [gridItems])
 
-  const filteredPlatforms = STREAMING_PLATFORMS.filter((sp) => {
-    if (platformFilter === "all") return true
-    if (platformFilter === "justwatch" || platformFilter === "anime" || platformFilter === "custom") return false
-    return sp.slug === platformFilter
-  })
-
-  const showJustWatch = (platformFilter === "all" || platformFilter === "justwatch") && trending.length > 0
-  const showAnime = (platformFilter === "all" || platformFilter === "anime") && mdblistAnimeList.length > 0
-  const showCustom = (platformFilter === "all" || platformFilter === "custom")
+  const filteredCustomCatalogs = useMemo(() => {
+    if (platformFilter === "all") return customCatalogs
+    return customCatalogs.filter((cat) => cat.type === platformFilter)
+  }, [customCatalogs, platformFilter])
 
   return (
     <div className="max-w-6xl mx-auto animate-fade-scale-in">
@@ -382,20 +357,22 @@ export function CataloghiView() {
             <p className="text-sm text-muted mt-1">{t("ui.catalogsSubtitle")}</p>
           </div>
           <div className="flex items-center gap-2 self-start sm:self-center">
-            <div className="relative">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsManagerOpen((prev) => !prev)
-                }}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface2 border border-white/10 hover:border-white/20 text-zinc-200 text-xs font-semibold hover:text-white active:scale-95 transition-all shadow-sm"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-accent-orange" />
-                <span>{t("ui.priorityNames")}</span>
-              </button>
-              <CatalogManagerModal isOpen={isManagerOpen} onClose={() => setIsManagerOpen(false)} />
-            </div>
+            {customCatalogs.length > 0 && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsManagerOpen((prev) => !prev)
+                  }}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface2 border border-white/10 hover:border-white/20 text-zinc-200 text-xs font-semibold hover:text-white active:scale-95 transition-all shadow-sm"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-accent-orange" />
+                  <span>{t("ui.priorityNames")}</span>
+                </button>
+                <CatalogManagerModal isOpen={isManagerOpen} onClose={() => setIsManagerOpen(false)} />
+              </div>
+            )}
             <div className="relative">
               <button
                 type="button"
@@ -414,25 +391,28 @@ export function CataloghiView() {
         </div>
       </ScrollReveal>
 
-      {/* Platform Filter Chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-8">
-        {platformFilters.map((f) => (
-          <button type="button"
-            key={f.id}
-            onClick={() => setPlatformFilter(f.id)}
-            className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 active:scale-95 ${
-              platformFilter === f.id
-                ? "bg-accent-orange/15 text-accent-orange border border-accent-orange/30 shadow-sm font-semibold"
-                : "bg-surface/80 text-muted hover:text-zinc-200 border border-white/5 hover:border-white/10"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      {/* Catalog Type Filter Chips */}
+      {customCatalogs.length > 0 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-8">
+          {typeFilters.map((f) => (
+            <button
+              type="button"
+              key={f.id}
+              onClick={() => setPlatformFilter(f.id)}
+              className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 active:scale-95 ${
+                platformFilter === f.id
+                  ? "bg-accent-orange/15 text-accent-orange border border-accent-orange/30 shadow-sm font-semibold"
+                  : "bg-surface/80 text-muted hover:text-zinc-200 border border-white/5 hover:border-white/10"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Custom Catalogs Section */}
-      {showCustom && customCatalogs.length > 0 && (
+      {/* Custom Catalogs List */}
+      {filteredCustomCatalogs.length > 0 ? (
         <ScrollReveal animation="fade-up" threshold={0.05}>
           <div className="mb-12 space-y-6">
             <div className="flex items-center justify-between mb-4">
@@ -442,7 +422,7 @@ export function CataloghiView() {
               </span>
             </div>
             <div className="space-y-6">
-              {customCatalogs.map((cat) => (
+              {filteredCustomCatalogs.map((cat) => (
                 <CustomCatalogEntry
                   key={cat.id}
                   cat={cat}
@@ -460,101 +440,28 @@ export function CataloghiView() {
             </div>
           </div>
         </ScrollReveal>
-      )}
-
-      {showCustom && customCatalogs.length > 0 && <div className="section-divider" />}
-
-      {/* JustWatch Top 20 — due contenitori separati (Film | Serie) sulla stessa riga */}
-      {showJustWatch && (
-        <ScrollReveal animation="fade-up" threshold={0.05}>
-          <div className="mb-12">
-            <h2 className="section-heading text-xl font-bold mb-6">{t("ui.justwatchTop20")} {regionFlag}</h2>
-            <CatalogPair
-              movies={movieTrending}
-              tv={tvTrending}
-              totalMovies={movieTrending.length}
-              totalTv={tvTrending.length}
-              movieTitle={`${t("ui.movie")} — Top 20`}
-              tvTitle={`${t("ui.tvSeries")} — Top 20`}
-              movieGridTitle={`JustWatch — ${t("ui.movie")}`}
-              tvGridTitle={`JustWatch — ${t("ui.tvSeries")}`}
-              openGrid={openGrid}
-              onItemClick={navigateToItem}
-              savedKeys={savedKeys}
-            />
+      ) : (
+        /* Empty State */
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-2xl bg-surface/40 border border-white/5 my-6 animate-fade-scale-in">
+          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-zinc-300 shadow-inner">
+            <ListPlus className="w-7 h-7 text-zinc-300" />
           </div>
-        </ScrollReveal>
-      )}
-
-      {showJustWatch && <div className="section-divider" />}
-
-      {/* Piattaforme streaming — filtrate se attivo un filtro */}
-      {filteredPlatforms.length > 0 && (
-        <ScrollReveal animation="fade-up" threshold={0.05}>
-          <div className="mb-12">
-            <h2 className="section-heading text-xl font-bold mb-6">{t("ui.streamingPlatforms")}</h2>
-            {filteredPlatforms.map((sp) => {
-              const chart = streamingCharts[sp.slug]
-              if (!chart || (chart.movies.length === 0 && chart.tv.length === 0)) return null
-              return (
-                <div key={sp.slug} className="mb-6 last:mb-0">
-                  <h3 className="text-sm font-semibold text-zinc-300 mb-3 flex items-center gap-2">
-                    {sp.icon && <span className="text-base">{sp.icon}</span>}
-                    {sp.name}
-                  </h3>
-                  <CatalogPair
-                    movies={chart.movies}
-                    tv={chart.tv}
-                    totalMovies={chart.movies.length}
-                    totalTv={chart.tv.length}
-                    movieTitle={`${t("ui.movie")} — Top 10`}
-                    tvTitle={`${t("ui.tvSeries")} — Top 10`}
-                    movieGridTitle={`${sp.name} — ${t("ui.movie")}`}
-                    tvGridTitle={`${sp.name} — ${t("ui.tvSeries")}`}
-                    openGrid={openGrid}
-                    onItemClick={navigateToItem}
-                    savedKeys={savedKeys}
-                  />
-                </div>
-              )
-            })}
-          </div>
-        </ScrollReveal>
-      )}
-
-      {showAnime && <div className="section-divider" />}
-
-      {/* Anime trending — Film e Serie in due contenitori separati */}
-      {showAnime && mdblistAnimeList.length >= 5 && (
-        <ScrollReveal animation="fade-up" threshold={0.05}>
-          <div className="mb-12">
-            <h2 className="section-heading text-xl font-bold mb-6">{t("ui.trendingAnime")}</h2>
-            <CatalogPair
-              movies={animeMovies}
-              tv={animeTv}
-              totalMovies={animeMovies.length}
-              totalTv={animeTv.length}
-              movieTitle={`${t("ui.movie")} — Top 20`}
-              tvTitle={`${t("ui.tvSeries")} — Top 20`}
-              movieGridTitle={`Anime — ${t("ui.movie")}`}
-              tvGridTitle={`Anime — ${t("ui.tvSeries")}`}
-              openGrid={openGrid}
-              onItemClick={navigateToItem}
-              savedKeys={savedKeys}
-            />
-          </div>
-        </ScrollReveal>
-      )}
-
-      {trending.length === 0 && !trendingError && (
-        <div className="flex flex-col items-center justify-center py-24 text-zinc-500 animate-fade-scale-in">
-          <div className="empty-state-illustration mb-5">
-            <svg className="w-10 h-10 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" opacity="0.5"/>
-            </svg>
-          </div>
-          <p className="text-sm text-muted mb-2">{t("ui.loadingCatalogs")}</p>
-          <div className="w-8 h-8 rounded-full border-2 border-border border-t-accent-orange animate-spin" />
+          <h3 className="text-lg font-bold text-zinc-100 mb-1">
+            {customCatalogs.length === 0 ? "No Custom Catalogs Added Yet" : "No Catalogs in this Category"}
+          </h3>
+          <p className="text-xs text-zinc-400 max-w-md mb-6 leading-relaxed">
+            {customCatalogs.length === 0
+              ? "Add your own custom catalog lists from Letterboxd, Trakt, TMDb, MDBList, IMDb or TVDB."
+              : "Try switching to 'All' or add a new custom catalog."}
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsAddCustomOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold transition-all shadow-lg shadow-white/10 border border-white/40 cursor-pointer active:scale-95"
+          >
+            <ListPlus className="w-4 h-4 text-zinc-950" />
+            <span className="text-zinc-950 font-bold">{t("ui.addCatalog")}</span>
+          </button>
         </div>
       )}
 

@@ -7,19 +7,9 @@ describe("catalog definitions", () => {
 
     const warmupCatalogs = getWarmupCatalogs()
 
-    expect(warmupCatalogs.map((catalog) => catalog.id)).toEqual([
-      "pictorium-jw-movies",
-      "pictorium-jw-series",
-      "pictorium-netflix-movies",
-      "pictorium-netflix-series",
-      "pictorium-prime-movies",
-      "pictorium-prime-series",
-      "pictorium-anime-movies",
-      "pictorium-anime",
-    ])
+    expect(warmupCatalogs.map((catalog) => catalog.id)).toEqual([])
     expect(warmupCatalogs.every((catalog) => manifestIds.has(catalog.id))).toBe(true)
-    expect(warmupCatalogs.map((catalog) => catalog.type)).toEqual(["movie", "series", "movie", "series", "movie", "series", "movie", "series"])
-    expect(WARMUP_CATALOG_IDS).toHaveLength(8)
+    expect(WARMUP_CATALOG_IDS).toHaveLength(0)
   })
 
   it("emits only pictorium-* catalog IDs", () => {
