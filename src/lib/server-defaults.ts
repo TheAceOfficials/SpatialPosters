@@ -8,8 +8,6 @@ import { isBadgeStyle, isRankingBadgeStyle } from "@/lib/badge-styles"
 import { normalizeRegion } from "@/lib/regions"
 import { envWithFallback } from "@/lib/env-compat"
 
-import type { NetworkLogoMode } from "@/lib/types"
-
 const log = createLogger("server-defaults")
 
 export interface ServerDefaults {
@@ -30,7 +28,6 @@ export interface ServerDefaults {
   autoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
   networkLogo?: boolean
-  networkLogoMode?: NetworkLogoMode
   ribbonSide?: "left" | "right"
   episodeMetadataSource?: "tmdb" | "tvdb"
   /** Regione classifiche JustWatch/FlixPatrol + lingua titoli (codice JW, es. "IT"). */

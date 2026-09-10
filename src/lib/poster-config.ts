@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import type { PictoriumUserConfig } from "./config-token"
-import type { Mapping, NetworkLogoMode } from "./types"
+import type { Mapping } from "./types"
 import type { ServerDefaults } from "./server-defaults"
 import { resolveLabelFor } from "./i18n"
 import { SUPPORTED_RATING_SOURCES, DEFAULT_RATING_SOURCES } from "./ratings"
@@ -62,7 +62,6 @@ export interface PosterRenderConfig {
   queryExtra: string | null
   qNetLogo: string | null
   networkLogo: boolean
-  networkLogoMode: NetworkLogoMode
   ribbonSide: "left" | "right"
 }
 
@@ -167,18 +166,10 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const rawExtra = q.get("extra") || configOverride?.customBadge || null
   const queryExtra = rawExtra ? resolveLabelFor(rawExtra, input.lang || "it") : null
   const rawNetLogo = q.get("netLogo")
-  let networkLogoMode: NetworkLogoMode = "network"
-  if (rawNetLogo !== null) {
-    if (rawNetLogo === "0") networkLogoMode = "off"
-    else if (rawNetLogo === "ott") networkLogoMode = "ott"
-    else if (rawNetLogo === "auto") networkLogoMode = "auto"
-    else networkLogoMode = "network"
-  } else {
-    networkLogoMode = (mapping?.networkLogoMode ?? configOverride?.networkLogoMode ?? sd.networkLogoMode)
-      || (mapping?.networkLogo === false || configOverride?.networkLogo === false || sd.networkLogo === false ? "off" : "network")
-  }
-  const networkLogo = networkLogoMode !== "off"
-  const qNetLogo = rawNetLogo ?? (networkLogoMode === "off" ? "0" : networkLogoMode === "ott" ? "ott" : networkLogoMode === "auto" ? "auto" : "1")
+  const networkLogo: boolean = rawNetLogo !== null
+    ? rawNetLogo !== "0"
+    : (mapping?.networkLogo ?? (configOverride !== null ? configOverride.networkLogo : undefined) ?? sd.networkLogo ?? true)
+  const qNetLogo = networkLogo ? (rawNetLogo ?? (configOverride !== null ? (configOverride.networkLogo ? "1" : null) : null)) : "0"
   // Modalità layout nastro Netflix + logo network: query `side=right` (Stremio) o `side=left` (Nuvio), mapping salvato o config/profilo
   const qSide = q.get("side")
   const ribbonSide: "left" | "right" = qSide === "right"
@@ -208,7 +199,6 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     queryExtra,
     qNetLogo,
     networkLogo,
-    networkLogoMode,
     ribbonSide,
   }
 }

@@ -18,7 +18,7 @@ import fs from "fs"
 import path from "path"
 import { estimateTextWidth, fontFamilyFor } from "./badge-svg-shared"
 import { computeTopBadge, isNetworkStudio, type BadgeInput } from "./poster-badge"
-import type { Mapping, NetworkLogoMode } from "./types"
+import type { Mapping } from "./types"
 import type { ServerDefaults } from "./server-defaults"
 import type { WikidataResult } from "./awards"
 import type { BadgeT } from "./poster-badge"
@@ -90,7 +90,6 @@ export interface GenerationInput {
   /** Mappa name -> logo_path TMDB per fallback (SVG first -> TMDB). */
   tmdbNetworksDetailed?: readonly NetworkCandidate[]
   productionCompaniesDetailed?: readonly NetworkCandidate[]
-  watchProvidersDetailed?: readonly NetworkCandidate[]
   tvType: string | null
   tvStatus: string | null
   releaseDate: string | null
@@ -107,7 +106,6 @@ export interface GenerationInput {
   queryExtra: string | null
   qNetLogo: string | null
   networkLogo?: boolean
-  networkLogoMode?: NetworkLogoMode
   sd: ServerDefaults
   accentOverride: { genreColor: string; rankColor: string } | null
   /** Pre-resolved IMDb Top 250 membership. Falls back gracefully when falsy. */
@@ -432,11 +430,11 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     logoScale, logoOffsetX, logoOffsetY,
     mediaType, finalRank, animeRankResult,
     mapping, tmdbNetworks, productionCompanies, tmdbStudios,
-    tmdbNetworksDetailed, productionCompaniesDetailed, watchProvidersDetailed,
+    tmdbNetworksDetailed, productionCompaniesDetailed,
     tvType, tvStatus, releaseDate, firstAirDate,
     lastAirDate, seasonCount, originCountries,
     wikidataResult, tmdbKeywords, locale, t,
-    qLabel, queryExtra, qNetLogo, networkLogo, networkLogoMode, sd, accentOverride, imdbTop250,
+    qLabel, queryExtra, qNetLogo, networkLogo, sd, accentOverride, imdbTop250,
     posterSrc, logoSrc, backdropSrc,
   } = input
 
@@ -453,7 +451,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     let bResizedW = Math.round(STD_W * bScale)
     let bResizedH = Math.round(bh * (bResizedW / bw))
     if (bResizedW > STD_W) { bResizedH = Math.round(bResizedH * (STD_W / bResizedW)); bResizedW = STD_W }
-    if (bResizedH > STD_H) { bResizedW = Math.round(bResizedH * (STD_H / bResizedH)); bResizedH = STD_H }
+    if (bResizedH > STD_H) { bResizedW = Math.round(bResizedW * (STD_H / bResizedH)); bResizedH = STD_H }
     const bX = Math.round((STD_W - bResizedW) / 2 + backdropOffsetX)
     const bY = Math.round((STD_H - bResizedH) / 2 + backdropOffsetY)
     const backdropResized = await resizeBackdropCached(backdropFetch, bResizedW, bResizedH, backdropSrc)
@@ -532,86 +530,54 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     keywords: [...tmdbKeywords],
     imdbTop250: !!imdbTop250,
   }
+  const computed = computeTopBadge(badgeInput, t, locale)
+  const studioBadge = computed.studioBadge
+  const isNetStudio = isNetworkStudio(studioBadge)
 
   let topBadge: { type: "extra"; label: string } | { type: "rank"; rank: number; label: string } | null = null
   if (rankingEnabled) {
     if (queryExtra) {
       topBadge = { type: "extra" as const, label: queryExtra }
-    } else {
-      const bComputed = computeTopBadge(badgeInput, t, locale)
-      const b = bComputed.badge
-      if (b?.type === "extra") {
+    } else if (computed.badge) {
+      const b = computed.badge
+      if (b.type === "extra") {
         topBadge = { type: "extra" as const, label: b.label }
-      } else if (b?.type === "rank" && b.rank) {
-        topBadge = { type: "rank" as const, rank: b.rank, label: b.rankLabel || b.label }
-      } else if (b?.type === "rank") {
+      } else {
         topBadge = { type: "rank" as const, rank: b.rank!, label: qLabel || b.rankLabel || b.label }
       }
     }
   }
 
-  // Network / OTT logo (parallel with badge render) — SVG first, TMDB fallback
-  const resolvedMode: NetworkLogoMode = networkLogoMode
-    ?? (qNetLogo === "0" ? "off" : qNetLogo === "ott" ? "ott" : qNetLogo === "auto" ? "auto" : qNetLogo === "1" ? "network" : (networkLogo === false ? "off" : (mapping?.networkLogoMode ?? sd.networkLogoMode ?? "network")))
-
-  const netLogoEnabled = resolvedMode !== "off"
-  const studioBadge = computeTopBadge(badgeInput, t, locale).studioBadge
-  const isNetStudio = isNetworkStudio(studioBadge)
-
-  // Candidati network/produzione originali (per Network mode)
-  const origDetailedCandidates: NetworkCandidate[] = [
-    ...(tmdbNetworksDetailed ?? []),
-    ...(productionCompaniesDetailed ?? []),
-    ...wikidataResult.studios.map((s) => ({ name: s, logoPath: null as string | null })),
-    ...tmdbStudios.map((s) => ({ name: s, logoPath: null })),
-    ...(isNetStudio ? [] : studioBadge ? [{ name: studioBadge, logoPath: null as string | null }] : []),
-    ...(mapping?.networkLogoName ? [{ name: mapping.networkLogoName!, logoPath: mapping.networkLogoPath ?? null }] : []),
-  ]
-
-  // Candidati OTT (watch providers TMDB — streaming SVOD)
-  const ottCandidates: NetworkCandidate[] = watchProvidersDetailed ? [...watchProvidersDetailed] : []
-
-  // Selezione candidati in base al mode:
-  // - ott:     SOLO provider OTT. Se vuoti → nessun logo (non ricadere su network).
-  // - auto:    OTT prima, poi network/produzione.
-  // - network: SOLO network/produzione.
-  let detailedCandidates: NetworkCandidate[]
-  if (resolvedMode === "ott") {
-    detailedCandidates = ottCandidates
-  } else if (resolvedMode === "auto") {
-    detailedCandidates = [...ottCandidates, ...origDetailedCandidates]
-  } else {
-    detailedCandidates = origDetailedCandidates
-  }
-
-  const hasDetailed = detailedCandidates.length > 0
-
-  // String candidates (fallback senza logoPath): anch'esse mode-aware.
-  // In OTT mode si usano SOLO i nomi dei provider OTT, mai quelli network,
-  // per evitare che il logo network appaia al posto di "nessun logo OTT".
-  const networkOnlyCandidateStrings = [
+  // Network logo (parallel with badge render) — SVG first, TMDB fallback
+  const netLogoEnabled = networkLogo ?? (qNetLogo !== null ? qNetLogo !== "0" : (sd.networkLogo !== false && (mapping?.networkLogo ?? true) !== false))
+  // Se i candidati dettagliati sono disponibili, usali (con logo_path); altrimenti fallback a soli nomi per retrocompat.
+  const hasDetailed = !!(tmdbNetworksDetailed?.length || productionCompaniesDetailed?.length)
+  const detailedCandidates: NetworkCandidate[] = hasDetailed
+    ? [
+        ...(tmdbNetworksDetailed ?? []),
+        ...(productionCompaniesDetailed ?? []),
+        // Wikidata studios non hanno logo_path TMDB -> solo name
+        ...wikidataResult.studios.map((s) => ({ name: s, logoPath: null as string | null })),
+        ...tmdbStudios.map((s) => ({ name: s, logoPath: null })),
+        ...(isNetStudio ? [] : studioBadge ? [{ name: studioBadge, logoPath: null as string | null }] : []),
+        // Mapping salvato come fallback extra (se presente)
+        ...(mapping?.networkLogoName ? [{ name: mapping.networkLogoName!, logoPath: mapping.networkLogoPath ?? null }] : []),
+      ]
+    : []
+  const stringCandidates = [
     ...tmdbNetworks,
     ...productionCompanies,
     ...wikidataResult.studios,
     ...tmdbStudios,
     isNetStudio ? null : studioBadge,
   ].filter(Boolean) as string[]
-
-  const stringCandidates: string[] =
-    resolvedMode === "ott"
-      ? ottCandidates.map((c) => c.name).filter(Boolean) as string[]
-      : resolvedMode === "auto"
-        ? [...ottCandidates.map((c) => c.name), ...networkOnlyCandidateStrings].filter(Boolean) as string[]
-        : networkOnlyCandidateStrings
-
+  // Unifica: se abbiamo detailed, usiamo hybrid; altrimenti legacy string path
   const networkCandidatesHybrid: (NetworkCandidate | string)[] = hasDetailed ? detailedCandidates : stringCandidates
 
   const networkLogoResult = netLogoEnabled
     ? hasDetailed
       ? await renderFirstMatchingNetworkLogoBadgeHybrid(networkCandidatesHybrid as NetworkCandidate[], STD_W, topLight)
-      : stringCandidates.length > 0
-        ? await renderFirstMatchingNetworkLogoBadge(stringCandidates, STD_W, topLight)
-        : null
+      : await renderFirstMatchingNetworkLogoBadge(stringCandidates, STD_W, topLight)
     : null
 
   if (networkLogoResult && topBadge && topBadge.type === "extra") {

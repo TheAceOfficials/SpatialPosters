@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useMemo, useCallback } from "react"
-import type { TMDBImage, NetworkLogoMode } from "@/lib/types"
+import type { TMDBImage } from "@/lib/types"
 import { useDefaults } from "@/lib/useDefaults"
 import type { BadgeStyle, RankingBadgeStyle } from "@/lib/badge-styles"
 
@@ -38,8 +38,6 @@ export interface PosterEditorCtx {
   setCustomBadge: (v: string | null | ((prev: string | null) => string | null)) => void
   networkLogo: boolean
   setNetworkLogo: (v: boolean | ((prev: boolean) => boolean)) => void
-  networkLogoMode: NetworkLogoMode
-  setNetworkLogoMode: (v: NetworkLogoMode | ((prev: NetworkLogoMode) => NetworkLogoMode)) => void
   ribbonSide: "left" | "right"
   setRibbonSide: (v: "left" | "right" | ((prev: "left" | "right") => "left" | "right")) => void
   episodeMetadataSource: "tmdb" | "tvdb"
@@ -84,8 +82,6 @@ export interface PosterEditorCtx {
   setDefaultLogoFitEnabled: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultNetworkLogo: boolean
   setDefaultNetworkLogo: (v: boolean | ((prev: boolean) => boolean)) => void
-  defaultNetworkLogoMode: NetworkLogoMode
-  setDefaultNetworkLogoMode: (v: NetworkLogoMode | ((prev: NetworkLogoMode) => NetworkLogoMode)) => void
   defaultRibbonSide: "left" | "right"
   setDefaultRibbonSide: (v: "left" | "right" | ((prev: "left" | "right") => "left" | "right")) => void
   defaultRegion: string
@@ -186,7 +182,7 @@ export function PosterEditorProvider({
   const [customBadge, setCustomBadge] = useState<string | null>(null)
 
   const {
-    globalBadges, rankingBadges, networkLogo, networkLogoMode, ribbonSide,
+    globalBadges, rankingBadges, networkLogo, ribbonSide,
     badgeGenre, badgeYear, badgeRating, badgeQuality, ratingSources,
     gradientHeight, blurIntensity, blurFade, blurDarkness, blurEnabled,
     badgeStyle, rankingBadgeStyle,
@@ -194,7 +190,7 @@ export function PosterEditorProvider({
     defaultBlurEnabled, defaultBlurIntensity, defaultBlurFade, defaultBlurDarkness,
     defaultGradientHeight, defaultGlobalBadges, defaultRankingBadges,
     defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultBadgeQuality, defaultRatingSources,
-    defaultAutoRotateClean, defaultLogoFitEnabled, defaultNetworkLogo, defaultNetworkLogoMode, defaultRibbonSide,
+    defaultAutoRotateClean, defaultLogoFitEnabled, defaultNetworkLogo, defaultRibbonSide,
     episodeMetadataSource, defaultEpisodeMetadataSource,
     region, defaultRegion,
     loadDefaultsToState, update,
@@ -238,15 +234,8 @@ export function PosterEditorProvider({
   const setNetworkLogo = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       const next = typeof v === "function" ? v(networkLogo) : v
-      const nextMode: NetworkLogoMode = next ? (networkLogoMode === "off" ? "network" : networkLogoMode) : "off"
-      update({ networkLogo: next, defaultNetworkLogo: next, networkLogoMode: nextMode, defaultNetworkLogoMode: nextMode })
-    }, [networkLogo, networkLogoMode, update])
-  const setNetworkLogoMode = useCallback(
-    (v: NetworkLogoMode | ((prev: NetworkLogoMode) => NetworkLogoMode)) => {
-      const next = typeof v === "function" ? v(networkLogoMode) : v
-      const isEnabled = next !== "off"
-      update({ networkLogoMode: next, defaultNetworkLogoMode: next, networkLogo: isEnabled, defaultNetworkLogo: isEnabled })
-    }, [networkLogoMode, update])
+      update({ networkLogo: next, defaultNetworkLogo: next })
+    }, [networkLogo, update])
   const setRibbonSide = useCallback(
     (v: "left" | "right" | ((prev: "left" | "right") => "left" | "right")) => {
       const next = typeof v === "function" ? v(ribbonSide) : v
@@ -377,11 +366,6 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(defaultNetworkLogo) : v
       update({ defaultNetworkLogo: next, networkLogo: next })
     }, [defaultNetworkLogo, update])
-  const setDefaultNetworkLogoMode = useCallback(
-    (v: NetworkLogoMode | ((prev: NetworkLogoMode) => NetworkLogoMode)) => {
-      const next = typeof v === "function" ? v(defaultNetworkLogoMode) : v
-      update({ defaultNetworkLogoMode: next, networkLogoMode: next })
-    }, [defaultNetworkLogoMode, update])
   const setDefaultRibbonSide = useCallback(
     (v: "left" | "right" | ((prev: "left" | "right") => "left" | "right")) => {
       const next = typeof v === "function" ? v(defaultRibbonSide) : v
@@ -433,8 +417,6 @@ export function PosterEditorProvider({
       setCustomBadge,
       networkLogo,
       setNetworkLogo,
-      networkLogoMode,
-      setNetworkLogoMode,
       ribbonSide,
       setRibbonSide,
       episodeMetadataSource,
@@ -479,8 +461,6 @@ export function PosterEditorProvider({
       setDefaultLogoFitEnabled,
       defaultNetworkLogo,
       setDefaultNetworkLogo,
-      defaultNetworkLogoMode,
-      setDefaultNetworkLogoMode,
       defaultRibbonSide,
       setDefaultRibbonSide,
       defaultRegion,
@@ -548,7 +528,6 @@ export function PosterEditorProvider({
       rankingBadgeStyle, setRankingBadgeStyle,
       customBadge, setCustomBadge,
       networkLogo, setNetworkLogo,
-      networkLogoMode, setNetworkLogoMode,
       ribbonSide, setRibbonSide,
       episodeMetadataSource, setEpisodeMetadataSource,
       region, setRegion,
@@ -573,7 +552,6 @@ export function PosterEditorProvider({
       defaultAutoRotateClean, setDefaultAutoRotateClean,
       defaultLogoFitEnabled, setDefaultLogoFitEnabled,
       defaultNetworkLogo, setDefaultNetworkLogo,
-      defaultNetworkLogoMode, setDefaultNetworkLogoMode,
       defaultRibbonSide, setDefaultRibbonSide,
       loadDefaultsToState,
 

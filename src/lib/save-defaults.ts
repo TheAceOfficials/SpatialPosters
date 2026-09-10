@@ -28,12 +28,10 @@ export function saveDefaults(p: { selected: PictoriumCtx["selected"]; mappingsMa
     autoRotateClean: ed.defaultAutoRotateClean,
     defaultLogoFitEnabled: ed.defaultLogoFitEnabled,
     defaultNetworkLogo: ed.defaultNetworkLogo,
-    defaultNetworkLogoMode: ed.defaultNetworkLogoMode,
     defaultRibbonSide: ed.defaultRibbonSide,
     defaultEpisodeMetadataSource: ed.defaultEpisodeMetadataSource,
     region: ed.defaultRegion,
     networkLogo: ed.defaultNetworkLogo,
-    networkLogoMode: ed.networkLogoMode,
     ribbonSide: ed.defaultRibbonSide,
     episodeMetadataSource: ed.defaultEpisodeMetadataSource,
   }

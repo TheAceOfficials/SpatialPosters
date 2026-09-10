@@ -41,7 +41,6 @@ export const configTokenSchema = z.object({
   blurDarkness: z.number().finite(),
   gradientHeight: z.number().finite(),
   networkLogo: z.boolean(),
-  networkLogoMode: z.enum(["off", "network", "ott", "auto"]).optional(),
   autoRotateClean: z.boolean(),
   // Opzionale (finding 13): i token generati prima dell'aggiunta del campo
   // (best-fit) non devono fallire il safeParse — il render usa il default del

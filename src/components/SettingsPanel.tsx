@@ -429,30 +429,19 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 pt-0.5">
+          <div className="flex items-center justify-between">
             <span className="text-zinc-300 font-medium flex items-center gap-1.5">
               <Tv className="w-3.5 h-3.5 text-sky-400" />
-              {t("ui.networkLogoMode")}
+              {t("ui.networkLogo")}
             </span>
-            <div className="grid grid-cols-4 gap-1 w-full">
-              {(["off", "network", "ott", "auto"] as const).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => ed.setNetworkLogoMode(mode)}
-                  className={`w-full py-1 text-center rounded-lg text-[10.5px] font-semibold transition-all duration-150 ${
-                    ed.networkLogoMode === mode
-                      ? "bg-sky-500/20 border border-sky-500/40 text-sky-200 shadow-sm"
-                      : "bg-white/5 border border-transparent text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
-                  }`}
-                >
-                  {mode === "off" ? t("ui.networkLogoModeOff")
-                   : mode === "network" ? t("ui.networkLogoModeNetwork")
-                   : mode === "ott" ? t("ui.networkLogoModeOtt")
-                   : t("ui.networkLogoModeAuto")}
-                </button>
-              ))}
-            </div>
+            <Toggle
+              value={ed.defaultNetworkLogo}
+              onChange={(v) => {
+                ed.setDefaultNetworkLogo(v)
+                ed.setNetworkLogo(v)
+              }}
+              label={t("ui.networkLogo")}
+            />
           </div>
 
           <div className="flex items-center justify-between gap-3 pt-1">

@@ -57,7 +57,6 @@ export const mappingSchema = z.object({
   excludedPosters: z.array(z.string()).nullable().optional(),
   logoDisabled: z.boolean().nullable().optional(),
   networkLogo: z.boolean().nullable().optional(),
-  networkLogoMode: z.enum(["off", "network", "ott", "auto"]).nullable().optional(),
   ribbonSide: z.enum(["left", "right"]).nullable().optional(),
   networkLogoPath: z.string().nullable().optional(),
   networkLogoName: z.string().nullable().optional(),
