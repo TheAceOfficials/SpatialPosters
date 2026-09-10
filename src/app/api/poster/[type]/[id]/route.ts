@@ -771,12 +771,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
     if (mapping?.firstAirDate) firstAirDate = mapping.firstAirDate
 
     // Luminance + optional TV details fetch (parallel, independent)
+    const rawNetLogo = req.nextUrl.searchParams.get("netLogo")
+    const needsOtt = rawNetLogo === "ott" || rawNetLogo === "auto" || (!rawNetLogo && (mapping?.networkLogoMode === "ott" || mapping?.networkLogoMode === "auto"))
+    const needsDetails = tmdbNetworks.length === 0 && productionCompanies.length === 0 || needsOtt
+
     const [topLum] = await Promise.all([
       (async (): Promise<number | null> => {
         if (qTopLight === "1" || qTopLight === "0" || qTopLight === "true" || qTopLight === "false") return null
         return await topLuminance(posterBuf)
       })(),
-      (tmdbNetworks.length === 0 && productionCompanies.length === 0)
+      needsDetails
         ? (async () => {
             const apiKey = resolveRequestApiKey(req)
             const preferredLang = req.nextUrl.searchParams.get("lang") || mapping?.language || "it"
@@ -795,16 +799,21 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
             }
             if (!tvType) tvType = details.type || null
             if (!tvStatus) tvStatus = details.status || null
-            if (details.networks) {
-              tmdbNetworks = details.networks.map((n: TMDBCompany) => n.name)
-              tmdbNetworksDetailed = details.networks.map((n: TMDBCompany) => ({ name: n.name, logoPath: n.logo_path }))
-            }
-            if (details.production_companies) {
-              productionCompanies = details.production_companies.map((c: TMDBCompany) => c.name)
-              productionCompaniesDetailed = details.production_companies.map((c: TMDBCompany) => ({ name: c.name, logoPath: c.logo_path }))
+            
+            if (tmdbNetworks.length === 0 && productionCompanies.length === 0) {
+              if (details.networks) {
+                tmdbNetworks = details.networks.map((n: TMDBCompany) => n.name)
+                tmdbNetworksDetailed = details.networks.map((n: TMDBCompany) => ({ name: n.name, logoPath: n.logo_path }))
+              }
+              if (details.production_companies) {
+                productionCompanies = details.production_companies.map((c: TMDBCompany) => c.name)
+                productionCompaniesDetailed = details.production_companies.map((c: TMDBCompany) => ({ name: c.name, logoPath: c.logo_path }))
+              }
+              if (tmdbNetworks.length || productionCompanies.length) {
+                tmdbStudios = matchTMDBStudios([...tmdbNetworks, ...productionCompanies])
+              }
             }
             watchProvidersDetailed = extractOttWatchProviders(details, req.nextUrl.searchParams.get("region") || envWithFallback("REGION") || "US")
-            if (tmdbNetworks.length || productionCompanies.length) tmdbStudios = matchTMDBStudios([...tmdbNetworks, ...productionCompanies])
           })().catch((e: unknown) => { log.error("Details fetch failed", { error: e instanceof Error ? e.message : String(e) }) })
         : Promise.resolve(),
     ])
