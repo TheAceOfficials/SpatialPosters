@@ -1,31 +1,21 @@
----
-title: SpatialPosters
-emoji: 🖼️
-colorFrom: indigo
-colorTo: purple
-sdk: docker
-app_port: 8080
-pinned: false
----
+<div align="center">
 
-<p align="center">
-  <img src="public/pictorium.png" alt="SpatialPosters" width="380" />
-</p>
+  <h1>🖼️ SpatialPosters</h1>
+  <p><b>Next-Generation Dynamic Poster Studio & Stremio Addon Engine</b></p>
 
-<h1 align="center">SpatialPosters</h1>
-<h3 align="center">Next-Generation Dynamic Poster Studio & Stremio Addon Engine</h3>
+  <p>
+    Transform your media library with pristine textless posters, high-definition vector logos, multi-provider rating badges, 4K streaming quality indicators, award ribbons, and intelligent season ordering. All rendered on the fly in real-time with Sharp C++ and high-performance SVG composition.
+  </p>
 
-<p align="center">
-  Transform your media library with pristine textless posters, high-definition vector logos, multi-provider rating badges, 4K streaming quality indicators, award ribbons, and intelligent season ordering. All rendered on the fly in real-time with Sharp C++ and high-performance SVG composition.
-</p>
+  <p>
+    <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FTheAceOfficials%2FSpatialPosters"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
+    <a href="#-option-b-docker-compose"><img src="https://img.shields.io/badge/Docker-Supported-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" /></a>
+    <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js&logoColor=white" alt="Next.js 16" />
+    <img src="https://img.shields.io/badge/Node.js-%3E%3D20-green?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" />
+    <img src="https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square" alt="License AGPLv3" />
+  </p>
 
-<p align="center">
-  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FTheAceOfficials%2FSpatialPosters"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
-  <a href="#-docker--compose"><img src="https://img.shields.io/badge/Docker-Supported-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" /></a>
-  <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js&logoColor=white" alt="Next.js 16" />
-  <img src="https://img.shields.io/badge/Node.js-%3E%3D20-green?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square" alt="License AGPLv3" />
-</p>
+</div>
 
 ---
 
