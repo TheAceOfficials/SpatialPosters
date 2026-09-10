@@ -33,6 +33,7 @@ export default function EditView() {
   const mappingsMap = usePSelector((v) => v.mappingsMap)
   const mdblistAnimeList = usePSelector((v) => v.mdblistAnimeList)
   const metaInfo = usePSelector((v) => v.metaInfo)
+  const navigateToPoster = usePSelector((v) => v.navigateToPoster)
   const posterActivePath = usePSelector((v) => v.posterActivePath)
   const posters = usePSelector((v) => v.posters)
   const previewPoster = usePSelector((v) => v.previewPoster)
@@ -85,33 +86,17 @@ export default function EditView() {
 
   const searchBar = (
     <div className={selected ? "w-full max-w-lg relative z-[100] isolate" : "max-w-lg mx-auto relative z-[100] isolate mb-8"}>
-      <SearchBar tmdbKey={tmdbKey} value={query} onChange={setQuery} onSearch={(q) => { setQuery(q); router.push("search"); doSearch(q) }} large onFocus={() => setSearchFocused(true)} onBlur={() => { blurTimerRef.current = setTimeout(() => setSearchFocused(false), 200) }} />
-      {searchFocused && recentSearches.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border rounded-xl p-2 shadow-2xl shadow-black/50 z-50 animate-fade-scale-in">
-          <div className="flex items-center justify-between px-2 py-1.5 border-b border-white/[0.06] mb-1">
-            <p className="text-xs text-muted font-semibold">{t("ui.recentSearches")}</p>
-            <button
-              type="button"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={(e) => {
-                e.stopPropagation()
-                clearRecentSearches()
-              }}
-              className="text-[11px] text-zinc-400 hover:text-rose-400 font-medium flex items-center gap-1 transition-colors px-1.5 py-0.5 rounded hover:bg-rose-500/10 cursor-pointer"
-            >
-              <Trash2 className="w-3 h-3" />
-              <span>{t("ui.clearRecentSearches")}</span>
-            </button>
-          </div>
-          {recentSearches.map((s) => (
-            <button type="button" key={s} onMouseDown={(e) => e.preventDefault()} onClick={() => { setQuery(s); router.push("search"); doSearch(s); setSearchFocused(false) }} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-accent-orange/10 text-sm text-zinc-300 hover:text-accent transition-all duration-150 text-left">
-              <Clock className="w-4 h-4 text-zinc-500 shrink-0" />
-              <span className="flex-1 truncate">{s}</span>
-              <span onMouseDown={(e) => { e.preventDefault(); e.stopPropagation() }} onClick={(e) => { e.stopPropagation(); removeRecentSearch(s) }} aria-label={t("ui.remove")} className="text-danger hover:text-red-300 transition-all duration-150 text-sm px-2 shrink-0"><X className="w-3.5 h-3.5" /></span>
-            </button>
-          ))}
-        </div>
-      )}
+      <SearchBar
+        tmdbKey={tmdbKey}
+        value={query}
+        onChange={setQuery}
+        onSearch={(q) => { setQuery(q); router.push("search"); doSearch(q) }}
+        onSelectResult={(item) => navigateToPoster(item)}
+        recentSearches={recentSearches}
+        onClearRecentSearches={clearRecentSearches}
+        onRemoveRecentSearch={removeRecentSearch}
+        large
+      />
     </div>
   )
 
