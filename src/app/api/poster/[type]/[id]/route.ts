@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server"
 import sharp from "sharp"
 import { initSharp } from "@/lib/sharp-config"
-import { getImages, getDetails, getExternalIds, getKeywords, resolveRequestApiKey, type TMDBImage, type TMDBCompany } from "@/lib/tmdb"
+import { getImages, getDetails, getExternalIds, getKeywords, resolveRequestApiKey, extractOttWatchProviders, type TMDBImage, type TMDBCompany } from "@/lib/tmdb"
 import { getJWRankings } from "@/lib/justwatch"
 import { getById } from "@/lib/store"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
@@ -328,6 +328,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   let productionCompanies: string[] = []
   let tmdbNetworksDetailed: { name: string; logoPath: string | null }[] = []
   let productionCompaniesDetailed: { name: string; logoPath: string | null }[] = []
+  let watchProvidersDetailed: { name: string; logoPath: string | null }[] = []
   let imdbId: string | null = null
 
   const queryPoster = req.nextUrl.searchParams.get("poster")
@@ -454,6 +455,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       tmdbNetworksDetailed = (details.networks || []).map((n: TMDBCompany) => ({ name: n.name, logoPath: n.logo_path }))
       productionCompanies = (details.production_companies || []).map((c: TMDBCompany) => c.name)
       productionCompaniesDetailed = (details.production_companies || []).map((c: TMDBCompany) => ({ name: c.name, logoPath: c.logo_path }))
+      const reqRegion = req.nextUrl.searchParams.get("region") || envWithFallback("REGION") || "US"
+      watchProvidersDetailed = extractOttWatchProviders(details, reqRegion)
       tmdbStudios = matchTMDBStudios([...tmdbNetworks, ...productionCompanies])
       tvType = details.type || null
       tvStatus = details.status || null
@@ -800,6 +803,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
               productionCompanies = details.production_companies.map((c: TMDBCompany) => c.name)
               productionCompaniesDetailed = details.production_companies.map((c: TMDBCompany) => ({ name: c.name, logoPath: c.logo_path }))
             }
+            watchProvidersDetailed = extractOttWatchProviders(details, req.nextUrl.searchParams.get("region") || envWithFallback("REGION") || "US")
             if (tmdbNetworks.length || productionCompanies.length) tmdbStudios = matchTMDBStudios([...tmdbNetworks, ...productionCompanies])
           })().catch((e: unknown) => { log.error("Details fetch failed", { error: e instanceof Error ? e.message : String(e) }) })
         : Promise.resolve(),
@@ -963,11 +967,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       mediaType: mediaType as "movie" | "tv",
       finalRank, animeRankResult, rankingResult,
       mapping, tmdbNetworks, productionCompanies, tmdbStudios,
-      tmdbNetworksDetailed, productionCompaniesDetailed,
+      tmdbNetworksDetailed, productionCompaniesDetailed, watchProvidersDetailed,
       tvType, tvStatus, releaseDate, firstAirDate,
       lastAirDate, seasonCount, originCountries,
       wikidataResult, tmdbKeywords, locale, t,
-      qLabel, queryExtra, qNetLogo, networkLogo, sd,
+      qLabel, queryExtra, qNetLogo, networkLogo, networkLogoMode: pConfig.networkLogoMode, sd,
       accentOverride, imdbTop250,
       posterSrc: posterPath,
       logoSrc: logoPath,

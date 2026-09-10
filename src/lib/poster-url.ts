@@ -4,7 +4,7 @@ import { getPosterPublicBaseUrl } from "./poster-public-url"
 import { buildStremioPosterSearchParams } from "./stremio-poster-params"
 import { RENDER_VERSION } from "./render-version"
 import { TOP_LIGHT_LUMINANCE } from "./constants"
-import type { SearchResult, TMDBImage } from "./types"
+import type { SearchResult, TMDBImage, NetworkLogoMode } from "./types"
 import type { EnrichedAnimeItem } from "./validation"
 import type { BadgeStyle, RankingBadgeStyle } from "./badge-styles"
 
@@ -26,6 +26,7 @@ interface BadgeParams {
   blurDarkness: number
   blurEnabled: boolean
   networkLogo?: boolean
+  networkLogoMode?: NetworkLogoMode
   ribbonSide?: "left" | "right"
 }
 
@@ -85,6 +86,7 @@ export function buildUrlPattern(bp: BadgeParams & { tmdbKey: string; lang: strin
     blurDarkness: bp.blurDarkness,
     blurEnabled: bp.blurEnabled,
     networkLogo: bp.networkLogo,
+    networkLogoMode: bp.networkLogoMode,
     ribbonSide: bp.ribbonSide,
   })
   const str = params.toString()
@@ -137,7 +139,11 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams): string {
   params.push(`bs=${bp.badgeStyle}`)
   params.push(`rs=${bp.rankingBadgeStyle}`)
   if (!bp.blurEnabled) params.push("be=0")
-  params.push(`netLogo=${bp.networkLogo !== false ? "1" : "0"}`)
+  const mode = bp.networkLogoMode ?? (bp.networkLogo === false ? "off" : "network")
+  if (mode === "off") params.push("netLogo=0")
+  else if (mode === "ott") params.push("netLogo=ott")
+  else if (mode === "auto") params.push("netLogo=auto")
+  else params.push("netLogo=1")
   // Fix M2: side viene emesso SEMPRE (left|right) — prima soltanto "right";
   // senza il parametro il server risolve dal mapping/config salvati (di
   // default right in modalità Stremio) e la preview rendeva a destra anche

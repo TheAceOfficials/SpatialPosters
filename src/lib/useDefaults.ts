@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { BadgeStyle, RankingBadgeStyle } from "./badge-styles"
+import type { NetworkLogoMode } from "./types"
 import { normalizeRegion } from "./regions"
 import { t } from "./i18n"
 
@@ -26,6 +27,7 @@ export interface DefaultsState {
   defaultAutoRotateClean: boolean
   defaultLogoFitEnabled: boolean
   defaultNetworkLogo: boolean
+  defaultNetworkLogoMode: NetworkLogoMode
   defaultRibbonSide: RibbonSide
   defaultEpisodeMetadataSource: "tmdb" | "tvdb"
   /** Regione classifiche (codice JW canonico, es. "IT"). */
@@ -40,6 +42,7 @@ export interface DefaultsState {
   badgeQuality: boolean
   ratingSources: string[]
   networkLogo: boolean
+  networkLogoMode: NetworkLogoMode
   ribbonSide: RibbonSide
   episodeMetadataSource: "tmdb" | "tvdb"
   gradientHeight: number
@@ -69,6 +72,7 @@ const DEFAULTS: DefaultsState = {
   defaultAutoRotateClean: false,
   defaultLogoFitEnabled: true,
   defaultNetworkLogo: true,
+  defaultNetworkLogoMode: "network",
   defaultRibbonSide: "left",
   defaultEpisodeMetadataSource: "tmdb",
   defaultRegion: "IT",
@@ -81,6 +85,7 @@ const DEFAULTS: DefaultsState = {
   badgeQuality: true,
   ratingSources: ["imdb", "tmdb"],
   networkLogo: true,
+  networkLogoMode: "network",
   ribbonSide: "left",
   episodeMetadataSource: "tmdb",
   gradientHeight: 30,
@@ -125,6 +130,8 @@ interface StoredDefaults {
   defaultAutoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
   defaultNetworkLogo?: boolean
+  defaultNetworkLogoMode?: NetworkLogoMode
+  networkLogoMode?: NetworkLogoMode
   defaultRibbonSide?: RibbonSide
   ribbonSide?: RibbonSide
   defaultEpisodeMetadataSource?: "tmdb" | "tvdb"
@@ -152,6 +159,9 @@ function safeSetItem(key: string, val: string) {
 
 function buildFromStored(d: StoredDefaults | null): DefaultsState {
   if (!d) return { ...DEFAULTS }
+  const defaultMode: NetworkLogoMode = d.defaultNetworkLogoMode ?? d.networkLogoMode ?? (d.defaultNetworkLogo === false || d.networkLogo === false ? "off" : "network")
+  const mode: NetworkLogoMode = d.networkLogoMode ?? d.defaultNetworkLogoMode ?? (d.networkLogo === false || d.defaultNetworkLogo === false ? "off" : "network")
+
   return {
     defaultBadgeStyle: d.defaultBadgeStyle ?? d.badgeStyle ?? "shadow",
     defaultRankingBadgeStyle: d.defaultRankingBadgeStyle ?? d.rankingBadgeStyle ?? "default",
@@ -169,7 +179,8 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     defaultRatingSources: d.defaultRatingSources ?? d.ratingSources ?? ["imdb", "tmdb"],
     defaultAutoRotateClean: d.defaultAutoRotateClean ?? d.autoRotateClean ?? false,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled ?? true,
-    defaultNetworkLogo: d.defaultNetworkLogo ?? d.networkLogo ?? true,
+    defaultNetworkLogo: d.defaultNetworkLogo ?? (mode !== "off"),
+    defaultNetworkLogoMode: defaultMode,
     defaultRibbonSide: d.defaultRibbonSide ?? d.ribbonSide ?? "left",
     defaultEpisodeMetadataSource: d.defaultEpisodeMetadataSource ?? d.episodeMetadataSource ?? "tmdb",
     defaultRegion: normalizeRegion(d.defaultRegion ?? d.region),
@@ -181,7 +192,8 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     badgeRating: d.badgeRating ?? d.defaultBadgeRating ?? true,
     badgeQuality: d.badgeQuality ?? d.defaultBadgeQuality ?? true,
     ratingSources: d.ratingSources ?? d.defaultRatingSources ?? ["imdb", "tmdb"],
-    networkLogo: d.networkLogo ?? d.defaultNetworkLogo ?? true,
+    networkLogo: mode !== "off",
+    networkLogoMode: mode,
     ribbonSide: d.ribbonSide ?? d.defaultRibbonSide ?? "left",
     episodeMetadataSource: d.episodeMetadataSource ?? d.defaultEpisodeMetadataSource ?? "tmdb",
     gradientHeight: d.gradientHeight ?? d.defaultGradientHeight ?? 30,

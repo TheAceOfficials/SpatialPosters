@@ -1,5 +1,7 @@
 import type { BadgeStyle, RankingBadgeStyle } from "./badge-styles"
 
+export type NetworkLogoMode = "off" | "network" | "ott" | "auto"
+
 export interface SearchResult {
   id: number
   media_type: "movie" | "tv"
@@ -98,6 +100,7 @@ export interface Mapping {
   cleanPosterUpdatedAt?: string | null
   autoRotateClean?: boolean | null
   networkLogo?: boolean | null
+  networkLogoMode?: NetworkLogoMode | null
   ribbonSide?: "left" | "right" | null
   /** Logo	path TMDB del network/produttore (es. /8AcaW...png) — usato come fallback quando non c'è SVG locale. */
   networkLogoPath?: string | null

@@ -1,5 +1,6 @@
 import { POSTER_URL_VERSION } from "@/lib/render-version"
 import type { BadgeStyle, RankingBadgeStyle } from "@/lib/badge-styles"
+import type { NetworkLogoMode } from "@/lib/types"
 
 export interface StremioPosterParamsInput {
   readonly apiKey?: string
@@ -22,6 +23,7 @@ export interface StremioPosterParamsInput {
   readonly blurDarkness?: number
   readonly blurEnabled?: boolean
   readonly networkLogo?: boolean
+  readonly networkLogoMode?: NetworkLogoMode
   readonly ribbonSide?: "left" | "right"
   /** Badge extra testuale per-titolo (dal mapping): emesso come `extra`. */
   readonly customBadge?: string | null
@@ -41,6 +43,7 @@ const DEFAULT_STREMIO_POSTER_PARAMS = {
   blurDarkness: 40,
   blurEnabled: true,
   networkLogo: true,
+  networkLogoMode: "network" as NetworkLogoMode,
 } as const
 
 export function buildStremioPosterSearchParams(input: StremioPosterParamsInput): URLSearchParams {
@@ -48,7 +51,7 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   const globalBadges = input.globalBadges ?? DEFAULT_STREMIO_POSTER_PARAMS.globalBadges
   const rankingBadges = input.rankingBadges ?? DEFAULT_STREMIO_POSTER_PARAMS.rankingBadges
   const blurEnabled = input.blurEnabled ?? DEFAULT_STREMIO_POSTER_PARAMS.blurEnabled
-  const networkLogo = input.networkLogo ?? DEFAULT_STREMIO_POSTER_PARAMS.networkLogo
+  const mode = input.networkLogoMode ?? (input.networkLogo === false ? "off" : input.networkLogo === true ? "network" : DEFAULT_STREMIO_POSTER_PARAMS.networkLogoMode)
 
   if (input.config) params.set("config", input.config)
   if (input.user) params.set("u", input.user)
@@ -68,7 +71,10 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   if (input.badgeQuality === false) params.set("bq", "0")
   if (input.ratingSources && input.ratingSources.length > 0) params.set("rsrc", input.ratingSources.join(","))
   if (input.customBadge) params.set("extra", input.customBadge)
-  if (!networkLogo) params.set("netLogo", "0")
+  if (mode === "off") params.set("netLogo", "0")
+  else if (mode === "ott") params.set("netLogo", "ott")
+  else if (mode === "auto") params.set("netLogo", "auto")
+  else if (mode === "network" && input.networkLogo === false) params.set("netLogo", "0")
   if (input.ribbonSide === "right") params.set("side", "right")
   else if (input.ribbonSide === "left") params.set("side", "left")
   params.set("lang", input.lang || "it")

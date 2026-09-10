@@ -518,16 +518,43 @@ export interface TMDBDetails {
   external_ids?: {
     imdb_id?: string | null
   }
+  "watch/providers"?: {
+    results?: Record<string, {
+      link?: string
+      flatrate?: { provider_id: number; provider_name: string; logo_path: string | null; display_priority?: number }[]
+      ads?: { provider_id: number; provider_name: string; logo_path: string | null; display_priority?: number }[]
+      free?: { provider_id: number; provider_name: string; logo_path: string | null; display_priority?: number }[]
+    }>
+  }
 }
 
 export async function getDetails(mediaType: "movie" | "tv", id: number, language = "it-IT", apiKey?: string, signal?: AbortSignal): Promise<TMDBDetails> {
-  const data = await tmdbFetch(`/${mediaType}/${id}?language=${language}`, apiKey, signal)
+  const data = await tmdbFetch(`/${mediaType}/${id}?language=${language}&append_to_response=watch/providers`, apiKey, signal)
   return parseTmdb<TMDBDetails>("details", tmdbDetailsSchema, data)
 }
 
 export async function getFullDetails(mediaType: "movie" | "tv", id: number, language = "it-IT", apiKey?: string, signal?: AbortSignal): Promise<TMDBDetails> {
-  const data = await tmdbFetch(`/${mediaType}/${id}?language=${language}&append_to_response=credits,videos,external_ids`, apiKey, signal)
+  const data = await tmdbFetch(`/${mediaType}/${id}?language=${language}&append_to_response=credits,videos,external_ids,watch/providers`, apiKey, signal)
   return parseTmdb<TMDBDetails>("full_details", tmdbDetailsSchema, data)
+}
+
+export interface OTTWatchProvider {
+  name: string
+  logoPath: string | null
+}
+
+export function extractOttWatchProviders(details: TMDBDetails, targetRegion = "US"): OTTWatchProvider[] {
+  const providersObj = details["watch/providers"]?.results
+  if (!providersObj) return []
+  const regKey = targetRegion.toUpperCase()
+  const regData = providersObj[regKey] || providersObj["US"] || providersObj["IT"] || Object.values(providersObj)[0]
+  if (!regData) return []
+
+  const list = regData.flatrate || regData.ads || regData.free || []
+  return list.map((p) => ({
+    name: p.provider_name,
+    logoPath: p.logo_path ?? null,
+  }))
 }
 
 export interface TMDBEpisode {
