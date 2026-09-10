@@ -16,7 +16,7 @@ interface PodiumSlot {
 }
 
 interface FallbackSlot extends Omit<PodiumSlot, "url"> {
-  url: (apiKeyParam: string) => string
+  url: (apiKeyParam: string, lang?: string) => string
 }
 
 /** M21: `<img>` che recupera il poster con la chiave in header x-api-key
