@@ -80,8 +80,9 @@ export function HomeStatusStrip() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>{t("ui.allSystemsOperational") || "All Systems Operational"}</span>
           </div>
-          <div className="text-[11px] text-zinc-500">
+          <div className="text-[11px] text-zinc-500 space-y-1">
             <span>SpatialPosters v{APP_VERSION}</span>
+            <span className="block text-[10px] opacity-75">{t("ui.statusMeta")}</span>
           </div>
         </div>
 

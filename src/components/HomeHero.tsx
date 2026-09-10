@@ -159,7 +159,8 @@ export function HomeHero() {
           Dynamic Posters for Stremio, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500">Reimagined.</span>
         </h1>
         <p className="home-hero-sub mt-4 text-sm sm:text-base text-zinc-400 leading-relaxed animate-fade-up" style={{ animationDelay: "140ms" }}>
-          Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing. Created by{" "}
+          {t("ui.heroSubtitle") || "Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing."}{" "}
+          Created by{" "}
           <a
             href="https://instagram.com/TheAceOfficials"
             target="_blank"
