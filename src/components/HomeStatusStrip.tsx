@@ -3,7 +3,7 @@
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePSelector } from "@/lib/context"
 import { APP_VERSION } from "@/generated/app-version"
-import { HeartPulse, Layers, Sparkles } from "lucide-react"
+import { HeartPulse, Layers, Sparkles, Instagram } from "lucide-react"
 
 export function HomeStatusStrip() {
   const { t } = useT()
@@ -25,7 +25,16 @@ export function HomeStatusStrip() {
             />
           </div>
           <p className="text-xs md:text-sm text-zinc-400 max-w-sm leading-relaxed">
-            Elevating your Stremio media experience with high-definition dynamic posters, vector logos, rating badges, and real-time custom catalog integration.
+            Elevating your Stremio media experience with high-definition dynamic posters, vector logos, rating badges, and real-time custom catalog integration. Created by{" "}
+            <a
+              href="https://instagram.com/TheAceOfficials"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-zinc-200 hover:text-white underline decoration-accent-orange/50 hover:decoration-accent-orange transition-colors cursor-pointer"
+            >
+              @TheAceOfficials
+            </a>
+            .
           </p>
         </div>
 
@@ -70,8 +79,28 @@ export function HomeStatusStrip() {
 
       {/* Bottom Hairline & Copyright */}
       <div className="max-w-6xl mx-auto pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-500">
-        <p>© {new Date().getFullYear()} SpatialPosters. Open-source media enhancement project for Stremio.</p>
+        <p>
+          © {new Date().getFullYear()} SpatialPosters. Created by{" "}
+          <a
+            href="https://instagram.com/TheAceOfficials"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-zinc-300 hover:text-white transition-colors underline decoration-accent-orange/50 cursor-pointer"
+          >
+            @TheAceOfficials
+          </a>
+          . Open-source media enhancement project for Stremio.
+        </p>
         <div className="flex items-center gap-4">
+          <a
+            href="https://instagram.com/TheAceOfficials"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-zinc-300 transition-colors flex items-center gap-1 text-zinc-400"
+          >
+            <Instagram className="w-3.5 h-3.5 text-accent-orange" />
+            <span>Instagram</span>
+          </a>
           <a
             href="https://github.com/TheAceOfficials/SpatialPosters"
             target="_blank"

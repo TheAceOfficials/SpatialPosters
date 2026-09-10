@@ -5,7 +5,7 @@ import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { toSearchResult, type SearchResult } from "@/lib/types"
 import { useSecurePosterUrl } from "@/lib/useSecurePosterUrl"
-import { Layers, Sparkles, Globe } from "lucide-react"
+import { Layers, Sparkles, Globe, Instagram } from "lucide-react"
 
 interface PodiumSlot {
   key: string
@@ -149,7 +149,17 @@ export function HomeHero() {
           Dynamic Posters for Stremio, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500">Reimagined.</span>
         </h1>
         <p className="home-hero-sub mt-4 text-sm sm:text-base text-zinc-400 leading-relaxed animate-fade-up" style={{ animationDelay: "140ms" }}>
-          Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing.
+          Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing. Created by{" "}
+          <a
+            href="https://instagram.com/TheAceOfficials"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 font-semibold text-zinc-200 hover:text-white underline decoration-accent-orange/50 hover:decoration-accent-orange transition-all cursor-pointer"
+          >
+            <Instagram className="w-3.5 h-3.5 text-accent-orange inline" />
+            <span>@TheAceOfficials</span>
+          </a>
+          .
         </p>
         <div className="stat-pills mt-5 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: "210ms" }}>
           <span className="stat-pill px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-1.5 backdrop-blur-md">
