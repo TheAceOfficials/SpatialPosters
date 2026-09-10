@@ -135,15 +135,15 @@ Ideal if you don't own a home server. Setup takes under 2 minutes, 100% free wit
    * Go to **Settings → API** ([themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)) and generate an API key (*Developer*).
    * Copy the **API Key (v3 auth)** (a 32-character string, *not* the long read access token).
 2. **Fork the Repository**:
-   * Go to [**github.com/Eful97/Pictorium**](https://github.com/Eful97/Pictorium).
+   * Go to [**github.com/TheAceOfficials/SpatialPosters**](https://github.com/TheAceOfficials/SpatialPosters).
    * Click **Fork** in the top-right corner and then **Create fork** (you can keep it public or private).
 3. **Import Project to Vercel**:
    * Go to [vercel.com](https://vercel.com) and log in with your GitHub account.
    * Click **Add New…** → **Project** at the top.
-   * Find your newly forked **Pictorium** repository and click **Import**.
+   * Find your newly forked **SpatialPosters** repository and click **Import**.
    * Under **Environment Variables**, add:
-     * `PICTORIUM_TMDB_KEY` = your 32-character TMDB API key.
-     * `PICTORIUM_PUBLIC_INSTANCE` = `1`
+     * `SPATIALPOSTERS_TMDB_KEY` = your 32-character TMDB API key.
+     * `SPATIALPOSTERS_PUBLIC_INSTANCE` = `1`
    * Click **Deploy**.
 4. **Link Upstash Redis (free database to save your custom posters)**:
    * Once the deploy finishes, open your project dashboard in Vercel.
@@ -154,7 +154,7 @@ Ideal if you don't own a home server. Setup takes under 2 minutes, 100% free wit
    * Click the **three dots (⋯)** on the latest deployment and select **Redeploy**.
    * *(Note: Vercel only binds the new Upstash database variables on subsequent deployments)*.
 6. **Initial Setup Wizard & Stremio Installation**:
-   * Open your deployed URL (e.g. `https://your-pictorium.vercel.app`).
+   * Open your deployed URL (e.g. `https://your-spatialposters.vercel.app`).
    * Complete the guided setup (Language, Region, and configure your **Security PIN**).
    * Click **Install on Stremio**! *(You can confirm everything is running smoothly by checking `/api/health`, which should return `"storage": "kv"` and `"status": "ok"`)*.
 
@@ -162,7 +162,7 @@ Ideal if you don't own a home server. Setup takes under 2 minutes, 100% free wit
 
 #### 🔄 How to Receive Updates (1-Click with Sync Fork)
 Since you forked the repository in step 2, updating your instance whenever new versions are released takes just one click without reconfiguring anything:
-1. Open your fork page on GitHub (`https://github.com/<your-username>/Pictorium`).
+1. Open your fork page on GitHub (`https://github.com/<your-username>/SpatialPosters`).
 2. Click **Sync fork** (located below the repository title) → **Update branch**.
 3. Vercel automatically detects the new commit and **builds and deploys the update in 60 seconds**, preserving your Upstash database, environment keys, PIN security, and saved posters!
 
@@ -241,16 +241,16 @@ npm install --ignore-scripts && npm run build && npm start
 ### Essential Variables
 
 > [!NOTE]
-> All variables support the `PICTORIUM_*` prefix (recommended, e.g. `PICTORIUM_TMDB_KEY`) with full backwards compatibility for legacy `POSTERIUM_*` variables.
+> All variables support the `SPATIALPOSTERS_*` prefix (recommended, e.g. `SPATIALPOSTERS_TMDB_KEY`) with full backwards compatibility for legacy `PICTORIUM_*` and `POSTERIUM_*` variables.
 
 | Variable | Default | Description |
 |---|:---:|---|
-| `PICTORIUM_PUBLIC_INSTANCE` | `0` | Set to `1` on Vercel/HF to allow saving posters and using the editor without an admin token. |
-| `PICTORIUM_TMDB_KEY` | *(optional)* | Instance TMDB API key to generate posters and catalogs without requiring users to input one. |
-| `PICTORIUM_TVDB_API_KEY` | *(optional)* | TheTVDB API key for alternative season ordering and episode descriptions. |
-| `PICTORIUM_MDBLIST_KEY` | *(optional)* | MDBList API key for custom lists and anime catalogs. |
-| `PICTORIUM_REGION` | `IT` | Default country for JustWatch/FlixPatrol charts and title language (`IT`, `US`, `GB`, `FR`, `DE`, `ES`, `MX`, `IL`, `JP`, `KR`, `BR`, `IN`, `CA`, `AU`). Overridable per-request via `?region=` and per-user via config token or saved defaults. |
-| `PICTORIUM_DATA_DIR` | `./data` | Local disk persistence folder for database and saved files. |
+| `SPATIALPOSTERS_PUBLIC_INSTANCE` | `0` | Set to `1` on Vercel/HF to allow saving posters and using the editor without an admin token. |
+| `SPATIALPOSTERS_TMDB_KEY` | *(optional)* | Instance TMDB API key to generate posters and catalogs without requiring users to input one. |
+| `SPATIALPOSTERS_TVDB_API_KEY` | *(optional)* | TheTVDB API key for alternative season ordering and episode descriptions. |
+| `SPATIALPOSTERS_MDBLIST_KEY` | *(optional)* | MDBList API key for custom lists and anime catalogs. |
+| `SPATIALPOSTERS_REGION` | `US` | Default country for JustWatch/FlixPatrol charts and title language (`US`, `IT`, `GB`, `FR`, `DE`, `ES`, `MX`, `IL`, `JP`, `KR`, `BR`, `IN`, `CA`, `AU`). Overridable per-request via `?region=` and per-user via config token or saved defaults. |
+| `SPATIALPOSTERS_DATA_DIR` | `./data` | Local disk persistence folder for database and saved files. |
 | `KV_REST_API_URL` / `TOKEN` | *(empty)* | Upstash Redis connection parameters for serverless deployment on Vercel. |
 
 ---
@@ -261,22 +261,22 @@ npm install --ignore-scripts && npm run build && npm start
 ### Default Visual Styles for Catalogs
 | Variable | Values | Effect |
 |---|---|---|
-| `PICTORIUM_BADGE_STYLE` | `shadow`, `pill`, `bar`, `colored`, `bordo`, `vetro` | Style for genre/rating badges. |
-| `PICTORIUM_RANKING_BADGE_STYLE` | `default`, `bar`, `colored`, `pill`, `netflix` | Style for ranking badges. |
-| `PICTORIUM_RIBBON_SIDE` | `left` / `right` | Position of the vertical Netflix Top 10 ribbon. |
-| `PICTORIUM_BLUR_ENABLED` | `1` / `0` | Enable or disable the blurred background. |
-| `PICTORIUM_BADGE_QUALITY` | `1` / `0` | Show or hide the streaming quality badge (4K/1080p). |
-| `PICTORIUM_NETWORK_LOGO` | `1` / `0` | Show or hide the network logo (Netflix, Prime, ecc.). |
-| `PICTORIUM_GRADIENT_HEIGHT` | `5` – `100` | Percentage height of the bottom black gradient. |
+| `SPATIALPOSTERS_BADGE_STYLE` | `shadow`, `pill`, `bar`, `colored`, `bordo`, `vetro` | Style for genre/rating badges. |
+| `SPATIALPOSTERS_RANKING_BADGE_STYLE` | `default`, `bar`, `colored`, `pill`, `netflix` | Style for ranking badges. |
+| `SPATIALPOSTERS_RIBBON_SIDE` | `left` / `right` | Position of the vertical Netflix Top 10 ribbon. |
+| `SPATIALPOSTERS_BLUR_ENABLED` | `1` / `0` | Enable or disable the blurred background. |
+| `SPATIALPOSTERS_BADGE_QUALITY` | `1` / `0` | Show or hide the streaming quality badge (4K/1080p). |
+| `SPATIALPOSTERS_NETWORK_LOGO` | `1` / `0` | Show or hide the network logo (Netflix, Prime, etc.). |
+| `SPATIALPOSTERS_GRADIENT_HEIGHT` | `5` – `100` | Percentage height of the bottom black gradient. |
 
 ### Concurrency & Memory Protection
 | Variable | Default | Description |
 |---|:---:|---|
-| `PICTORIUM_MAX_CONCURRENT_RENDERS` | `4` | Maximum parallel Sharp rendering operations (OOM protection). |
-| `PICTORIUM_RENDER_TIMEOUT_MS` | `30000` | Timeout massimo per completare un render (ms). |
-| `PICTORIUM_CACHE_MAX_MB` | `150` | Memoria RAM massima riservata alla cache delle immagini. |
-| `PICTORIUM_SELF_WARMUP` | `1` | Preriscaldamento automatico dei cataloghi all'avvio. |
-| `PICTORIUM_LOG_LEVEL` | `info` | Log level (`debug`, `info`, `warn`, `error`). |
+| `SPATIALPOSTERS_MAX_CONCURRENT_RENDERS` | `4` | Maximum parallel Sharp rendering operations (OOM protection). |
+| `SPATIALPOSTERS_RENDER_TIMEOUT_MS` | `30000` | Timeout maximum to complete a render (ms). |
+| `SPATIALPOSTERS_CACHE_MAX_MB` | `150` | Maximum RAM memory reserved for image cache. |
+| `SPATIALPOSTERS_SELF_WARMUP` | `1` | Automatic catalog pre-warming on start. |
+| `SPATIALPOSTERS_LOG_LEVEL` | `info` | Log level (`debug`, `info`, `warn`, `error`). |
 </details>
 
 ---
