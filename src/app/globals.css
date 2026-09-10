@@ -1044,8 +1044,72 @@ select:focus-visible {
 }
 
 /* ═══════════════════════════════════════════════
-   Simkl-style List Card — fino a 10 poster sovrapposti, hover slide
+   3D Stacked Deck & Fan-out Animation for Catalogs
    ═══════════════════════════════════════════════ */
+.catalog-deck-stack {
+  position: relative;
+  perspective: 1000px;
+}
+
+.catalog-deck-item {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 108px;
+  height: 162px;
+  border-radius: 12px;
+  box-shadow:
+    -6px 10px 24px rgba(0, 0, 0, 0.65),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
+  will-change: transform;
+}
+
+@media (min-width: 640px) {
+  .catalog-deck-item {
+    width: 116px;
+    height: 174px;
+  }
+}
+
+/* Collapsed Stack Default Positions */
+.catalog-deck-stack > .catalog-deck-item:nth-child(1) { transform: translateX(0px) rotate(0deg) scale(1); z-index: 10; opacity: 1; }
+.catalog-deck-stack > .catalog-deck-item:nth-child(2) { transform: translateX(28px) rotate(4deg) scale(0.96); z-index: 9; opacity: 0.95; }
+.catalog-deck-stack > .catalog-deck-item:nth-child(3) { transform: translateX(56px) rotate(-3deg) scale(0.92); z-index: 8; opacity: 0.90; }
+.catalog-deck-stack > .catalog-deck-item:nth-child(4) { transform: translateX(84px) rotate(3deg) scale(0.88); z-index: 7; opacity: 0.82; }
+.catalog-deck-stack > .catalog-deck-item:nth-child(5) { transform: translateX(112px) rotate(-2deg) scale(0.84); z-index: 6; opacity: 0.74; }
+.catalog-deck-stack > .catalog-deck-item:nth-child(6) { transform: translateX(140px) rotate(2deg) scale(0.80); z-index: 5; opacity: 0.62; }
+.catalog-deck-stack > .catalog-deck-item:nth-child(7) { transform: translateX(168px) rotate(-1deg) scale(0.76); z-index: 4; opacity: 0.48; }
+
+/* Fanned-out positions on Group Hover */
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(1) { transform: translateX(0px) rotate(0deg) scale(1); opacity: 1; z-index: 1; }
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(2) { transform: translateX(45px) rotate(0deg) scale(1); opacity: 1; z-index: 2; }
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(3) { transform: translateX(90px) rotate(0deg) scale(1); opacity: 1; z-index: 3; }
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(4) { transform: translateX(135px) rotate(0deg) scale(1); opacity: 1; z-index: 4; }
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(5) { transform: translateX(180px) rotate(0deg) scale(1); opacity: 1; z-index: 5; }
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(6) { transform: translateX(225px) rotate(0deg) scale(1); opacity: 1; z-index: 6; }
+.group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(7) { transform: translateX(270px) rotate(0deg) scale(1); opacity: 1; z-index: 7; }
+
+@media (min-width: 640px) {
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(1) { transform: translateX(0px) rotate(0deg) scale(1); opacity: 1; z-index: 1; }
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(2) { transform: translateX(54px) rotate(0deg) scale(1); opacity: 1; z-index: 2; }
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(3) { transform: translateX(108px) rotate(0deg) scale(1); opacity: 1; z-index: 3; }
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(4) { transform: translateX(162px) rotate(0deg) scale(1); opacity: 1; z-index: 4; }
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(5) { transform: translateX(216px) rotate(0deg) scale(1); opacity: 1; z-index: 5; }
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(6) { transform: translateX(270px) rotate(0deg) scale(1); opacity: 1; z-index: 6; }
+  .group:hover .catalog-deck-stack > .catalog-deck-item:nth-child(7) { transform: translateX(324px) rotate(0deg) scale(1); opacity: 1; z-index: 7; }
+}
+
+/* Hovering a specific poster within the deck */
+.catalog-deck-item:hover {
+  transform: translateY(-12px) scale(1.08) !important;
+  z-index: 40 !important;
+  box-shadow:
+    -10px 20px 40px rgba(0, 0, 0, 0.85),
+    0 0 25px rgba(255, 255, 255, 0.25) !important;
+  filter: brightness(1.1);
+}
+
 .simkl-list-card {
   --glass-tint: rgba(20, 22, 28, 0.92);
   --glass-border: rgba(255, 255, 255, 0.07);
