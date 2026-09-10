@@ -5,7 +5,17 @@ import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { toSearchResult, type SearchResult } from "@/lib/types"
 import { useSecurePosterUrl } from "@/lib/useSecurePosterUrl"
-import { Layers, Sparkles, Globe, Instagram } from "lucide-react"
+import { Layers, Sparkles, Globe } from "lucide-react"
+
+function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  )
+}
 
 interface PodiumSlot {
   key: string
@@ -156,7 +166,7 @@ export function HomeHero() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 font-semibold text-zinc-200 hover:text-white underline decoration-accent-orange/50 hover:decoration-accent-orange transition-all cursor-pointer"
           >
-            <Instagram className="w-3.5 h-3.5 text-accent-orange inline" />
+            <InstagramIcon className="w-3.5 h-3.5 text-accent-orange inline" />
             <span>@TheAceOfficials</span>
           </a>
           .
