@@ -248,7 +248,7 @@ describe("Custom Catalogs & MDBList Parsing", () => {
       expect(jwGenre).toBeDefined()
       expect(jwGenre.isRequired).toBe(false)
       expect(jwGenre.options).toContain("All")
-      expect(jwGenre.options).toContain("Azione")
+      expect(jwGenre.options).toContain("Action")
     })
   })
 })
