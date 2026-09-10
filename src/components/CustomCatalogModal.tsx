@@ -222,9 +222,9 @@ export function CustomCatalogModal({ isOpen, onClose }: CustomCatalogModalProps)
             <button
               type="button"
               onClick={() => setType("movie")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
                 type === "movie"
-                  ? "bg-blue-500/20 border-blue-500/40 text-blue-300"
+                  ? "bg-zinc-100 text-zinc-950 border-white/40 shadow-sm"
                   : "bg-surface2/60 border-white/5 text-muted hover:text-white"
               }`}
             >
@@ -233,9 +233,9 @@ export function CustomCatalogModal({ isOpen, onClose }: CustomCatalogModalProps)
             <button
               type="button"
               onClick={() => setType("series")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
                 type === "series"
-                  ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
+                  ? "bg-zinc-100 text-zinc-950 border-white/40 shadow-sm"
                   : "bg-surface2/60 border-white/5 text-muted hover:text-white"
               }`}
             >
@@ -244,9 +244,9 @@ export function CustomCatalogModal({ isOpen, onClose }: CustomCatalogModalProps)
             <button
               type="button"
               onClick={() => setType("mixed")}
-              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
                 type === "mixed"
-                  ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
+                  ? "bg-zinc-100 text-zinc-950 border-white/40 shadow-sm"
                   : "bg-surface2/60 border-white/5 text-muted hover:text-white"
               }`}
             >
@@ -285,9 +285,9 @@ export function CustomCatalogModal({ isOpen, onClose }: CustomCatalogModalProps)
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-accent-orange text-white text-[11px] font-semibold hover:bg-accent-orange/90 active:scale-95 transition-all shadow-md disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-[11px] font-bold active:scale-95 transition-all shadow-md border border-white/40 disabled:opacity-50 cursor-pointer"
           >
-            {loading ? t("ui.saving") : <><Plus className="w-3 h-3" /> {t("ui.addCatalogBtn")}</>}
+            {loading ? t("ui.saving") : <><Plus className="w-3 h-3 text-zinc-950" /> <span className="text-zinc-950 font-bold">{t("ui.addCatalogBtn")}</span></>}
           </button>
         </div>
       </form>

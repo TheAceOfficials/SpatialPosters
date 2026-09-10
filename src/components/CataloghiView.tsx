@@ -403,10 +403,10 @@ export function CataloghiView() {
                   e.stopPropagation()
                   setIsAddCustomOpen((prev) => !prev)
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-orange text-white text-xs font-semibold hover:bg-accent-orange/90 active:scale-95 transition-all shadow-md"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold active:scale-95 transition-all shadow-md border border-white/40 cursor-pointer"
               >
-                <ListPlus className="w-4 h-4" />
-                <span>{t("ui.addCatalog")}</span>
+                <ListPlus className="w-4 h-4 text-zinc-950" />
+                <span className="text-zinc-950 font-bold">{t("ui.addCatalog")}</span>
               </button>
               <CustomCatalogModal isOpen={isAddCustomOpen} onClose={() => setIsAddCustomOpen(false)} />
             </div>

@@ -170,13 +170,13 @@ export function InstallModal({ isOpen, onClose, manifestUrl: propManifestUrl, po
                 onClick={() => setHubMode("all")}
                 className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-center transition-all ${
                   hubMode === "all"
-                    ? "bg-accent-orange text-white shadow-md font-semibold"
+                    ? "bg-zinc-100 text-zinc-950 shadow-md font-bold border border-white/40"
                     : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5 mb-0.5" />
-                <span className="text-[11px] font-medium leading-tight">{t("ui.modeAll")}</span>
-                <span className="text-[9px] opacity-80 leading-tight">{t("ui.modeAllSub")}</span>
+                <span className="text-[11px] font-bold leading-tight">{t("ui.modeAll")}</span>
+                <span className="text-[9px] opacity-80 leading-tight font-medium">{t("ui.modeAllSub")}</span>
               </button>
 
               <button
@@ -184,13 +184,13 @@ export function InstallModal({ isOpen, onClose, manifestUrl: propManifestUrl, po
                 onClick={() => setHubMode("catalogs")}
                 className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-center transition-all ${
                   hubMode === "catalogs"
-                    ? "bg-accent-orange text-white shadow-md font-semibold"
+                    ? "bg-zinc-100 text-zinc-950 shadow-md font-bold border border-white/40"
                     : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <Film className="w-3.5 h-3.5 mb-0.5" />
-                <span className="text-[11px] font-medium leading-tight">{t("ui.modeCatalogs")}</span>
-                <span className="text-[9px] opacity-80 leading-tight">{t("ui.modeCatalogsSub")}</span>
+                <span className="text-[11px] font-bold leading-tight">{t("ui.modeCatalogs")}</span>
+                <span className="text-[9px] opacity-80 leading-tight font-medium">{t("ui.modeCatalogsSub")}</span>
               </button>
 
               <button
@@ -198,13 +198,13 @@ export function InstallModal({ isOpen, onClose, manifestUrl: propManifestUrl, po
                 onClick={() => setHubMode("search")}
                 className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-center transition-all ${
                   hubMode === "search"
-                    ? "bg-accent-orange text-white shadow-md font-semibold"
+                    ? "bg-zinc-100 text-zinc-950 shadow-md font-bold border border-white/40"
                     : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <Search className="w-3.5 h-3.5 mb-0.5" />
-                <span className="text-[11px] font-medium leading-tight">{t("ui.modeSearch")}</span>
-                <span className="text-[9px] opacity-80 leading-tight">{t("ui.modeSearchSub")}</span>
+                <span className="text-[11px] font-bold leading-tight">{t("ui.modeSearch")}</span>
+                <span className="text-[9px] opacity-80 leading-tight font-medium">{t("ui.modeSearchSub")}</span>
               </button>
             </div>
           </div>
@@ -212,7 +212,7 @@ export function InstallModal({ isOpen, onClose, manifestUrl: propManifestUrl, po
           {/* QR Code Card */}
           <div className="flex flex-col items-center justify-center p-3.5 bg-white/5 rounded-xl border border-white/5 space-y-2">
             <div className="flex items-center gap-1.5 text-zinc-300 text-[11px] font-medium">
-              <Tv className="w-3.5 h-3.5 text-accent-orange" />
+              <Tv className="w-3.5 h-3.5 text-zinc-300" />
               <span>{t("ui.scanQr")}</span>
             </div>
             {qrSvg ? (
@@ -239,10 +239,10 @@ export function InstallModal({ isOpen, onClose, manifestUrl: propManifestUrl, po
             {/* Direct App Install */}
             <a
               href={stremioDeepLink}
-              className="w-full py-2.5 px-4 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-accent-orange/20 active:scale-[0.98]"
+              className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-white/10 border border-white/40 active:scale-[0.98] cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>{t("ui.installInApp")}</span>
+              <Download className="w-3.5 h-3.5 text-zinc-950" />
+              <span className="text-zinc-950 font-bold">{t("ui.installInApp")}</span>
             </a>
 
             {/* Copy Manifest URL */}

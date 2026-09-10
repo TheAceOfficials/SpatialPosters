@@ -1056,17 +1056,17 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
       <button
         type="button"
         onClick={handleSaveDefaults}
-        className="flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-accent-orange hover:bg-accent-orange/90 text-white shadow-lg shadow-accent-orange/25 active:scale-95 transition-all cursor-pointer"
+        className="flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-zinc-100 hover:bg-white text-zinc-950 shadow-lg shadow-white/10 active:scale-95 transition-all border border-white/40 cursor-pointer"
       >
         {saved ? (
           <>
-            <Check className="w-3.5 h-3.5" />
-            <span>{t("ui.saved")}</span>
+            <Check className="w-3.5 h-3.5 text-zinc-950" />
+            <span className="text-zinc-950 font-bold">{t("ui.saved")}</span>
           </>
         ) : (
           <>
-            <Save className="w-3.5 h-3.5" />
-            <span>{t("ui.saveDefaults")}</span>
+            <Save className="w-3.5 h-3.5 text-zinc-950" />
+            <span className="text-zinc-950 font-bold">{t("ui.saveDefaults")}</span>
           </>
         )}
       </button>

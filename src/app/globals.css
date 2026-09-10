@@ -958,13 +958,21 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-xl bg-accent-orange text-white font-semibold text-sm shadow-lg shadow-accent-orange/15 hover:bg-accent-orange/90 active:scale-95 transition-all duration-200 disabled:opacity-40 disabled:shadow-none disabled:active:scale-100;
-  /* Arancione scurito (85%) per raggiungere AA 4.5:1 col testo bianco */
-  background-color: color-mix(in srgb, var(--color-accent-orange) 85%, black);
-  box-shadow: 0 12px 28px rgb(var(--accent-rgb) / 0.12), inset 0 1px 0 rgba(255,255,255,0.18);
+  @apply inline-flex items-center justify-center rounded-xl bg-zinc-100 text-zinc-950 font-bold text-sm shadow-lg shadow-white/10 hover:bg-white active:scale-95 transition-all duration-200 disabled:opacity-40 disabled:shadow-none disabled:active:scale-100;
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+  box-shadow: 0 12px 28px rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.40);
   position: relative;
   overflow: hidden;
   isolation: isolate;
+}
+
+.btn-primary *,
+.btn-primary svg,
+.top-action-button-primary *,
+.top-action-button-primary svg {
+  color: #09090b !important;
+  stroke: #09090b !important;
 }
 
 /* Shine sweep sui CTA primari: lucentezza che attraversa il bottone all'hover
