@@ -12,7 +12,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://image.tmdb.org https://artworks.thetvdb.com",
+  "img-src 'self' data: blob: https://image.tmdb.org https://artworks.thetvdb.com https://images.fanart.tv",
   "font-src 'self'",
   `connect-src 'self'${isDev ? " ws://127.0.0.1:* ws://localhost:*" : ""}`,
   "object-src 'none'",
@@ -46,6 +46,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "image.tmdb.org" },
+      { protocol: "https", hostname: "artworks.thetvdb.com" },
+      { protocol: "https", hostname: "images.fanart.tv" },
     ],
   },
   async headers() {

@@ -92,6 +92,8 @@ export const MOCK_CTX: PictoriumCtx = {
   setMdblistApiKey: stubFn,
   tvdbApiKey: "",
   setTvdbApiKey: stubFn,
+  fanartApiKey: "",
+  setFanartApiKey: stubFn,
   exportData: asyncStubFn,
   importData: stubFn,
   copyUrl: asyncStubFn,

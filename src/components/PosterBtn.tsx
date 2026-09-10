@@ -26,6 +26,11 @@ export const PosterBtn = React.memo(function PosterBtn({ img, active, onSelect, 
       <div className="aspect-[2/3] relative overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element -- TMDB dynamic URL */}
         <img src={posterUrl(img.file_path, "w154")} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        {img.source && img.source !== "tmdb" && (
+          <span className="absolute top-1 left-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-black/75 text-amber-300 backdrop-blur-sm border border-amber-500/30 z-10">
+            {img.source}
+          </span>
+        )}
         {active && (
           <>
             <div className="absolute inset-0 bg-accent-orange/10" />

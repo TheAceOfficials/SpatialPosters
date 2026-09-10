@@ -55,6 +55,8 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
   const selected = usePSelector((v) => v.selected)
   const mappingsMap = usePSelector((v) => v.mappingsMap)
   const setShowLangPicker = usePSelector((v) => v.setShowLangPicker)
+  const fanartApiKey = usePSelector((v) => v.fanartApiKey)
+  const setFanartApiKey = usePSelector((v) => v.setFanartApiKey)
   const { t } = useT()
   const ed = usePosterEditor()
 
@@ -713,6 +715,24 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
           </div>
         </div>
         <p className="text-[10px] text-muted leading-tight">{t("ui.episodeMetadataSourceHint")}</p>
+      </div>
+
+      {/* FanArt.tv API Key */}
+      <div className="bg-surface/50 border border-surface2/60 rounded-xl p-3.5 space-y-2.5 shadow-sm">
+        <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
+          <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+          FanArt.tv API Key
+        </span>
+        <div className="pt-0.5">
+          <input
+            type="password"
+            value={fanartApiKey}
+            onChange={(e) => setFanartApiKey(e.target.value)}
+            placeholder="FanArt.tv Client API Key"
+            className="w-full text-xs py-1.5 px-3 rounded-lg bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 font-mono"
+          />
+        </div>
+        <p className="text-[10px] text-muted leading-tight">Optional FanArt.tv API key for textless posters & transparent HD logos.</p>
       </div>
 
       {/* Automazioni & Aspetto */}

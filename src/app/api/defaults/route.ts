@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
       tmdbKey: envWithFallback("TMDB_KEY") || process.env.TMDB_API_KEY || "",
       mdblistApiKey: envWithFallback("MDBLIST_KEY") || process.env.MDBLIST_API_KEY || "",
       tvdbApiKey: envWithFallback("TVDB_API_KEY") || process.env.TVDB_API_KEY || "",
+      fanartApiKey: envWithFallback("FANART_KEY") || process.env.FANART_API_KEY || "",
     }
     return Response.json({ ...d, serverKeys })
   }
