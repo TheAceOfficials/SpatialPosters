@@ -37,24 +37,24 @@ const FALLBACK_PODIUM: FallbackSlot[] = [
     className: "p-frame p-frame-side p-frame-left",
     alt: "Dark",
     item: toSearchResult({ id: 44217, media_type: "tv", title: "Dark", name: "Dark" }),
-    url: (k: string) =>
-      `/api/poster/tv/44217?genreName=Thriller&voteAverage=8.0&rs=netflix&rank=4&label=Serie%20tv&ranking=&tl=0&gradHeight=25&blur=30&bf=50&bd=40&logoFit=0${k}`,
+    url: (k: string, lang: string = "en") =>
+      `/api/poster/tv/44217?genreName=Thriller&voteAverage=8.0&rs=netflix&rank=4&label=TV%20Series&ranking=&tl=0&gradHeight=25&blur=30&bf=50&bd=40&logoFit=0&lang=${lang}${k}`,
   },
   {
     key: "shawshank",
     className: "p-frame p-frame-main",
     alt: "The Shawshank Redemption",
     item: toSearchResult({ id: 278, media_type: "movie", title: "The Shawshank Redemption", name: "The Shawshank Redemption" }),
-    url: (k: string) =>
-      `/api/poster/movie/278?genreName=Dramma&voteAverage=9.3&bs=vetro&gradHeight=25&blur=30&bf=50&bd=40&tl=0&logoFit=0${k}`,
+    url: (k: string, lang: string = "en") =>
+      `/api/poster/movie/278?genreName=Drama&voteAverage=9.3&bs=vetro&gradHeight=25&blur=30&bf=50&bd=40&tl=0&logoFit=0&lang=${lang}${k}`,
   },
   {
     key: "inception",
     className: "p-frame p-frame-side p-frame-right",
     alt: "Inception",
     item: toSearchResult({ id: 27205, media_type: "movie", title: "Inception", name: "Inception" }),
-    url: (k: string) =>
-      `/api/poster/movie/27205?genreName=Thriller&voteAverage=8.8&bs=bar&tl=0&ac=%23f39c12&gradHeight=30&blur=35&bf=50&bd=45&logoFit=0${k}`,
+    url: (k: string, lang: string = "en") =>
+      `/api/poster/movie/27205?genreName=Thriller&voteAverage=8.8&bs=bar&tl=0&ac=%23f39c12&gradHeight=30&blur=35&bf=50&bd=45&logoFit=0&lang=${lang}${k}`,
   },
 ]
 
@@ -78,7 +78,7 @@ export function HomeHero() {
   const trending = usePSelector((v) => v.trending)
   const titleOf = usePSelector((v) => v.titleOf)
   const navigateToPoster = usePSelector((v) => v.navigateToPoster)
-  const { t } = useT()
+  const { t, lang } = useT()
   const podiumRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const leftRef = useRef<HTMLDivElement>(null)
@@ -93,7 +93,7 @@ export function HomeHero() {
     const tv = trending.filter((i) => i.media_type === "tv").sort((a, b) => a.rank - b.rank)
     if (movies.length < 2 || tv.length < 1) {
       const key = tmdbKey ? `&api_key=${encodeURIComponent(tmdbKey)}` : ""
-      return FALLBACK_PODIUM.map((p) => ({ ...p, url: p.url(key) }))
+      return FALLBACK_PODIUM.map((p) => ({ ...p, url: p.url(key, lang || "en") }))
     }
     const [m1, m2] = shuffle(movies)
     const [s1] = shuffle(tv)
@@ -104,9 +104,9 @@ export function HomeHero() {
       className: ["p-frame p-frame-side p-frame-left", "p-frame p-frame-main", "p-frame p-frame-side p-frame-right"][i],
       alt: titleOf(item),
       item,
-      url: `/api/poster/${item.media_type}/${item.id}?ranking=&rank=${item.rank}&rs=${SLOT_RANK_STYLES[i]}&tl=0&gradHeight=25&blur=30&bf=50&bd=40&logoFit=0${key}`,
+      url: `/api/poster/${item.media_type}/${item.id}?ranking=&rank=${item.rank}&rs=${SLOT_RANK_STYLES[i]}&tl=0&gradHeight=25&blur=30&bf=50&bd=40&logoFit=0&lang=${lang || "en"}${key}`,
     }))
-  }, [trending, tmdbKey, titleOf])
+  }, [trending, tmdbKey, titleOf, lang])
 
   // Parallasse attivo solo su dispositivi con hover (desktop); calcolato una
   // volta per non ri-eseguire matchMedia a ogni mousemove.
