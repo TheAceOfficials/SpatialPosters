@@ -550,8 +550,31 @@ export function extractOttWatchProviders(details: TMDBDetails, targetRegion = "U
   const regData = providersObj[regKey] || providersObj["US"] || providersObj["IT"] || Object.values(providersObj)[0]
   if (!regData) return []
 
-  const list = regData.flatrate || regData.ads || regData.free || []
-  return list.map((p) => ({
+  const allProviders = new Map<number, { provider_id: number; provider_name: string; logo_path: string | null; display_priority?: number }>()
+  if (regData.flatrate) regData.flatrate.forEach((p) => allProviders.set(p.provider_id, p))
+  if (regData.ads) regData.ads.forEach((p) => allProviders.set(p.provider_id, p))
+  if (regData.free) regData.free.forEach((p) => allProviders.set(p.provider_id, p))
+
+  const list = Array.from(allProviders.values())
+  
+  // Prioritize major global pure-OTTs over network-branded OTTs (like AMC+ or MGM+)
+  const majorOtts = ["netflix", "amazon prime video", "disney plus", "disney+", "apple", "max", "hbo max", "hulu", "paramount+", "paramount plus", "crunchyroll"]
+  
+  const sortedList = list.sort((a, b) => {
+    const aName = a.provider_name.toLowerCase()
+    const bName = b.provider_name.toLowerCase()
+    const aIsMajor = majorOtts.some(m => aName.includes(m))
+    const bIsMajor = majorOtts.some(m => bName.includes(m))
+    
+    if (aIsMajor && !bIsMajor) return -1
+    if (!aIsMajor && bIsMajor) return 1
+    
+    const aPrio = a.display_priority ?? 999
+    const bPrio = b.display_priority ?? 999
+    return aPrio - bPrio
+  })
+
+  return sortedList.map((p) => ({
     name: p.provider_name,
     logoPath: p.logo_path ?? null,
   }))
