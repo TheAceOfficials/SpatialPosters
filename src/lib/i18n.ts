@@ -12,7 +12,7 @@ export type Lang = keyof typeof dicts
 
 const dicts: Record<string, Record<string, string>> = { en, it, fr, de, es, ja, ko, pt, he }
 
-let _currentLang: string = "it"
+let _currentLang: string = "en"
 
 export const BADGE_KEY_PREFIX = "__"
 

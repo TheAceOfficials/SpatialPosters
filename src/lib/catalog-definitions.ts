@@ -12,26 +12,26 @@ export type PictoriumCatalogDefinition = {
 }
 
 export const PICTORIUM_CATALOGS = [
-  { id: "pictorium-jw-movies", name: "🇮🇹 Top 20 Italia — Film", type: "movie" },
-  { id: "pictorium-jw-series", name: "🇮🇹 Top 20 Italia — Serie TV", type: "series" },
-  { id: "pictorium-netflix-movies", name: "🔴 Netflix — Film", type: "movie" },
-  { id: "pictorium-netflix-series", name: "🔴 Netflix — Serie TV", type: "series" },
-  { id: "pictorium-prime-movies", name: "📦 Prime Video — Film", type: "movie" },
-  { id: "pictorium-prime-series", name: "📦 Prime Video — Serie TV", type: "series" },
-  { id: "pictorium-disney-movies", name: "🏰 Disney+ — Film", type: "movie" },
-  { id: "pictorium-disney-series", name: "🏰 Disney+ — Serie TV", type: "series" },
-  { id: "pictorium-now-movies", name: "☁️ Sky Go / NOW — Film", type: "movie" },
-  { id: "pictorium-now-series", name: "☁️ Sky Go / NOW — Serie TV", type: "series" },
-  { id: "pictorium-apple-movies", name: "🍎 Apple TV+ — Film", type: "movie" },
-  { id: "pictorium-apple-series", name: "🍎 Apple TV+ — Serie TV", type: "series" },
-  { id: "pictorium-hbo-movies", name: "🟣 HBO Max — Film", type: "movie" },
-  { id: "pictorium-hbo-series", name: "🟣 HBO Max — Serie TV", type: "series" },
-  { id: "pictorium-paramount-movies", name: "🏔️ Paramount+ — Film", type: "movie" },
-  { id: "pictorium-paramount-series", name: "🏔️ Paramount+ — Serie TV", type: "series" },
-  { id: "pictorium-crunchyroll-series", name: "🍥 Crunchyroll — Anime & Serie", type: "series" },
-  { id: "pictorium-crunchyroll-movies", name: "🍥 Crunchyroll — Film Anime", type: "movie" },
-  { id: "pictorium-anime-movies", name: "⛩️ Top 20 Film Anime", type: "movie" },
-  { id: "pictorium-anime", name: "⛩️ Top 20 Serie Anime", type: "series" },
+  { id: "pictorium-jw-movies", name: "🔥 Top 20 — Movies", type: "movie" },
+  { id: "pictorium-jw-series", name: "🔥 Top 20 — TV Shows", type: "series" },
+  { id: "pictorium-netflix-movies", name: "🔴 Netflix — Movies", type: "movie" },
+  { id: "pictorium-netflix-series", name: "🔴 Netflix — TV Shows", type: "series" },
+  { id: "pictorium-prime-movies", name: "📦 Prime Video — Movies", type: "movie" },
+  { id: "pictorium-prime-series", name: "📦 Prime Video — TV Shows", type: "series" },
+  { id: "pictorium-disney-movies", name: "🏰 Disney+ — Movies", type: "movie" },
+  { id: "pictorium-disney-series", name: "🏰 Disney+ — TV Shows", type: "series" },
+  { id: "pictorium-now-movies", name: "☁️ Sky Go / NOW — Movies", type: "movie" },
+  { id: "pictorium-now-series", name: "☁️ Sky Go / NOW — TV Shows", type: "series" },
+  { id: "pictorium-apple-movies", name: "🍎 Apple TV+ — Movies", type: "movie" },
+  { id: "pictorium-apple-series", name: "🍎 Apple TV+ — TV Shows", type: "series" },
+  { id: "pictorium-hbo-movies", name: "🟣 HBO Max — Movies", type: "movie" },
+  { id: "pictorium-hbo-series", name: "🟣 HBO Max — TV Shows", type: "series" },
+  { id: "pictorium-paramount-movies", name: "🏔️ Paramount+ — Movies", type: "movie" },
+  { id: "pictorium-paramount-series", name: "🏔️ Paramount+ — TV Shows", type: "series" },
+  { id: "pictorium-crunchyroll-series", name: "🍥 Crunchyroll — Anime & Shows", type: "series" },
+  { id: "pictorium-crunchyroll-movies", name: "🍥 Crunchyroll — Anime Movies", type: "movie" },
+  { id: "pictorium-anime-movies", name: "⛩️ Top 20 Anime Movies", type: "movie" },
+  { id: "pictorium-anime", name: "⛩️ Top 20 Anime Series", type: "series" },
 ] as const satisfies readonly PictoriumCatalogDefinition[]
 
 export type StremioCatalogExtra = {
@@ -48,13 +48,13 @@ export type PictoriumManifestCatalog = {
 }
 
 export const PICTORIUM_SEARCH_CATALOGS = [
-  { id: "pictorium-search-movies", name: "🔍 Pictorium — Cerca Film", type: "movie" },
-  { id: "pictorium-search-series", name: "🔍 Pictorium — Cerca Serie TV", type: "series" },
+  { id: "pictorium-search-movies", name: "🔍 SpatialPosters — Search Movies", type: "movie" },
+  { id: "pictorium-search-series", name: "🔍 SpatialPosters — Search TV Shows", type: "series" },
 ] as const satisfies readonly PictoriumCatalogDefinition[]
 
 export const PICTORIUM_PEOPLE_SEARCH_CATALOGS = [
-  { id: "pictorium-search-people-movies", name: "🔍 Pictorium — Cerca per Persona (Film)", type: "movie" },
-  { id: "pictorium-search-people-series", name: "🔍 Pictorium — Cerca per Persona (Serie TV)", type: "series" },
+  { id: "pictorium-search-people-movies", name: "🔍 SpatialPosters — Search by Person (Movies)", type: "movie" },
+  { id: "pictorium-search-people-series", name: "🔍 SpatialPosters — Search by Person (TV Shows)", type: "series" },
 ] as const satisfies readonly PictoriumCatalogDefinition[]
 
 export const WARMUP_CATALOG_IDS = [

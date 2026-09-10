@@ -7,7 +7,7 @@
  * Questo modulo è l'unica sorgente di verità per il mapping.
  */
 
-export const DEFAULT_REGION = "IT" as const
+export const DEFAULT_REGION = "US" as const
 
 export interface RegionDef {
   /** Codice JustWatch / ISO (usato anche come chiave canonica). */

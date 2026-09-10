@@ -1,5 +1,5 @@
 ---
-title: Pictorium
+title: SpatialPosters
 emoji: 🖼️
 colorFrom: indigo
 colorTo: purple
@@ -9,7 +9,7 @@ pinned: false
 ---
 
 <p align="center">
-  <img src="public/pictorium.png" alt="Pictorium" width="380" />
+  <img src="public/pictorium.png" alt="SpatialPosters" width="380" />
 </p>
 
 <h3 align="center">Dynamic Movie & TV Poster Generator for Stremio & Media Centers</h3>

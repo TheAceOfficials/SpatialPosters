@@ -14,17 +14,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://pictorium.app"),
-  title: "Pictorium — Generatore di poster per Stremio",
-  description: "Generatore dinamico di poster cinematografici per Stremio: locandine pulite, loghi vettoriali, rating e badge trend composti in tempo reale.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://spatialposters.app"),
+  title: "SpatialPosters — Dynamic Poster Generator for Stremio",
+  description: "Dynamic movie & TV show poster generator for Stremio: clean posters, vector logos, rating badges, and trend badges rendered in real time.",
   manifest: "/site.webmanifest",
   icons: {
     icon: "/App.png",
     apple: "/App.png",
   },
   openGraph: {
-    title: "Pictorium",
-    description: "Generatore di poster cinematografici per Stremio",
+    title: "SpatialPosters",
+    description: "Dynamic poster generator for Stremio",
     images: ["/pictorium.png"],
     type: "website",
   },
@@ -41,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
         <link rel="preconnect" href="https://image.tmdb.org" />
         <link rel="preconnect" href="https://api.themoviedb.org" />

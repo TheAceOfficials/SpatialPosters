@@ -9,22 +9,20 @@ import { getServerDefaults } from "@/lib/server-defaults"
 import { getRegionDef, normalizeRegion, parseRegion, type RegionDef } from "@/lib/regions"
 
 const MOVIE_GENRES = [
-  "Tutti", "Azione", "Avventura", "Animazione", "Commedia", "Crime",
-  "Documentario", "Dramma", "Famiglia", "Fantascienza", "Fantasy",
-  "Guerra", "Horror", "Mistero", "Musica", "Romance", "Storia",
-  "Thriller", "Western",
+  "All", "Action", "Adventure", "Animation", "Comedy", "Crime",
+  "Documentary", "Drama", "Family", "Fantasy", "History", "Horror",
+  "Music", "Mystery", "Romance", "Sci-Fi", "Thriller", "War", "Western",
 ]
 
 const SERIES_GENRES = [
-  "Tutti", "Action & Adventure", "Animazione", "Commedia", "Crime",
-  "Documentario", "Dramma", "Family", "Kids", "Mistero", "News",
+  "All", "Action & Adventure", "Animation", "Comedy", "Crime",
+  "Documentary", "Drama", "Family", "Kids", "Mystery", "News",
   "Reality", "Sci-Fi & Fantasy", "Soap", "Talk", "War & Politics", "Western",
 ]
 
 const ANIME_GENRES = [
-  "Tutti", "Animazione", "Azione", "Action & Adventure", "Avventura",
-  "Commedia", "Dramma", "Fantascienza", "Sci-Fi & Fantasy", "Fantasy",
-  "Mistero", "Romance", "Thriller",
+  "All", "Action", "Action & Adventure", "Adventure", "Animation",
+  "Comedy", "Drama", "Fantasy", "Mystery", "Romance", "Sci-Fi", "Sci-Fi & Fantasy", "Thriller",
 ]
 
 function getCatalogGenreOptions(type: "movie" | "series", catalogId: string): string[] {
@@ -32,13 +30,13 @@ function getCatalogGenreOptions(type: "movie" | "series", catalogId: string): st
   return type === "movie" ? MOVIE_GENRES : SERIES_GENRES
 }
 
-/** Nome dei cataloghi Top 20 / Ultime Uscite JustWatch nella lingua/regione attiva (bandiera dinamica). */
+/** Name of Top 20 / New Releases JustWatch catalogs in active language/region. */
 function regionJwName(id: string, type: "movie" | "series", region: RegionDef): string | null {
   if (id.startsWith("pictorium-jw-new-")) {
-    return `${region.flag} Ultime Uscite ${region.label} — ${type === "movie" ? "Film" : "Serie TV"}`
+    return `${region.flag} New Releases ${region.label} — ${type === "movie" ? "Movies" : "TV Shows"}`
   }
   if (!id.startsWith("pictorium-jw-")) return null
-  return `${region.flag} Top 20 ${region.label} — ${type === "movie" ? "Film" : "Serie TV"}`
+  return `${region.flag} Top 20 ${region.label} — ${type === "movie" ? "Movies" : "TV Shows"}`
 }
 
 function safeSuffix(value: string | null | undefined): string | null {
@@ -159,13 +157,13 @@ export async function buildManifestResponse(req: NextRequest, user?: string | nu
   const searchCatalogs = [
     {
       id: "pictorium-search-movies",
-      name: "🔍 Pictorium — Cerca Film",
+      name: "🔍 SpatialPosters — Search Movies",
       type: "movie" as const,
       extra: [{ name: "search", isRequired: true }, { name: "skip", isRequired: false }],
     },
     {
       id: "pictorium-search-series",
-      name: "🔍 Pictorium — Cerca Serie TV",
+      name: "🔍 SpatialPosters — Search TV Shows",
       type: "series" as const,
       extra: [{ name: "search", isRequired: true }, { name: "skip", isRequired: false }],
     },
@@ -200,18 +198,18 @@ export async function buildManifestResponse(req: NextRequest, user?: string | nu
 
   const TYPES = ["movie", "series", "anime.movie", "anime.series", "anime", "Trakt", "collection"]
 
-  let manifestName = safeConfig ? `Pictorium (${safeConfig})` : "Pictorium"
+  let manifestName = safeConfig ? `SpatialPosters (${safeConfig})` : "SpatialPosters"
   if (hubMode === "search") {
-    manifestName += " (Ricerca)"
+    manifestName += " (Search)"
   } else if (hubMode === "catalogs") {
-    manifestName += " (Cataloghi)"
+    manifestName += " (Catalogs)"
   }
 
   return Response.json({
     id: addonId,
     version: APP_VERSION,
     name: manifestName,
-    description: "Custom poster manager for Stremio — loghi, badge trend, premi e rating",
+    description: "Custom poster manager for Stremio — logos, trend badges, ratings & awards",
     resources: [
       "catalog",
       "poster",
