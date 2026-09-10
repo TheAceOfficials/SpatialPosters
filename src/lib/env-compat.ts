@@ -13,19 +13,23 @@
 const warnedLegacy = new Set<string>()
 
 /**
- * Legge `PICTORIUM_<suffix>`, con fallback a `POSTERIUM_<suffix>` (deprecated).
- * Ritorna `undefined` se nessuna delle due è impostata.
+ * Reads `SPATIALPOSTERS_<suffix>`, with fallback to `PICTORIUM_<suffix>` and `POSTERIUM_<suffix>`.
+ * Returns `undefined` if none are set.
  */
 export function envWithFallback(suffix: string): string | undefined {
-  const canonical = process.env[`PICTORIUM_${suffix}`]
-  if (canonical !== undefined) return canonical
-  const legacyName = `POSTERIUM_${suffix}`
-  const legacy = process.env[legacyName]
-  if (legacy !== undefined && !warnedLegacy.has(suffix)) {
+  const primary = process.env[`SPATIALPOSTERS_${suffix}`]
+  if (primary !== undefined) return primary
+
+  const legacyPictorium = process.env[`PICTORIUM_${suffix}`]
+  if (legacyPictorium !== undefined) return legacyPictorium
+
+  const legacyPosteriumName = `POSTERIUM_${suffix}`
+  const legacyPosterium = process.env[legacyPosteriumName]
+  if (legacyPosterium !== undefined && !warnedLegacy.has(suffix)) {
     warnedLegacy.add(suffix)
-    console.warn(`[pictorium] ${legacyName} is deprecated, use PICTORIUM_${suffix}`)
+    console.warn(`[spatialposters] ${legacyPosteriumName} is deprecated, use SPATIALPOSTERS_${suffix}`)
   }
-  return legacy
+  return legacyPosterium
 }
 
 /** Reset dello stato warn-once (solo test). */
