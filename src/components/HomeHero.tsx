@@ -139,35 +139,39 @@ export function HomeHero() {
   }
 
   return (
-    <section className="home-hero animate-fade-scale-in-hero">
-      <div className="home-hero-copy">
-        <span className="hero-kicker mb-3 animate-fade-up" style={{ animationDelay: "0ms" }}>
-          <span className="dot" aria-hidden="true" />
-          {t("ui.heroKicker")}
+    <section className="home-hero animate-fade-scale-in-hero relative overflow-hidden py-6 md:py-10">
+      <div className="home-hero-copy max-w-xl">
+        <span className="hero-kicker mb-3 animate-fade-up inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-zinc-200 border border-white/15 backdrop-blur-md" style={{ animationDelay: "0ms" }}>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+          {t("ui.heroKicker") || "Next-Gen Media Artwork Engine"}
         </span>
-        <h1 className="home-hero-title animate-fade-up" style={{ animationDelay: "70ms" }}>
-          {t("ui.heroTitleLead")}
-          <span className="accent-word">{t("ui.heroTitleAccent")}</span>
-          {t("ui.heroTitleTail")}
+        <h1 className="home-hero-title text-3xl sm:text-4xl md:text-5xl font-black text-zinc-100 tracking-tight leading-tight animate-fade-up" style={{ animationDelay: "70ms" }}>
+          Dynamic Posters for Stremio, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500">Reimagined.</span>
         </h1>
-        <p className="home-hero-sub mt-3 animate-fade-up" style={{ animationDelay: "140ms" }}>{t("ui.heroSubtitle")}</p>
-        <div className="stat-pills mt-4 animate-fade-up" style={{ animationDelay: "210ms" }}>
-          <span className="stat-pill">
-            <Layers className="w-3.5 h-3.5" />
-            {t("ui.heroPillLogos")}
+        <p className="home-hero-sub mt-4 text-sm sm:text-base text-zinc-400 leading-relaxed animate-fade-up" style={{ animationDelay: "140ms" }}>
+          Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing.
+        </p>
+        <div className="stat-pills mt-5 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: "210ms" }}>
+          <span className="stat-pill px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-1.5 backdrop-blur-md">
+            <Layers className="w-3.5 h-3.5 text-zinc-200" />
+            {t("ui.heroPillLogos") || "Vector Logos"}
           </span>
-          <span className="stat-pill">
-            <Sparkles className="w-3.5 h-3.5" />
-            {t("ui.heroPillBestFit")}
+          <span className="stat-pill px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-1.5 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-zinc-200" />
+            {t("ui.heroPillBestFit") || "Auto Logo Positioning"}
           </span>
-          <span className="stat-pill">
-            <Globe className="w-3.5 h-3.5" />
-            {t("ui.heroPillLangs")}
+          <span className="stat-pill px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-1.5 backdrop-blur-md">
+            <Globe className="w-3.5 h-3.5 text-zinc-200" />
+            {t("ui.heroPillLangs") || "10+ Languages"}
           </span>
         </div>
-        <div className="home-hero-cta-row animate-fade-up" style={{ animationDelay: "280ms" }}>
-          <button type="button" onClick={() => router.push("cataloghi")} className="btn-primary px-5 py-2.5 whitespace-nowrap">
-            {t("ui.heroCatalogsCta")}
+        <div className="home-hero-cta-row mt-6 flex items-center gap-3 animate-fade-up" style={{ animationDelay: "280ms" }}>
+          <button
+            type="button"
+            onClick={() => router.push("cataloghi")}
+            className="px-6 py-3 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-sm shadow-xl shadow-white/10 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+          >
+            {t("ui.heroCatalogsCta") || "Explore Catalogs"}
           </button>
         </div>
       </div>
@@ -178,7 +182,7 @@ export function HomeHero() {
           {slots.map((p, i) => (
             <div
               key={p.key}
-              className={`${p.className} cursor-pointer`}
+              className={`${p.className} cursor-pointer group transition-all duration-300 hover:scale-[1.04]`}
               ref={i === 0 ? leftRef : i === 2 ? rightRef : undefined}
               role="button"
               tabIndex={0}
@@ -191,20 +195,19 @@ export function HomeHero() {
                 }
               }}
             >
-              {/* M21: la chiave viaggia nell'header x-api-key, mai nel DOM */}
               <SecurePosterImg url={p.url} loading={i === 1 ? "eager" : "lazy"} />
             </div>
           ))}
         </div>
-        <div className="float-chip fc-ai" aria-hidden="true">
-          <Sparkles className="w-3.5 h-3.5" />
-          {t("ui.heroPillBestFit")}
+        <div className="float-chip fc-ai flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-950/80 backdrop-blur-xl border border-white/20 text-xs font-semibold text-zinc-200 shadow-2xl" aria-hidden="true">
+          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <span>IMDb 9.3 • 4K Vector Logo</span>
         </div>
-        <div className="float-chip fc-saved" aria-hidden="true">
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+        <div className="float-chip fc-saved flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-950/80 backdrop-blur-xl border border-white/20 text-xs font-semibold text-zinc-200 shadow-2xl" aria-hidden="true">
+          <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
-          {t("ui.saved")}
+          <span>Stremio Sync Ready</span>
         </div>
       </div>
     </section>
