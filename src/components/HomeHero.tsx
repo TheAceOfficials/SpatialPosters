@@ -156,11 +156,15 @@ export function HomeHero() {
           {t("ui.heroKicker") || "Next-Gen Media Artwork Engine"}
         </span>
         <h1 className="home-hero-title text-3xl sm:text-4xl md:text-5xl font-black text-zinc-100 tracking-tight leading-tight animate-fade-up" style={{ animationDelay: "70ms" }}>
-          Dynamic Posters for Stremio, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500">Reimagined.</span>
+          {t("ui.heroTitleLead") || "Dynamic Posters for Stremio,"}{" "}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500">
+            {t("ui.heroTitleAccent") || "Reimagined."}
+          </span>{" "}
+          {t("ui.heroTitleTail") || ""}
         </h1>
         <p className="home-hero-sub mt-4 text-sm sm:text-base text-zinc-400 leading-relaxed animate-fade-up" style={{ animationDelay: "140ms" }}>
-          {t("ui.heroSubtitle") || "Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing."}{" "}
-          Created by{" "}
+          <span>{t("ui.heroSubtitle") || "Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing."}</span>{" "}
+          <span>Created by</span>{" "}
           <a
             href="https://instagram.com/TheAceOfficials"
             target="_blank"
