@@ -1,7 +1,9 @@
 <div align="center">
 
-  <h1>🖼️ SpatialPosters</h1>
+  <img src="public/SpatialPosters.png" alt="SpatialPosters" width="460" style="margin-bottom: 12px;" />
+
   <p><b>Next-Generation Dynamic Poster Studio & Stremio Addon Engine</b></p>
+  <p>Created by <a href="https://instagram.com/TheAceOfficials"><b>@TheAceOfficials</b></a></p>
 
   <p>
     Transform your media library with pristine textless posters, high-definition vector logos, multi-provider rating badges, 4K streaming quality indicators, award ribbons, and intelligent season ordering. All rendered on the fly in real-time with Sharp C++ and high-performance SVG composition.
@@ -22,30 +24,30 @@
 ## 📸 Interface Showcase
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/home.png" alt="SpatialPosters Studio Dashboard" width="100%" style="border-radius: 10px; margin-bottom: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <img src="public/Screen/home.png" alt="SpatialPosters Studio Dashboard" width="100%" style="border-radius: 10px; margin-bottom: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 </div>
 
 <table align="center" width="100%">
   <tr>
-    <td width="50%"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/editor.png" alt="WYSIWYG Poster Studio" style="border-radius: 8px;" /></td>
-    <td width="50%"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/myposters.png" alt="My Posters Library" style="border-radius: 8px;" /></td>
+    <td width="50%"><img src="public/Screen/editor.png" alt="WYSIWYG Poster Studio" style="border-radius: 8px;" /></td>
+    <td width="50%"><img src="public/Screen/myposters.png" alt="My Posters Library" style="border-radius: 8px;" /></td>
   </tr>
   <tr>
     <td align="center"><em>✨ Live WYSIWYG Poster Studio</em></td>
     <td align="center"><em>📚 Personal Saved Posters Library</em></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/catalogs.png" alt="Dynamic Catalogs" style="border-radius: 8px; margin-top: 10px;" /></td>
+    <td colspan="2"><img src="public/Screen/catalogs.png" alt="Dynamic Catalogs" style="border-radius: 8px; margin-top: 10px;" /></td>
   </tr>
   <tr>
-    <td align="center" colspan="2"><em>🔥 Dynamic Catalogs & JustWatch Charts Manager</em></td>
+    <td align="center" colspan="2"><em>🔥 Custom Catalogs Manager & 3D Stacked Card Deck</em></td>
   </tr>
 </table>
 
 <div align="center" style="margin-top: 16px;">
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/1405.jpg" alt="Poster Demo — Movie" width="32%" style="border-radius: 8px;" />
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/155.jpg" alt="Poster Demo — The Dark Knight" width="32%" style="border-radius: 8px;" />
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/66732.jpg" alt="Poster Demo — Stranger Things" width="32%" style="border-radius: 8px;" />
+  <img src="public/Screen/1405.jpg" alt="Poster Demo — Movie" width="32%" style="border-radius: 8px;" />
+  <img src="public/Screen/155.jpg" alt="Poster Demo — The Dark Knight" width="32%" style="border-radius: 8px;" />
+  <img src="public/Screen/66732.jpg" alt="Poster Demo — Stranger Things" width="32%" style="border-radius: 8px;" />
 </div>
 
 ---
@@ -64,16 +66,16 @@
 
 ### 🏷️ Multi-Source Ratings & Badges
 * **Aggregated Ratings**: Displays live ratings from **IMDb**, **TMDB**, **Rotten Tomatoes**, **Letterboxd**, **MyAnimeList**, and **Simkl**.
-* **Quality & Network Badges**: Live streaming resolution indicators (**4K UHD / 1080p / 720p**) and official network logos (Netflix, Prime Video, Disney+, Apple TV+, HBO Max, Crunchyroll, A24, Marvel, Pixar).
+* **Quality & Network Badges**: Live streaming resolution indicators (**4K UHD / 1080p / 720p**) and official network logos (Netflix, Prime Video, Disney+, Apple TV+, HBO Max, Paramount+, Crunchyroll).
 * **Prestige & Award Ribbons**: Recognizes Oscar winners, Cannes Palme d'Or, BAFTA, Emmy awards, and vertical **Netflix Top 10** ribbons.
 
 ### 📺 Smart Season & Anime Ordering
 * **Original Parts Detection**: Automatically detects multi-part series (e.g. *Money Heist*, *Lupin*) and presents them as intended.
 * **Anime Episode Unpacker**: Fixes TMDB mega-season collapses (e.g. *Re:ZERO*, *Jujutsu Kaisen*) by unpacking episodes into proper seasonal arcs.
-* **TheTVDB & AniZip Integration**: Choose alternative episode orderings (Aired, DVD, Absolute, Alternate) or AniZip mappings.
 
 ### 🌐 Custom Catalogs & Ecosystem Proxy
-* **Watchlist & Collection Sync**: Import personal lists from **Letterboxd**, **Trakt**, **TMDb**, **TheTVDB**, and **MDBList**.
+* **Watchlist & Collection Sync**: Import personal custom lists from **Letterboxd**, **Trakt**, **TMDb**, **MDBList**, and **IMDb**.
+* **3D Stacked Card Deck**: Preview catalog items with Apple TV / Netflix style stacked card decks that expand into fanned rows on hover or touch tap.
 * **Stremio Addon Proxy**: Inject SpatialPosters custom posters into any external Stremio add-on (such as AIOMetadata or CyberFlix).
 
 ---
@@ -141,7 +143,6 @@ Access the addon manifest at `http://<YOUR-SERVER-IP>:8080/manifest.json`.
 |---|:---:|---|
 | `SPATIALPOSTERS_PUBLIC_INSTANCE` | `0` | Set to `1` on Vercel/HF to enable poster saving and public editor access. |
 | `SPATIALPOSTERS_TMDB_KEY` | *(optional)* | Global TMDB API key to power catalog rendering without per-user keys. |
-| `SPATIALPOSTERS_TVDB_API_KEY` | *(optional)* | TheTVDB API key for alternate season orderings and episode descriptions. |
 | `SPATIALPOSTERS_MDBLIST_KEY` | *(optional)* | MDBList API key for custom lists and anime catalog ranks. |
 | `SPATIALPOSTERS_REGION` | `US` | Default region for JustWatch/FlixPatrol charts and localized titles (`US`, `GB`, `IN`, `CA`, `AU`, `DE`, `FR`, `ES`, `IT`, etc.). |
 | `SPATIALPOSTERS_DATA_DIR` | `./data` | Local storage folder for database and saved mappings. |
@@ -176,5 +177,5 @@ npm run test
 ---
 
 <p align="center">
-  Made with ❤️ by <b>TheAceOfficials</b> team & community contributors.
+  Made with ❤️ by <b><a href="https://instagram.com/TheAceOfficials">TheAceOfficials</a></b> team & community contributors.
 </p>
