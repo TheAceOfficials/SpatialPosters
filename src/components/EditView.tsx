@@ -196,7 +196,7 @@ export default function EditView() {
             {/* eslint-disable-next-line @next/next/no-img-element -- logo locale */}
             <img
               onClick={goHome}
-              src="/SpatialPosters.svg"
+              src="/SpatialPosters.png"
               alt="SpatialPosters"
               decoding="async"
               className="header-logo h-20 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1"

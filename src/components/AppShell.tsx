@@ -286,7 +286,7 @@ export function AppShell() {
             role="button"
             tabIndex={0}
             aria-label={t("ui.home")}
-            src="/SpatialPosters.svg"
+            src="/SpatialPosters.png"
             alt="SpatialPosters"
             decoding="async"
             className="header-logo h-10 sm:h-14 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1.5 md:mb-2"
