@@ -11,7 +11,7 @@ export type PictoriumCatalogDefinition = {
   readonly type: PictoriumCatalogType
 }
 
-export const PICTORIUM_CATALOGS = [] as const satisfies readonly PictoriumCatalogDefinition[]
+export const PICTORIUM_CATALOGS: readonly PictoriumCatalogDefinition[] = []
 
 export type StremioCatalogExtra = {
   readonly name: string

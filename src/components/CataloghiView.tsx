@@ -465,20 +465,6 @@ export function CataloghiView() {
         </div>
       )}
 
-      {trending.length === 0 && trendingError && (
-        <div className="flex flex-col items-center justify-center py-24 text-zinc-500 animate-fade-scale-in">
-          <div className="empty-state-illustration mb-5">
-            <svg className="w-10 h-10 text-danger/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-          </div>
-          <p className="text-sm text-muted mb-4">{t("ui.catalogsError")}</p>
-          <button type="button" onClick={() => { void refreshLists() }} className="btn-ghost px-4 py-2 text-xs">{t("ui.retry")}</button>
-        </div>
-      )}
-
       {gridItems && createPortal(
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm overflow-y-auto animate-fade-scale-in" onClick={() => setGridItems(null)}>
           <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen" onClick={(e) => e.stopPropagation()}>
