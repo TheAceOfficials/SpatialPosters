@@ -203,14 +203,14 @@ export function AppShell() {
 
       {/* Desktop Toolbar — Floating Island */}
       <div className="hidden md:flex absolute top-4 right-4 z-20">
-        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 relative z-50">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-zinc-950/70 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60 relative z-50">
           {/* Installa Pictorium Hub Pill Button */}
           <button
             type="button"
             onClick={handleInstallCatalog}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-accent-orange to-amber-500 hover:from-accent-orange/90 hover:to-amber-500/90 text-white font-semibold text-xs shadow-md shadow-accent-orange/20 hover:shadow-accent-orange/35 hover:scale-[1.02] active:scale-[0.97] transition-all duration-150 border border-white/20 cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs shadow-md shadow-white/10 hover:shadow-white/20 hover:scale-[1.02] active:scale-[0.97] transition-all duration-150 border border-white/40 cursor-pointer"
           >
-            <QrCode className="w-3.5 h-3.5 text-white" />
+            <QrCode className="w-3.5 h-3.5 text-zinc-950" />
             <span>{t("ui.installHub")}</span>
           </button>
 
@@ -226,7 +226,7 @@ export function AppShell() {
                 : "text-zinc-300 hover:text-white hover:bg-white/[0.08]"
             }`}
           >
-            <Layers className="w-3.5 h-3.5 text-accent-orange" />
+            <Layers className="w-3.5 h-3.5 text-zinc-300" />
             <span>{t("ui.catalogs") || "Cataloghi"}</span>
           </button>
 
@@ -244,7 +244,7 @@ export function AppShell() {
                 : "text-zinc-300 hover:text-white hover:bg-white/[0.08]"
             }`}
           >
-            <Palette className="w-3.5 h-3.5 text-accent-orange" />
+            <Palette className="w-3.5 h-3.5 text-zinc-300" />
             <span>{mappings.length}</span>
           </button>
 
@@ -254,7 +254,7 @@ export function AppShell() {
             aria-label={t("ui.addonProxy")}
             title={t("ui.addonProxy")}
             onClick={() => setProxyOpen(true)}
-            className="p-2 rounded-xl text-zinc-400 hover:text-accent-orange hover:bg-white/[0.08] active:scale-90 transition-all duration-150 cursor-pointer"
+            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.08] active:scale-90 transition-all duration-150 cursor-pointer"
           >
             <Sparkles className="w-4 h-4" />
           </button>

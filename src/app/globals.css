@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0a0a0a;
-  --color-foreground: #ededed;
-  --color-surface: #18181b;
-  --color-surface2: #27272a;
-  --color-border: #3f3f46;
+  --color-background: #09090b;
+  --color-foreground: #f4f4f5;
+  --color-surface: #121215;
+  --color-surface2: #1c1c21;
+  --color-border: #27272a;
   --color-muted: #a1a1aa;
-  --color-accent-orange: #e85d2a;
+  --color-accent-orange: #e4e4e7;
   --color-accent: #ffffff;
   --color-panel: rgba(18, 18, 22, 0.74);
   --color-panel-strong: rgba(21, 21, 26, 0.92);
@@ -20,8 +20,8 @@
 }
 
 html.light-mode {
-  --color-background: #f5f5f5;
-  --color-foreground: #1a1a1a;
+  --color-background: #f4f4f5;
+  --color-foreground: #18181b;
   /* Quiet light: superfici piatte chiare con hairline scura (stessa
      riduzione del dark: niente gradiente, solo bordo + highlight). */
   --glass-grad: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10));
@@ -58,11 +58,9 @@ html.light-mode ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, rgb(var(--accent-rgb) / 0.60), rgb(var(--accent-rgb) / 0.40));
 }
 
-/* Componenti RGB dell'accento (232, 93, 42 = #e85d2a) come token: tutti gli
-   rgba(232,93,42,alpha) del foglio usano questo token, così cambiare accento
-   è un edit da un punto solo (sintassi moderna: rgb(var(--accent-rgb) / a)). */
+/* Componenti RGB dell'accento (244, 244, 245 = #f4f4f5 minimal grey/white) come token */
 :root {
-  --accent-rgb: 232 93 42;
+  --accent-rgb: 244 244 245;
 
   /* Ricetta glass condivisa (ingredienti di default). Le classi della famiglia
      glass* sovrascrivono --glass-* localmente dove servono; background, border
@@ -548,18 +546,20 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .top-action-button-primary {
-  border-color: rgb(var(--accent-rgb) / 0.45);
-  background: linear-gradient(180deg, #e87a4a, var(--color-accent-orange));
-  color: white;
-  box-shadow: 0 12px 28px rgb(var(--accent-rgb) / 0.14), inset 0 1px 0 rgba(255,255,255,0.20);
+  border-color: rgba(255, 255, 255, 0.40);
+  background: linear-gradient(180deg, #ffffff, #e4e4e7);
+  color: #09090b;
+  box-shadow: 0 12px 28px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255,255,255,0.50);
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  font-weight: 600;
 }
 
 .top-action-button-primary:hover {
-  border-color: rgb(var(--accent-rgb) / 0.60);
-  background: linear-gradient(180deg, #e87a4a, var(--color-accent-orange));
+  border-color: rgba(255, 255, 255, 0.70);
+  background: linear-gradient(180deg, #ffffff, #f4f4f5);
+  box-shadow: 0 14px 32px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255,255,255,0.60);
 }
 
 .top-action-button-accent {

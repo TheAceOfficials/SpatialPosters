@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e85d2a",
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({
@@ -47,7 +47,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://api.themoviedb.org" />
       </head>
       <body className="min-h-full" suppressHydrationWarning>
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200] focus:bg-accent-orange focus:text-white focus:px-4 focus:py-2 focus:rounded-xl">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200] focus:bg-zinc-100 focus:text-zinc-950 focus:px-4 focus:py-2 focus:rounded-xl">
           Skip to main content
         </a>
         <main id="main-content">{children}</main>
@@ -55,13 +55,14 @@ export default function RootLayout({
           position="bottom-center"
           toastOptions={{
             style: {
-              background: "var(--color-accent-orange)",
-              color: "white",
-              borderRadius: "12px",
+              background: "rgba(24, 24, 27, 0.92)",
+              color: "#f4f4f5",
+              borderRadius: "14px",
               fontSize: "13px",
-              fontWeight: 600,
-              boxShadow: "0 8px 24px rgb(var(--accent-rgb) / 0.3)",
-              border: "none",
+              fontWeight: 500,
+              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              backdropFilter: "blur(16px)",
             },
           }}
           duration={2500}

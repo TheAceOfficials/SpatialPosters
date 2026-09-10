@@ -33,11 +33,11 @@ export function Button({
   title,
   ariaLabel,
 }: ButtonProps) {
-  const baseClasses = "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange focus-visible:ring-offset-2"
+  const baseClasses = "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
 
   const variantClasses = {
-    default: "bg-surface2 border border-border text-zinc-200 hover:bg-zinc-700 hover:text-zinc-100",
-    primary: "bg-accent-orange border border-accent-orange/50 text-white shadow-lg shadow-accent-orange/25 hover:bg-accent-orange/90",
+    default: "bg-surface2 border border-border text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100",
+    primary: "bg-zinc-100 border border-white/50 text-zinc-950 shadow-lg shadow-white/10 hover:bg-white hover:scale-[1.01] active:scale-[0.98]",
     secondary: "bg-white/[0.06] border border-white/10 text-zinc-200 hover:bg-white/[0.10] hover:border-white/20",
     ghost: "bg-transparent border border-transparent text-zinc-300 hover:bg-white/[0.05] hover:text-zinc-100",
     danger: "bg-red-900/30 border border-red-900/50 text-danger hover:bg-red-900/50 hover:border-red-500",
