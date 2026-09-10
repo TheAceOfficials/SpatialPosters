@@ -971,7 +971,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       tvType, tvStatus, releaseDate, firstAirDate,
       lastAirDate, seasonCount, originCountries,
       wikidataResult, tmdbKeywords, locale, t,
-      qLabel, queryExtra, qNetLogo, networkLogo, networkLogoMode: pConfig.networkLogoMode, sd,
+      qLabel, queryExtra, qNetLogo, networkLogo, networkLogoMode: renderConfig.networkLogoMode, sd,
       accentOverride, imdbTop250,
       posterSrc: posterPath,
       logoSrc: logoPath,

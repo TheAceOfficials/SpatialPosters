@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { resolvePosterRenderConfig } from "@/lib/poster-config"
+import { resolvePosterRenderConfig, type PosterRenderConfigInput } from "@/lib/poster-config"
 import { buildStremioPosterSearchParams } from "@/lib/stremio-poster-params"
 import { extractOttWatchProviders, type TMDBDetails } from "@/lib/tmdb"
 

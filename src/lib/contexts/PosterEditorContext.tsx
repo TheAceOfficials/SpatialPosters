@@ -84,6 +84,8 @@ export interface PosterEditorCtx {
   setDefaultLogoFitEnabled: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultNetworkLogo: boolean
   setDefaultNetworkLogo: (v: boolean | ((prev: boolean) => boolean)) => void
+  defaultNetworkLogoMode: NetworkLogoMode
+  setDefaultNetworkLogoMode: (v: NetworkLogoMode | ((prev: NetworkLogoMode) => NetworkLogoMode)) => void
   defaultRibbonSide: "left" | "right"
   setDefaultRibbonSide: (v: "left" | "right" | ((prev: "left" | "right") => "left" | "right")) => void
   defaultRegion: string
@@ -375,6 +377,11 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(defaultNetworkLogo) : v
       update({ defaultNetworkLogo: next, networkLogo: next })
     }, [defaultNetworkLogo, update])
+  const setDefaultNetworkLogoMode = useCallback(
+    (v: NetworkLogoMode | ((prev: NetworkLogoMode) => NetworkLogoMode)) => {
+      const next = typeof v === "function" ? v(defaultNetworkLogoMode) : v
+      update({ defaultNetworkLogoMode: next, networkLogoMode: next })
+    }, [defaultNetworkLogoMode, update])
   const setDefaultRibbonSide = useCallback(
     (v: "left" | "right" | ((prev: "left" | "right") => "left" | "right")) => {
       const next = typeof v === "function" ? v(defaultRibbonSide) : v
@@ -426,6 +433,8 @@ export function PosterEditorProvider({
       setCustomBadge,
       networkLogo,
       setNetworkLogo,
+      networkLogoMode,
+      setNetworkLogoMode,
       ribbonSide,
       setRibbonSide,
       episodeMetadataSource,
@@ -470,6 +479,8 @@ export function PosterEditorProvider({
       setDefaultLogoFitEnabled,
       defaultNetworkLogo,
       setDefaultNetworkLogo,
+      defaultNetworkLogoMode,
+      setDefaultNetworkLogoMode,
       defaultRibbonSide,
       setDefaultRibbonSide,
       defaultRegion,
@@ -562,6 +573,7 @@ export function PosterEditorProvider({
       defaultAutoRotateClean, setDefaultAutoRotateClean,
       defaultLogoFitEnabled, setDefaultLogoFitEnabled,
       defaultNetworkLogo, setDefaultNetworkLogo,
+      defaultNetworkLogoMode, setDefaultNetworkLogoMode,
       defaultRibbonSide, setDefaultRibbonSide,
       loadDefaultsToState,
 

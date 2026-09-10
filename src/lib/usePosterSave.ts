@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback } from "react"
-import type { SearchResult, TMDBImage, Mapping } from "./types"
+import type { SearchResult, TMDBImage, Mapping, NetworkLogoMode } from "./types"
 import { titleOf } from "./utils"
 import { computeTopBadge, type BadgeInput } from "./poster-badge"
 import { defaultGradientHeightForPoster } from "./gradient-defaults"
@@ -64,6 +64,7 @@ interface PosterSaveDeps {
   setLogoOffsetX: (v: number) => void
   setLogoOffsetY: (v: number) => void
   networkLogo: boolean
+  networkLogoMode?: NetworkLogoMode
   ribbonSide: "left" | "right"
   lang: string
   episodeGroupId?: string | null

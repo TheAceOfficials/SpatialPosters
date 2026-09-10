@@ -538,12 +538,13 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     if (queryExtra) {
       topBadge = { type: "extra" as const, label: queryExtra }
     } else {
-      const b = computeTopBadge(badgeInput, t, locale)
-      if (b.type === "extra") {
+      const bComputed = computeTopBadge(badgeInput, t, locale)
+      const b = bComputed.badge
+      if (b?.type === "extra") {
         topBadge = { type: "extra" as const, label: b.label }
-      } else if (b.type === "rank" && b.rank) {
+      } else if (b?.type === "rank" && b.rank) {
         topBadge = { type: "rank" as const, rank: b.rank, label: b.rankLabel || b.label }
-      } else {
+      } else if (b?.type === "rank") {
         topBadge = { type: "rank" as const, rank: b.rank!, label: qLabel || b.rankLabel || b.label }
       }
     }
