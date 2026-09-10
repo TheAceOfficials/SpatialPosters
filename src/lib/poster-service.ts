@@ -558,7 +558,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   const studioBadge = computeTopBadge(badgeInput, t, locale).studioBadge
   const isNetStudio = isNetworkStudio(studioBadge)
 
-  // Costruzione candidati basati sul resolvedMode (network, ott, auto)
+  // Candidati network/produzione originali (per Network mode)
   const origDetailedCandidates: NetworkCandidate[] = [
     ...(tmdbNetworksDetailed ?? []),
     ...(productionCompaniesDetailed ?? []),
@@ -568,11 +568,16 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     ...(mapping?.networkLogoName ? [{ name: mapping.networkLogoName!, logoPath: mapping.networkLogoPath ?? null }] : []),
   ]
 
+  // Candidati OTT (watch providers TMDB — streaming SVOD)
   const ottCandidates: NetworkCandidate[] = watchProvidersDetailed ? [...watchProvidersDetailed] : []
 
-  let detailedCandidates: NetworkCandidate[] = []
+  // Selezione candidati in base al mode:
+  // - ott:     SOLO provider OTT. Se vuoti → nessun logo (non ricadere su network).
+  // - auto:    OTT prima, poi network/produzione.
+  // - network: SOLO network/produzione.
+  let detailedCandidates: NetworkCandidate[]
   if (resolvedMode === "ott") {
-    detailedCandidates = ottCandidates.length > 0 ? ottCandidates : origDetailedCandidates
+    detailedCandidates = ottCandidates
   } else if (resolvedMode === "auto") {
     detailedCandidates = [...ottCandidates, ...origDetailedCandidates]
   } else {
@@ -580,8 +585,11 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   }
 
   const hasDetailed = detailedCandidates.length > 0
-  const stringCandidates = [
-    ...(resolvedMode === "ott" || resolvedMode === "auto" ? ottCandidates.map((c) => c.name) : []),
+
+  // String candidates (fallback senza logoPath): anch'esse mode-aware.
+  // In OTT mode si usano SOLO i nomi dei provider OTT, mai quelli network,
+  // per evitare che il logo network appaia al posto di "nessun logo OTT".
+  const networkOnlyCandidateStrings = [
     ...tmdbNetworks,
     ...productionCompanies,
     ...wikidataResult.studios,
@@ -589,12 +597,21 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     isNetStudio ? null : studioBadge,
   ].filter(Boolean) as string[]
 
+  const stringCandidates: string[] =
+    resolvedMode === "ott"
+      ? ottCandidates.map((c) => c.name).filter(Boolean) as string[]
+      : resolvedMode === "auto"
+        ? [...ottCandidates.map((c) => c.name), ...networkOnlyCandidateStrings].filter(Boolean) as string[]
+        : networkOnlyCandidateStrings
+
   const networkCandidatesHybrid: (NetworkCandidate | string)[] = hasDetailed ? detailedCandidates : stringCandidates
 
   const networkLogoResult = netLogoEnabled
     ? hasDetailed
       ? await renderFirstMatchingNetworkLogoBadgeHybrid(networkCandidatesHybrid as NetworkCandidate[], STD_W, topLight)
-      : await renderFirstMatchingNetworkLogoBadge(stringCandidates, STD_W, topLight)
+      : stringCandidates.length > 0
+        ? await renderFirstMatchingNetworkLogoBadge(stringCandidates, STD_W, topLight)
+        : null
     : null
 
   if (networkLogoResult && topBadge && topBadge.type === "extra") {
