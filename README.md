@@ -142,7 +142,6 @@ Access the addon manifest at `http://<YOUR-SERVER-IP>:8080/manifest.json`.
 | `SPATIALPOSTERS_PUBLIC_INSTANCE` | `0` | Set to `1` on Vercel/HF to enable poster saving and public editor access. |
 | `SPATIALPOSTERS_TMDB_KEY` | *(optional)* | Global TMDB API key to power catalog rendering without per-user keys. |
 | `SPATIALPOSTERS_TVDB_API_KEY` | *(optional)* | TheTVDB API key for alternate season orderings and episode descriptions. |
-| `SPATIALPOSTERS_FANART_KEY` | *(optional)* | FanArt.tv API key for HD transparent logos and textless posters. |
 | `SPATIALPOSTERS_MDBLIST_KEY` | *(optional)* | MDBList API key for custom lists and anime catalog ranks. |
 | `SPATIALPOSTERS_REGION` | `US` | Default region for JustWatch/FlixPatrol charts and localized titles (`US`, `GB`, `IN`, `CA`, `AU`, `DE`, `FR`, `ES`, `IT`, etc.). |
 | `SPATIALPOSTERS_DATA_DIR` | `./data` | Local storage folder for database and saved mappings. |

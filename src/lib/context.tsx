@@ -141,8 +141,6 @@ export interface PictoriumCtx {
   setMdblistApiKey: (v: string) => void
   tvdbApiKey: string
   setTvdbApiKey: (v: string) => void
-  fanartApiKey: string
-  setFanartApiKey: (v: string) => void
   exportData: () => Promise<void>
   importData: () => void
   copyUrl: () => Promise<void>
@@ -284,7 +282,6 @@ export function usePictorium(): PictoriumCtx {
   const [tmdbKey, setTmdbKeyState] = useState("")
   const [mdblistApiKey, setMdblistApiKey] = useState("")
   const [tvdbApiKey, setTvdbApiKey] = useState("")
-  const [fanartApiKey, setFanartApiKey] = useState("")
   const [tmdbKeyInput, setTmdbKeyInput] = useState("")
   const [showKey, setShowKey] = useState(false)
   const [theme, setTheme] = useState<"dark" | "light">("dark")
@@ -503,8 +500,6 @@ export function usePictorium(): PictoriumCtx {
     setMdblistApiKey(savedMdblist)
     const savedTvdb = safeGetItem("tvdb_key") || ""
     setTvdbApiKey(savedTvdb)
-    const savedFanart = safeGetItem("fanart_key") || ""
-    setFanartApiKey(savedFanart)
     const savedTheme = safeGetItem("pictorium_theme")
     if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme)
 
@@ -514,7 +509,7 @@ export function usePictorium(): PictoriumCtx {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!data?.serverKeys) return
-        const { tmdbKey, mdblistApiKey: mdblistKey, tvdbApiKey: tvdbKey, fanartApiKey: fanartKey } = data.serverKeys
+        const { tmdbKey, mdblistApiKey: mdblistKey, tvdbApiKey: tvdbKey } = data.serverKeys
         if (!savedTmdb && tmdbKey) {
           setTmdbKeyState(tmdbKey)
           setTmdbKeyInput(tmdbKey)
@@ -527,10 +522,6 @@ export function usePictorium(): PictoriumCtx {
         if (!savedTvdb && tvdbKey) {
           setTvdbApiKey(tvdbKey)
           safeSetItem("tvdb_key", tvdbKey)
-        }
-        if (!savedFanart && fanartKey) {
-          setFanartApiKey(fanartKey)
-          safeSetItem("fanart_key", fanartKey)
         }
       })
       .catch(() => {
@@ -649,9 +640,7 @@ export function usePictorium(): PictoriumCtx {
     ])
     const origLang = details.original_language
     const imageLangs = origLang && origLang !== lang && origLang !== "en" ? `${lang},en,null,${origLang}` : `${lang},en,null`
-    const fanartParam = fanartApiKey ? "&fanart_api_key=" + encodeURIComponent(fanartApiKey) : ""
-    const tvdbParam = tvdbApiKey ? "&tvdb_api_key=" + encodeURIComponent(tvdbApiKey) : ""
-    const data = await http<{ posters: TMDBImage[]; logos: TMDBImage[]; backdrops: TMDBImage[] }>(`/api/tmdb/${itemId}/images?type=${itemType}&languages=${imageLangs}&api_key=${tmdbKey}${fanartParam}${tvdbParam}`, { timeout: 30000 }).catch(() => ({ posters: [] as TMDBImage[], logos: [] as TMDBImage[], backdrops: [] as TMDBImage[] }))
+    const data = await http<{ posters: TMDBImage[]; logos: TMDBImage[]; backdrops: TMDBImage[] }>(`/api/tmdb/${itemId}/images?type=${itemType}&languages=${imageLangs}&api_key=${tmdbKey}`, { timeout: 30000 }).catch(() => ({ posters: [] as TMDBImage[], logos: [] as TMDBImage[], backdrops: [] as TMDBImage[] }))
     if (navigation.fetchIdRef.current !== fetchId) return null
     navigation.setSelected({ ...item, imdb_id: details.imdb_id })
     navigation.setPosters(data.posters || [])
@@ -978,7 +967,6 @@ export function usePictorium(): PictoriumCtx {
     showKey, setShowKey, setTmdbKey,
     mdblistApiKey, setMdblistApiKey: setMdblistApiKeyFn,
     tvdbApiKey, setTvdbApiKey: setTvdbApiKeyFn,
-    fanartApiKey, setFanartApiKey: useCallback((v: string) => { setFanartApiKey(v); safeSetItem("fanart_key", v) }, [safeSetItem]),
     exportData, importData, removeRecentSearch: search.removeRecentSearch, clearRecentSearches: search.clearRecentSearches,
     copyUrl, copied,
     accentColor, autoAccentColor, setAccentColor,
@@ -1004,7 +992,7 @@ export function usePictorium(): PictoriumCtx {
     mappingsMap, tmdbKey, search.query, search.results, search.searching, search.totalResults, search.totalPages, search.searchPage, search.recentSearches, search.clearRecentSearches,
     mappings,
     langOpen, settingsOpen, showLangPicker,
-    tmdbKeyInput, showKey, copied, mdblistApiKey, tvdbApiKey, fanartApiKey,
+    tmdbKeyInput, showKey, copied, mdblistApiKey, tvdbApiKey,
     accentColor, autoAccentColor, setAccentColor,
     topEdgeColor, autoSaveExcludedPosters,
     trending.trending, trending.trendingError, trending.streamingCharts, trending.mdblistAnimeList,

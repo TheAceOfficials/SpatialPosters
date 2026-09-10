@@ -50,7 +50,6 @@ import {
   fetchImg,
   hashKey,
   imgSrc,
-  isAllowedImageUrl,
   isValidHex,
   topLuminance,
 } from "@/lib/poster-render-helpers"
@@ -504,7 +503,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
                 return Buffer.from(await res.arrayBuffer())
               },
               fetchCandidateImage: async (path: string) => {
-                if (path.startsWith("http") && !isAllowedImageUrl(path)) {
+                if (path.startsWith("http") && !path.startsWith("https://image.tmdb.org/t/p/")) {
                   throw new Error("Blocked external URL in fetchCandidateImage")
                 }
                 const url = path.startsWith("http") ? path : `https://image.tmdb.org/t/p/w342${path}`

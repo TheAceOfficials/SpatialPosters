@@ -19,8 +19,6 @@ export interface SettingsCtx {
   setMdblistApiKey: (v: string) => void
   tvdbApiKey: string
   setTvdbApiKey: (v: string) => void
-  fanartApiKey: string
-  setFanartApiKey: (v: string) => void
   theme: "dark" | "light"
   setTheme: React.Dispatch<React.SetStateAction<"dark" | "light">>
   uiAccent: boolean
@@ -60,8 +58,6 @@ export function SettingsProvider({
       setMdblistApiKey: value.setMdblistApiKey,
       tvdbApiKey: value.tvdbApiKey,
       setTvdbApiKey: value.setTvdbApiKey,
-      fanartApiKey: value.fanartApiKey,
-      setFanartApiKey: value.setFanartApiKey,
       theme: value.theme,
       setTheme: value.setTheme,
       uiAccent: value.uiAccent,
@@ -79,7 +75,6 @@ export function SettingsProvider({
       value.showKey, value.setShowKey,
       value.mdblistApiKey, value.setMdblistApiKey,
       value.tvdbApiKey, value.setTvdbApiKey,
-      value.fanartApiKey, value.setFanartApiKey,
       value.theme, value.setTheme,
       value.uiAccent, value.setUiAccent,
       value.lang,

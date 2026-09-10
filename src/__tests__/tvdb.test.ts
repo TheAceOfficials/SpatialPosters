@@ -4,7 +4,6 @@ import {
   getTvdbSeriesId,
   getTvdbEpisodes,
   getTvdbSeasonTypes,
-  getTvdbPosters,
   enrichVideosWithTvdb,
   formatTvdbImageUrl,
   clearTvdbCache,
@@ -286,61 +285,6 @@ describe("TVDB Integration", () => {
       const types = await getTvdbSeasonTypes(327153, "test-key")
       expect(types).toHaveLength(2)
       expect(types.map((t) => t.type)).toEqual(["official", "dvd"])
-    })
-  })
-
-  describe("getTvdbPosters", () => {
-    it("fetches and normalizes posters, logos, and backdrops from TVDB", async () => {
-      vi.spyOn(globalThis, "fetch")
-        // Auth token
-        .mockResolvedValueOnce(
-          Response.json({ status: "success", data: { token: "mock-jwt" } })
-        )
-        // Series extended artworks
-        .mockResolvedValueOnce(
-          Response.json({
-            status: "success",
-            data: {
-              artworks: [
-                { id: 1, image: "https://artworks.thetvdb.com/posters/1.jpg", type: 2, score: 10, language: "eng" },
-                { id: 2, image: "/logos/2.png", type: 7, score: 5, language: "" },
-                { id: 3, image: "backdrops/3.jpg", type: 3, score: 8, language: "ita" },
-              ],
-            },
-          })
-        )
-
-      const artworks = await getTvdbPosters(12345, "test-key")
-      expect(artworks).toHaveLength(3)
-      expect(artworks[0]).toMatchObject({
-        url: "https://artworks.thetvdb.com/posters/1.jpg",
-        source: "tvdb",
-        type: "poster",
-        is_textless: true,
-        vote_average: 10,
-      })
-      expect(artworks[1]).toMatchObject({
-        url: "https://artworks.thetvdb.com/logos/2.png",
-        source: "tvdb",
-        type: "logo",
-        is_textless: true,
-        vote_average: 5,
-      })
-      expect(artworks[2]).toMatchObject({
-        url: "https://artworks.thetvdb.com/backdrops/3.jpg",
-        source: "tvdb",
-        type: "backdrop",
-        iso_639_1: "ita",
-        vote_average: 8,
-      })
-    })
-
-    it("returns empty array if authentication fails", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-        Response.json({ status: "failure", message: "Invalid API key" }, { status: 401 })
-      )
-      const artworks = await getTvdbPosters(12345, "invalid-key")
-      expect(artworks).toEqual([])
     })
   })
 })

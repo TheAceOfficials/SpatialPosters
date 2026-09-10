@@ -56,26 +56,10 @@ export function isValidHex(color: string): boolean {
   return /^#([0-9A-Fa-f]{3}){1,2}$/.test(color)
 }
 
-export function isAllowedImageUrl(url: string): boolean {
-  if (!url.startsWith("http://") && !url.startsWith("https://")) return false
-  try {
-    const parsed = new URL(url)
-    return (
-      parsed.hostname === "image.tmdb.org" ||
-      parsed.hostname === "images.fanart.tv" ||
-      parsed.hostname === "artworks.thetvdb.com" ||
-      parsed.hostname.endsWith(".fanart.tv") ||
-      parsed.hostname.endsWith(".thetvdb.com")
-    )
-  } catch {
-    return false
-  }
-}
-
 export function imgSrc(path: string): string {
   if (path.startsWith("http")) {
-    // SSRF protection: allow trusted image CDNs (TMDB, FanArt, TVDB)
-    if (!isAllowedImageUrl(path)) {
+    // SSRF protection: only allow TMDB image CDN
+    if (!path.startsWith("https://image.tmdb.org/t/p/")) {
       throw new Error(`Blocked external image URL: ${path.slice(0, 60)}...`)
     }
     return path

@@ -32,8 +32,6 @@ export interface TMDBImage {
   vote_average: number
   width: number
   height: number
-  source?: "tmdb" | "fanart" | "tvdb"
-  is_textless?: boolean
 }
 
 export interface FlixPatrolItem {
