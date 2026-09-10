@@ -9,7 +9,7 @@ pinned: false
 ---
 
 <p align="center">
-  <img src="public/pictorium.png" alt="Pictorium" width="380" />
+  <img src="public/SpatialPosters.png" alt="SpatialPosters" width="380" />
 </p>
 
 <h3 align="center">Generatore Dinamico di Poster Cinematografici per Stremio & Media Center</h3>

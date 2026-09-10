@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SpatialPosters",
     description: "Dynamic poster generator for Stremio",
-    images: ["/pictorium.png"],
+    images: ["/SpatialPosters.png"],
     type: "website",
   },
   robots: { index: true, follow: true },
