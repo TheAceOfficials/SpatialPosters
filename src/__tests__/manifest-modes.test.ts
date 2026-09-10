@@ -9,7 +9,7 @@ describe("buildManifestResponse with hubMode options", () => {
     const json = await res.json()
 
     expect(json.id).toBe("org.pictorium")
-    expect(json.name).toBe("Pictorium")
+    expect(json.name).toBe("SpatialPosters")
     const catalogIds = json.catalogs.map((c: { id: string }) => c.id)
     expect(catalogIds).toContain("pictorium-search-movies")
     expect(catalogIds).toContain("pictorium-search-series")
@@ -22,7 +22,7 @@ describe("buildManifestResponse with hubMode options", () => {
     const json = await res.json()
 
     expect(json.id).toBe("org.pictorium.catalogs")
-    expect(json.name).toContain("(Cataloghi)")
+    expect(json.name).toContain("(Catalogs)")
     const catalogIds = json.catalogs.map((c: { id: string }) => c.id)
     expect(catalogIds).not.toContain("pictorium-search-movies")
     expect(catalogIds).not.toContain("pictorium-search-series")
@@ -35,7 +35,7 @@ describe("buildManifestResponse with hubMode options", () => {
     const json = await res.json()
 
     expect(json.id).toBe("org.pictorium.search")
-    expect(json.name).toContain("(Ricerca)")
+    expect(json.name).toContain("(Search)")
     const catalogIds = json.catalogs.map((c: { id: string }) => c.id)
     expect(catalogIds).toContain("pictorium-search-movies")
     expect(catalogIds).toContain("pictorium-search-series")

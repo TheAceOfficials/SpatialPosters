@@ -224,7 +224,7 @@ describe("GET /catalog/[type]/[id]", () => {
     const body = await res.json()
 
     expect(res.status).toBe(200)
-    expect(mockedGetTop10).toHaveBeenCalledWith("netflix", "italy", "settings-key", { enrich: false })
+    expect(mockedGetTop10).toHaveBeenCalledWith("netflix", "united-states", "settings-key", { enrich: false })
     expect(body.metas[0]).toMatchObject({
       id: "tmdb:1715492",
       type: "movie",

@@ -48,12 +48,12 @@ describe("regions", () => {
     expect(parseRegion(null)).toBeNull()
     expect(parseRegion(undefined)).toBeNull()
     expect(normalizeRegion("atlantis")).toBe(DEFAULT_REGION)
-    expect(normalizeRegion(undefined)).toBe("IT")
+    expect(normalizeRegion(undefined)).toBe("US")
   })
 
   it("maps region to Flix slug and TMDB/JW language", () => {
     expect(regionToFlixSlug("US")).toBe("united-states")
-    expect(regionToFlixSlug("atlantis")).toBe("italy")
+    expect(regionToFlixSlug("atlantis")).toBe("united-states")
     expect(regionToFlixSlug("MX")).toBe("mexico")
     expect(getRegionDef("FR").lang).toBe("fr-FR")
     expect(getRegionDef("JP").lang).toBe("ja-JP")
