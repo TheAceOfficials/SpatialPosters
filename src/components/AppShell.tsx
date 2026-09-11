@@ -211,8 +211,8 @@ export function AppShell() {
         />
       )}
 
-      {/* Desktop Toolbar — Floating Island */}
-      <div className="hidden md:flex absolute top-4 right-4 z-20">
+      {/* Desktop Toolbar — Floating Island (hidden when editor is open) */}
+      <div className={`hidden md:flex absolute top-4 right-4 z-20 transition-opacity duration-150 ${view === "edit" && selected ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-zinc-950/70 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60 relative z-50">
           {/* Installa Pictorium Hub Pill Button */}
           <button
@@ -284,15 +284,9 @@ export function AppShell() {
         </div>
       </div>
 
-      {/* Full-Page Editor Overlay */}
-      {view === "edit" && selected && (
-        <div key="edit-overlay" className="fixed inset-0 z-50 bg-background overflow-hidden animate-view-enter h-[100dvh] w-full">
-          <EditView />
-        </div>
-      )}
-
-      <div className={`relative z-10 max-w-[1680px] mx-auto px-3 sm:px-4 pt-3 sm:pt-5 md:pt-[68px] pb-24 md:pb-6 ${view === "edit" && selected ? "hidden" : "block"}`}>
+      <div className="relative z-10 max-w-[1680px] mx-auto px-3 sm:px-4 pt-3 sm:pt-5 md:pt-[68px] pb-24 md:pb-6">
         {/* Header globale (logo + tagline + toolbar mobile) */}
+        {!(view === "edit" && selected) && (
         <div className="flex flex-col items-center pb-3 sm:pb-4 animate-fade-scale-in relative">
           <>
           {/* eslint-disable-next-line @next/next/no-img-element -- local SVG asset */}
@@ -324,20 +318,19 @@ export function AppShell() {
           {mobileToolbar}
           </>
         </div>
+        )}
 
         <ProxyModal isOpen={proxyOpen} onClose={() => setProxyOpen(false)} />
         <InstallModal isOpen={installOpen} onClose={() => setInstallOpen(false)} posterUrlPattern={urlPattern} />
-        
         <div key={view} className="animate-view-enter">
-          {view === "search" ? <SearchView /> : view === "myposters" ? <MyPostersView /> : view === "cataloghi" ? <CataloghiView /> : (!selected ? <EditView /> : null)}
+          {view === "search" ? <SearchView /> : view === "myposters" ? <MyPostersView /> : view === "cataloghi" ? <CataloghiView /> : <EditView />}
         </div>
-        
-        {/* Strip di stato */}
-        <HomeStatusStrip />
+        {/* Strip di stato: presente nelle viste principali, nascosto in editor poster */}
+        {!(view === "edit" && selected) && <HomeStatusStrip />}
       </div>
 
-      {/* Desktop Bottom-Right Utility Cluster */}
-      <div className="hidden md:block fixed bottom-5 right-5 z-50">
+      {/* Desktop Bottom-Right Utility Cluster (hidden when editor is open) */}
+      <div className={`hidden md:block fixed bottom-5 right-5 z-50 transition-opacity duration-150 ${view === "edit" && selected ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         <div className="flex items-center gap-2 floating-group">
           <button type="button"
             aria-label={t("ui.refreshLists")}
