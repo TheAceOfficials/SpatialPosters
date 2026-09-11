@@ -94,12 +94,13 @@ export async function POST(req: NextRequest) {
   // Fix L5: validazione STRUTTURALE del body — prima `body.posterPaths?.length`
 // passava anche per valori non-array con `.length` (es. una stringa) e il
 // successivo `.map` schiantava con TypeError → 500 generico.
-const isValidPosterPath = (p: unknown): p is string => typeof p === "string" && p.startsWith("/") && p.length > 1 && p.length <= 300
+const isValidPosterPath = (p: unknown): p is string =>
+  typeof p === "string" && p.length > 1 && p.length <= 2000 && (p.startsWith("/") || p.startsWith("http://") || p.startsWith("https://"))
 if (!Array.isArray(body.posterPaths) || body.posterPaths.length === 0 || !body.posterPaths.every(isValidPosterPath)) {
-  return Response.json({ error: "posterPaths must be a non-empty array of absolute poster paths" }, { status: 400 })
+  return Response.json({ error: "posterPaths must be a non-empty array of poster paths or URLs" }, { status: 400 })
 }
 if (typeof body.logoPath !== "string" || !isValidPosterPath(body.logoPath)) {
-  return Response.json({ error: "logoPath must be an absolute path starting with '/'" }, { status: 400 })
+  return Response.json({ error: "logoPath must be a valid path starting with '/' or a valid URL" }, { status: 400 })
 }
 for (const field of ["logoScale", "logoOffsetX", "logoOffsetY"] as const) {
   const v = body[field]
@@ -109,11 +110,6 @@ for (const field of ["logoScale", "logoOffsetX", "logoOffsetY"] as const) {
 }
 if (body.hasBadges !== undefined && typeof body.hasBadges !== "boolean") {
   return Response.json({ error: "Invalid body field: 'hasBadges' must be a boolean" }, { status: 400 })
-}
-
-// logoPath entra in una URL TMDB: deve essere un path assoluto, non una URL.
-if (!body.logoPath.startsWith("/")) {
-  return Response.json({ error: "logoPath must be a path starting with '/'" }, { status: 400 })
 }
 
   // Endpoint CPU/network-heavy: limita il numero di candidati da analizzare.
@@ -139,7 +135,9 @@ if (!body.logoPath.startsWith("/")) {
   const logoOffsetY = body.logoOffsetY ?? 0
   const hasBadges = body.hasBadges ?? true
 
-  const logoUrl = `${TMDB_IMAGE_BASE}/w500${body.logoPath}`
+  const logoUrl = body.logoPath.startsWith("http://") || body.logoPath.startsWith("https://")
+    ? body.logoPath
+    : `${TMDB_IMAGE_BASE}/w500${body.logoPath}`
 
   let logoBuffer: Buffer
   const logoAc = new AbortController()
@@ -158,7 +156,9 @@ if (!body.logoPath.startsWith("/")) {
       const ac = new AbortController()
       const timer = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS)
       try {
-        const posterUrl = `${TMDB_IMAGE_BASE}/${posterSize}${candidate.file_path}`
+        const posterUrl = candidate.file_path.startsWith("http://") || candidate.file_path.startsWith("https://")
+          ? candidate.file_path
+          : `${TMDB_IMAGE_BASE}/${posterSize}${candidate.file_path}`
         const posterBuffer = await fetchImage(posterUrl, ac.signal)
         return {
           posterPath: candidate.file_path,

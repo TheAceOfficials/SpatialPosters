@@ -10,6 +10,19 @@ interface FitDebugPanelProps {
   t: (key: string, params?: Record<string, string | number>) => string
 }
 
+const REASON_MAP: Record<string, string> = {
+  "Buon contrasto logo/sfondo": "Good logo/bg contrast",
+  "Scarso contrasto logo/sfondo": "Poor logo/bg contrast",
+  "Zona logo pulita": "Clean logo area",
+  "Zona logo caotica": "Busy logo area",
+  "Molti dettagli dietro il logo": "High detail behind logo",
+  "Zona logo senza distrazioni": "Distraction-free logo area",
+  "Dettagli nell'area logo": "Details in logo area",
+  "Parte del logo su sfondo simile": "Part of logo on similar bg",
+  "Colore logo simile allo sfondo": "Logo color similar to bg",
+  "Zona logo non disponibile": "Logo area unavailable",
+}
+
 /** Pannello di debug del best-fit (estratto da PosterOptions). */
 export function FitDebugPanel({ results, bestResult, shortPath, scoreClass, t }: FitDebugPanelProps) {
   return (
@@ -48,7 +61,7 @@ export function FitDebugPanel({ results, bestResult, shortPath, scoreClass, t }:
 
             {result.reasons.length > 0 && (
               <div className="mt-1 text-muted">
-                {result.reasons.join(" - ")}
+                {result.reasons.map((r) => REASON_MAP[r] || r).join(" - ")}
               </div>
             )}
           </div>

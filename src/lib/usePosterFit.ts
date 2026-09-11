@@ -144,9 +144,9 @@ export function usePosterFit(input: UsePosterFitInput): UsePosterFitResult {
           // route admin sono aperte, quindi il best-fit funziona solo in dev
           // finché il flag manca — messaggio esplicito invece del silenzio.
           if (res.status === 401) {
-            setError("Best-fit non disponibile: l'istanza non è in modalità pubblica (imposta PICTORIUM_PUBLIC_INSTANCE=1).")
+            setError("Best-fit not available: instance is not public.")
           } else {
-            setError(`Analisi best-fit fallita (HTTP ${res.status})`)
+            setError(`Best-fit analysis failed (HTTP ${res.status})`)
           }
           setBestFitPath(null)
           setResults([])
@@ -170,7 +170,7 @@ export function usePosterFit(input: UsePosterFitInput): UsePosterFitResult {
         setBestFitPath(data.bestPosterPath)
       } catch (err) {
         if ((err as Error)?.name === "AbortError" || controller.signal.aborted) return
-        setError("Errore di rete durante l'analisi best-fit")
+        setError("Network error during best-fit analysis")
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false)

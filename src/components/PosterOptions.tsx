@@ -11,7 +11,7 @@ import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import { usePosterFit } from "@/lib/usePosterFit"
-import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus } from "lucide-react"
+import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus, Trash2 } from "lucide-react"
 
 interface Props {
   posters: TMDBImage[]
@@ -33,34 +33,92 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
 
   const excludedSet = useMemo(() => new Set(ed.excludedPosters), [ed.excludedPosters])
 
+  const storageKey = useMemo(() => {
+    return selected?.id ? `spatial_custom_posters_${selected.id}` : "spatial_custom_posters_global"
+  }, [selected?.id])
+
   const [customPosters, setCustomPosters] = useState<TMDBImage[]>([])
   const [customUrlInput, setCustomUrlInput] = useState("")
   const [showUrlInput, setShowUrlInput] = useState(false)
 
+  // Load saved custom posters from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) setCustomPosters(parsed)
+      } else {
+        setCustomPosters([])
+      }
+    } catch {
+      setCustomPosters([])
+    }
+  }, [storageKey])
+
+  const saveCustomPosters = (list: TMDBImage[]) => {
+    setCustomPosters(list)
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(list))
+    } catch (err) {
+      console.error("Failed to save custom posters:", err)
+    }
+  }
+
   const handleAddCustomUrl = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!customUrlInput || (!customUrlInput.startsWith("http://") && !customUrlInput.startsWith("https://"))) {
-      toast.error(t("ui.invalidUrl") || "Invalid URL")
+    const trimmed = customUrlInput.trim()
+    if (!trimmed || (!trimmed.startsWith("http://") && !trimmed.startsWith("https://"))) {
+      toast.error(t("ui.invalidUrl") || "Please enter a valid HTTP/HTTPS URL")
+      return
+    }
+    if (customPosters.some((p) => p.file_path === trimmed)) {
+      toast.error(t("ui.urlExists") || "Poster URL already added")
       return
     }
     const newPoster: TMDBImage = {
-      file_path: customUrlInput,
+      file_path: trimmed,
       width: 1000,
       height: 1500,
       iso_639_1: null,
       vote_average: 0
     }
-    setCustomPosters((prev) => [newPoster, ...prev])
+    const updated = [newPoster, ...customPosters]
+    saveCustomPosters(updated)
     setCustomUrlInput("")
     setShowUrlInput(false)
-    toast.success(t("ui.urlAdded") || "URL Poster Added")
+    selectPoster(newPoster)
+    toast.success(t("ui.urlAdded") || "Custom poster added!")
+  }
+
+  const handleRemoveCustomPoster = (filePath: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    const updated = customPosters.filter((p) => p.file_path !== filePath)
+    saveCustomPosters(updated)
+
+    if (ed.excludedPosters.includes(filePath)) {
+      const nextExcluded = ed.excludedPosters.filter((p) => p !== filePath)
+      ed.setExcludedPosters(nextExcluded)
+    }
+    if (ed.rotationPosters.includes(filePath)) {
+      const nextRotation = ed.rotationPosters.filter((p) => p !== filePath)
+      ed.setRotationPosters(nextRotation)
+    }
+
+    if (posterActivePath === filePath) {
+      const fallback = posters[0] || updated[0]
+      if (fallback) selectPoster(fallback)
+    }
+
+    toast.success(t("ui.posterRemoved") || "Custom poster removed")
   }
 
   const cleanPosters = useMemo(() => {
-    const defaultClean = posters.filter((img) => img.iso_639_1 === null && !excludedSet.has(img.file_path))
     const userClean = customPosters.filter((img) => !excludedSet.has(img.file_path))
+    const defaultClean = posters.filter((img) => img.iso_639_1 === null && !excludedSet.has(img.file_path))
     return [...userClean, ...defaultClean]
   }, [posters, excludedSet, customPosters])
+
   const hasClean = cleanPosters.length > 0
   const langGroups = useMemo(
     () => Object.entries(groupBy(posters.filter((img) => img.iso_639_1 !== null), (img) => img.iso_639_1 || "other")).sort(([a], [b]) => {
@@ -211,11 +269,13 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
   const activeClean = activeGroup === "clean"
   const activeLangImgs = useMemo(() => {
     if (activeGroup === "excluded") {
-      return posters.filter(img => excludedSet.has(img.file_path))
+      const customExcluded = customPosters.filter((img) => excludedSet.has(img.file_path))
+      const defaultExcluded = posters.filter((img) => excludedSet.has(img.file_path))
+      return [...customExcluded, ...defaultExcluded]
     }
     const rawImgs = !activeClean ? langGroups.find(([l]) => l === activeGroup)?.[1] ?? [] : []
-    return rawImgs.filter(img => !excludedSet.has(img.file_path))
-  }, [activeClean, langGroups, activeGroup, posters, excludedSet])
+    return rawImgs.filter((img) => !excludedSet.has(img.file_path))
+  }, [activeClean, langGroups, activeGroup, posters, customPosters, excludedSet])
 
   const visibleLangImgs = useMemo(() => {
     return activeLangImgs.slice(0, visibleLangCount)
@@ -288,23 +348,39 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
           <div className="flex-1 overflow-x-auto scrollbar-none">
             <PosterTabs tabs={posterTabs} activeGroup={activeGroup} onSelect={setActiveGroup} />
           </div>
-          <button type="button" aria-label="Add custom URL" onClick={() => setShowUrlInput(!showUrlInput)} className="h-7 w-9 rounded-lg bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all shrink-0 flex items-center justify-center">
+          <button
+            type="button"
+            aria-label="Add custom poster URL"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className={`h-8 px-2.5 rounded-xl border transition-all shrink-0 flex items-center gap-1.5 text-xs font-medium shadow-sm ${
+              showUrlInput
+                ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
+                : "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10"
+            }`}
+          >
             <Link className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t("ui.customUrl") || "+ URL"}</span>
           </button>
         </div>
       )}
 
       {showUrlInput && (
-        <form onSubmit={handleAddCustomUrl} className="flex gap-2 mb-3 px-1">
-          <input
-            type="url"
-            value={customUrlInput}
-            onChange={(e) => setCustomUrlInput(e.target.value)}
-            placeholder="https://..."
-            className="flex-1 bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-accent-orange/50"
-            autoFocus
-          />
-          <button type="submit" className="px-3 rounded-lg bg-accent-orange/20 text-accent-orange hover:bg-accent-orange/30 font-semibold text-xs transition-colors flex items-center gap-1">
+        <form onSubmit={handleAddCustomUrl} className="flex gap-2 mb-3 p-1.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-lg transition-all">
+          <div className="relative flex-1">
+            <Link className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input
+              type="url"
+              value={customUrlInput}
+              onChange={(e) => setCustomUrlInput(e.target.value)}
+              placeholder="https://..."
+              className="w-full bg-black/50 border border-white/10 rounded-lg pl-8 pr-2.5 py-1.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-accent-orange/60 transition-colors"
+              autoFocus
+            />
+          </div>
+          <button
+            type="submit"
+            className="px-3 rounded-lg bg-accent-orange text-white hover:bg-orange-500 font-semibold text-xs transition-all flex items-center gap-1 shadow-md hover:scale-[1.02] active:scale-[0.98]"
+          >
             <Plus className="w-3.5 h-3.5" /> {t("ui.add") || "Add"}
           </button>
         </form>
@@ -392,29 +468,55 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
               const isBestFit = bestFitPath === img.file_path
               const showBadge = isBestFit && bestScore >= 0.45
               const isHighScore = bestScore >= 0.65
+              const isCustom = img.file_path.startsWith("http://") || img.file_path.startsWith("https://")
+
               return (
-                <div key={img.file_path} className={`relative group rounded-xl overflow-hidden ${isBestFit && bestScore >= 0.45 ? `ring-1 ${isHighScore ? "ring-orange-400/70 shadow-[0_0_18px_rgba(232,93,42,0.12)]" : "ring-amber-400/50"}` : ""}`}>
+                <div key={img.file_path} className={`relative group rounded-xl overflow-hidden transition-all duration-200 ${isBestFit && bestScore >= 0.45 ? `ring-1 ${isHighScore ? "ring-orange-400/70 shadow-[0_0_18px_rgba(232,93,42,0.15)]" : "ring-amber-400/50"}` : ""}`}>
                   <PosterBtn staggerIndex={stagger} img={img} active={posterActivePath === img.file_path} onSelect={selectPoster} />
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
+                  
+                  {isCustom && (
+                    <div className="absolute top-1.5 left-1.5 z-20 px-1.5 py-0.5 rounded-full bg-accent-orange/90 backdrop-blur-md text-[9px] font-bold text-white flex items-center gap-1 shadow-md">
+                      <Link className="w-2.5 h-2.5" /> URL
+                    </div>
+                  )}
+
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
                   {showBadge && (
                     <div className={`fit-badge z-20 ${isHighScore ? "fit-badge-amber" : ""}`}>
                       <Sparkles className="w-2.5 h-2.5 inline mr-0.5" />
                       {isHighScore ? t("ui.bestFit") : t("ui.bestFitAlt")}
                     </div>
                   )}
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 md:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                    <button type="button"
-                      aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
-                      onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${inRotation ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-accent-orange hover:text-white"}`}
-                      title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
-                    >
-                      {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
-                    </button>
-                    <button type="button"
+
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                    {isCustom ? (
+                      <button
+                        type="button"
+                        aria-label="Delete custom poster"
+                        onClick={(e) => handleRemoveCustomPoster(img.file_path, e)}
+                        className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-red-600/90 text-white hover:bg-red-500"
+                        title="Delete custom poster"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
+                        onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${inRotation ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-accent-orange hover:text-white"}`}
+                        title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
+                      >
+                        {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
                       aria-label={t("ui.excludePoster")}
                       onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
-                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/60 text-white/80 hover:bg-red-500 hover:text-white"
+                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/60 text-white/80 hover:bg-amber-500 hover:text-white"
                       title={t("ui.excludePoster")}
                     >
                       <EyeOff className="w-3.5 h-3.5" />
@@ -454,15 +556,38 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
             {visibleLangImgs.map((img) => {
               const stagger = idx++
               const isExcluded = excludedSet.has(img.file_path)
+              const isCustom = img.file_path.startsWith("http://") || img.file_path.startsWith("https://")
+
               return (
                 <div key={img.file_path} className="relative group rounded-xl overflow-hidden">
                   <PosterBtn staggerIndex={stagger} img={img} active={posterActivePath === img.file_path} onSelect={selectPoster} />
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 md:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                    <button type="button"
+                  
+                  {isCustom && (
+                    <div className="absolute top-1.5 left-1.5 z-20 px-1.5 py-0.5 rounded-full bg-accent-orange/90 backdrop-blur-md text-[9px] font-bold text-white flex items-center gap-1 shadow-md">
+                      <Link className="w-2.5 h-2.5" /> URL
+                    </div>
+                  )}
+
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                    {isCustom && (
+                      <button
+                        type="button"
+                        aria-label="Delete custom poster"
+                        onClick={(e) => handleRemoveCustomPoster(img.file_path, e)}
+                        className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-red-600/90 text-white hover:bg-red-500"
+                        title="Delete custom poster"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
                       aria-label={isExcluded ? (t("ui.restorePoster") || "Restore") : t("ui.excludePoster")}
                       onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${isExcluded ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-red-500 hover:text-white"}`}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${isExcluded ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-amber-500 hover:text-white"}`}
                       title={isExcluded ? (t("ui.restorePoster") || "Restore") : t("ui.excludePoster")}
                     >
                       {isExcluded ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
