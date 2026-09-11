@@ -21,7 +21,7 @@ import { TransformControls } from "@/components/TransformControls"
 import { EpisodeGroupControls } from "@/components/EpisodeGroupControls"
 import { JwRankBadge } from "@/components/JwRankBadge"
 import { usePosterPreview } from "@/lib/usePosterPreview"
-import { Check, ExternalLink, Save, Trash2, X, ChevronLeft } from "lucide-react"
+import { Check, Clock, ExternalLink, Save, Trash2, X, ChevronLeft } from "lucide-react"
 
 export default function EditView() {
   const accentColor = usePSelector((v) => v.accentColor)
@@ -62,9 +62,10 @@ export default function EditView() {
   const yearOf = usePSelector((v) => v.yearOf)
   const { t, lang } = useT()
   const ed = usePosterEditor()
-
+  const [searchFocused, setSearchFocused] = useState(false)
   const [tvdbId, setTvdbId] = useState<number | null>(null)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Fix L30: timer del "copied" ripulito su unmount (setState post-unmount).
   const urlCopiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [mobileSection, setMobileSection] = useState<"poster" | "preview" | "customize">("preview")
   const [activeRightTab, setActiveRightTab] = useState<"logo" | "badge" | "transform" | "stagioni">("logo")
@@ -77,28 +78,11 @@ export default function EditView() {
     if (selected?.id) setActivePosterTab("clean")
   }, [selected?.id])
 
-  // Lock body scroll when editor is open
-  useEffect(() => {
-    if (selected) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-    return () => { document.body.style.overflow = "" }
-  }, [selected])
-
   const { imageError, setImageError, previewLoading, loadProgress, imgSrc, retry } = usePosterPreview()
 
   const handleSave = useCallback(async () => {
     await saveConfig()
   }, [saveConfig])
-
-  const handleBack = useCallback(() => {
-    setSelected(null)
-    setPreviewPoster(null)
-    setSelectedLogo(null)
-    setPreviewId(null)
-  }, [setSelected, setPreviewPoster, setSelectedLogo, setPreviewId])
 
   const searchBar = (
     <div className={selected ? "w-full max-w-lg relative z-[100] isolate" : "max-w-lg mx-auto relative z-[100] isolate mb-8"}>
@@ -123,23 +107,21 @@ export default function EditView() {
     }
   }, [])
 
-  // Ctrl+S to save
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         handleSave()
       }
-      // Escape to close editor
-      if (e.key === "Escape" && selected && !testUrl) {
-        handleBack()
-      }
     }
     window.addEventListener("keydown", fn)
     return () => window.removeEventListener("keydown", fn)
-  }, [handleSave, handleBack, selected, testUrl])
+  }, [handleSave])
 
-  // TVDB id
+  // TVDB id per i dettagli titolo (usa TMDB external_ids via seasonTypes route con tmdbKey)
+  // Campi primitivi estratti per il deps array: l'oggetto `selected` cambia
+  // identità a ogni update del parent anche quando i campi rilevanti non
+  // cambiano — dipendere dall'oggetto rifarebbe il fetch TVDB a ogni render.
   const selectedId = selected?.id
   const selectedImdbId = selected?.imdb_id
   const selectedMediaType = selected?.media_type
@@ -157,6 +139,7 @@ export default function EditView() {
         })
         const d = await res.json().catch(() => ({}))
         if (d?.tvdbId && Number.isFinite(d.tvdbId)) return d.tvdbId as number
+        // fallback: se non c'è tvdbId ma ci sono results, prova a inferire da cache? altrimenti null
         return null
       } catch { return null }
     }
@@ -172,6 +155,8 @@ export default function EditView() {
 
   const cleanPoster = previewPoster?.iso_639_1 === null
 
+  // Memoizzato: l'array entra nel deps array dell'effect sotto e non deve
+  // cambiare identità a ogni render (react-hooks/exhaustive-deps).
   const rightTabs = useMemo(() => [
     { key: "logo", label: t("ui.logoSection") },
     { key: "badge", label: t("ui.badgeSection") },
@@ -183,448 +168,259 @@ export default function EditView() {
     if (!rightTabs.some((tab) => tab.key === activeRightTab)) {
       setActiveRightTab("logo")
     }
+    // `rightTabs` è derivato da selectedLogo/selected?.media_type: dipendere
+    // dall'array (ricreato a ogni render) è equivalente e idempotente — il
+    // body non fa setState quando la tab attiva è ancora valida.
   }, [rightTabs, activeRightTab])
 
-  const isSavedPoster = useMemo(() => {
-    if (!selected) return false
-    const key = `${selected.media_type}:${selected.id}`
-    return mappingsMap.has(key)
-  }, [mappingsMap, selected])
+  return (
+    <div>
+      {selected && (
+        <div className="flex flex-col items-center w-full">
+          {/* Desktop Header */}
+          <header className="hidden lg:flex w-full px-4 md:px-6 -mt-1 md:-mt-4 mb-3 flex-col items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element -- logo locale */}
+            <img
+              onClick={goHome}
+              src="/SpatialPosters.png"
+              alt="SpatialPosters"
+              decoding="async"
+              className="header-logo h-20 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1"
+            />
+            <p className="header-tagline text-xs md:text-sm text-muted">{t("ui.homeTagline")}</p>
+          </header>
 
-  // Build test URL helper
-  const buildTestUrl = useCallback(() => {
-    if (!selected || !previewPoster) return null
-    const url = buildPreviewUrl({
-      selected,
-      previewPoster,
-      selectedLogo,
-      selectedBackdrop: ed.selectedBackdrop,
-      logoScale: ed.logoScale,
-      logoOffsetX: ed.logoOffsetX,
-      logoOffsetY: ed.logoOffsetY,
-      backdropScale: ed.backdropScale,
-      backdropOffsetX: ed.backdropOffsetX,
-      backdropOffsetY: ed.backdropOffsetY,
-      metaInfo,
-      trendRank,
-      mdblistAnimeList,
-      topEdgeColor,
-      accentColor,
-      lang,
-      tmdbKey,
-    }, {
-      globalBadges: ed.globalBadges,
-      rankingBadges: ed.rankingBadges,
-      badgeGenre: ed.badgeGenre,
-      badgeYear: ed.badgeYear,
-      badgeRating: ed.badgeRating,
-      badgeQuality: ed.badgeQuality,
-      ratingSources: ed.ratingSources,
-      badgeStyle: ed.badgeStyle,
-      rankingBadgeStyle: ed.rankingBadgeStyle,
-      customBadge: ed.customBadge,
-      gradientHeight: ed.gradientHeight,
-      blurIntensity: ed.blurIntensity,
-      blurFade: ed.blurFade,
-      blurDarkness: ed.blurDarkness,
-      blurEnabled: ed.blurEnabled,
-      networkLogo: ed.networkLogo,
-      ribbonSide: ed.ribbonSide,
-    })
-    return url
-  }, [selected, previewPoster, selectedLogo, ed, metaInfo, trendRank, mdblistAnimeList, topEdgeColor, accentColor, lang, tmdbKey])
-
-  // ── Full-Page Editor (when a poster is selected) ──────────────────────────
-  if (selected) {
-    const titleText = titleOf(selected)
-    const yearText = yearOf(selected)
-    const mediaLabel = selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")
-
-    return (
-      <>
-        {/* ═══ FULL-SCREEN EDITOR OVERLAY ═══ */}
-        <div className="fullscreen-editor" role="main" aria-label={`Poster editor: ${titleText}`}>
-
-          {/* ─── PREMIUM TOP BAR ─────────────────────────────────────── */}
-          <div className="editor-topbar">
-            {/* Back */}
+          {/* Mobile Top Bar: Back / Title / Quick Save */}
+          <div className="flex lg:hidden items-center justify-between w-full px-2 mb-3 gap-2">
             <button
               type="button"
-              aria-label={t("ui.back")}
-              onClick={handleBack}
-              className="editor-back-btn"
+              onClick={() => { setSelected(null); setPreviewPoster(null); setSelectedLogo(null); setPreviewId(null) }}
+              className="flex items-center gap-1 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white active:scale-95 transition-all shrink-0 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span className="hidden xs:inline">{t("ui.back")}</span>
+              <span>{t("ui.back")}</span>
             </button>
-
-            {/* Title */}
-            <div className="editor-topbar-title">
-              <p className="text-[13px] sm:text-sm font-bold text-zinc-100 leading-tight truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg">
-                {titleText}
-              </p>
-              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap justify-center">
-                <span className="text-[10px] font-mono text-zinc-500">{yearText}</span>
-                <span className="w-0.5 h-0.5 rounded-full bg-zinc-600" />
-                <span className="text-[10px] text-zinc-500">{mediaLabel}</span>
-                {cleanPoster && (
-                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white/[0.07] border border-white/10 text-zinc-400">
-                    {t("ui.clean")}
-                  </span>
-                )}
-                {isSavedPoster && (
-                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center gap-0.5">
-                    <Check className="w-2.5 h-2.5 stroke-[3]" /> {t("ui.savedShort")}
-                  </span>
-                )}
-                <JwRankBadge tmdbId={selected.id} type={selected.media_type === "movie" ? "movie" : "tv"} regionCode={ed.defaultRegion} />
-              </div>
+            <div className="flex-1 min-w-0 text-center px-1">
+              <p className="text-xs font-bold text-zinc-100 truncate">{titleOf(selected)}</p>
+              <p className="text-[10px] text-zinc-400 font-mono">{yearOf(selected)} · {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")}</p>
             </div>
-
-            {/* Actions */}
-            <div className="editor-topbar-actions">
-              {previewPoster && isSavedPoster && (
-                <button
-                  type="button"
-                  aria-label={t("ui.remove")}
-                  title={t("ui.remove")}
-                  onClick={() => {
-                    const key = `${selected.media_type}:${selected.id}`
-                    const mapping = mappingsMap.get(key)
-                    if (mapping) removeMapping(mapping).catch((e) => console.error("[pictorium] Remove mapping failed:", e))
-                    handleBack()
-                  }}
-                  className="p-2 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20 active:scale-90"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-
-              {previewPoster && (
-                <button
-                  type="button"
-                  aria-label={t("ui.testUrl")}
-                  title={t("ui.testUrl")}
-                  onClick={() => {
-                    const url = buildTestUrl()
-                    if (!url) return
-                    setUrlCopied(false)
-                    setTestUrl(`${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`)
-                  }}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/10 transition-all active:scale-95"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">{t("ui.testUrl")}</span>
-                </button>
-              )}
-
-              {previewPoster && (
-                <button
-                  type="button"
-                  aria-label={t("ui.savePoster")}
-                  onClick={handleSave}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-accent-orange to-amber-500 text-white font-bold text-xs shadow-md shadow-accent-orange/25 hover:shadow-accent-orange/40 hover:scale-[1.02] active:scale-[0.97] transition-all"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{t("ui.savePoster")}</span>
-                </button>
-              )}
-            </div>
+            {previewPoster && (
+              <button
+                type="button"
+                aria-label={t("ui.savePoster")}
+                onClick={handleSave}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-accent-orange to-amber-500 text-white font-semibold text-xs shadow-md shadow-accent-orange/20 active:scale-95 transition-all shrink-0 cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>{t("ui.save")}</span>
+              </button>
+            )}
           </div>
 
-          {/* ─── EDITOR BODY ─────────────────────────────────────────── */}
-          <div className="editor-body">
+          {/* Mobile Segmented Switcher (Scegli Poster / Anteprima / Modifica) */}
+          <div className="flex lg:hidden items-center justify-center p-1 bg-surface/90 backdrop-blur-md rounded-2xl border border-white/[0.08] mb-4 w-full max-w-md mx-auto shadow-lg shadow-black/20">
+            <button
+              type="button"
+              onClick={() => setMobileSection("poster")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                mobileSection === "poster"
+                  ? "bg-accent-orange text-white shadow-md shadow-accent-orange/20"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <span>{t("ui.poster")}</span>
+              <span className="text-[10px] opacity-75 font-mono">({posters.length})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileSection("preview")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                mobileSection === "preview"
+                  ? "bg-accent-orange text-white shadow-md shadow-accent-orange/20"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <span>{t("ui.preview")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileSection("customize")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                mobileSection === "customize"
+                  ? "bg-accent-orange text-white shadow-md shadow-accent-orange/20"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <span>{t("ui.customize")}</span>
+            </button>
+          </div>
 
-            {/* Mobile Segmented Switcher: Poster / Preview / Customize — only on mobile (<md) */}
-            <div className="flex md:hidden items-center justify-center p-1 mx-3 mt-2.5 bg-surface/90 backdrop-blur-md rounded-2xl border border-white/[0.08] shadow-lg shadow-black/20 flex-shrink-0">
-              {[
-                { key: "poster", label: t("ui.poster"), sub: `(${posters.length})` },
-                { key: "preview", label: t("ui.preview"), sub: "" },
-                { key: "customize", label: t("ui.customize"), sub: "" },
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setMobileSection(item.key as typeof mobileSection)}
-                  className={`flex-1 flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer ${
-                    mobileSection === item.key
-                      ? "bg-accent-orange text-white shadow-md shadow-accent-orange/20"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {item.sub && <span className="text-[10px] opacity-70 font-mono">{item.sub}</span>}
-                </button>
-              ))}
+          <div className="editor-workspace w-full px-2 sm:px-4 md:px-6 lg:h-[clamp(660px,calc(100dvh-260px),830px)] lg:min-h-0">
+
+            {/* LEFT: Poster */}
+            <div className={mobileSection === "poster" ? "block w-full" : "hidden lg:block h-full min-w-0"}>
+              <EditorPanel className="animate-fade-scale-in-panel-left h-full" aria-label={`${selected?.title || ""} — Poster selection`} title={t("ui.posterAvailable")} headerRight={<span className="text-[10px] font-mono text-muted px-1.5 py-0.5 rounded-md bg-white/[0.05] border border-white/10 tabular-nums">{posters.length}</span>}>
+                {loadingImages ? (
+                  <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-8 rounded-lg skeleton-shimmer" />)}</div>
+                ) : (
+                  <PosterOptions posters={posters} posterActivePath={posterActivePath} lang={lang} selectPoster={selectPoster} activeGroup={activePosterTab} onActiveGroupChange={setActivePosterTab} showTabs />
+                )}
+              </EditorPanel>
             </div>
 
-            {/* 3-Column Workspace */}
-            <div className="editor-workspace">
-
-              {/* LEFT: Poster Selection */}
-              <div className={`${mobileSection === "poster" ? "block" : "hidden md:block"} h-full min-w-0`}>
-                <EditorPanel
-                  className="animate-fade-scale-in-panel-left h-full"
-                  aria-label={`${selected?.title || ""} — Poster selection`}
-                  title={t("ui.posterAvailable")}
-                  headerRight={
-                    <span className="text-[10px] font-mono text-muted px-1.5 py-0.5 rounded-md bg-white/[0.05] border border-white/10 tabular-nums">
-                      {posters.length}
-                    </span>
-                  }
-                >
-                  {loadingImages ? (
-                    <div className="space-y-2">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="h-8 rounded-lg skeleton-shimmer" />
-                      ))}
-                    </div>
-                  ) : (
-                    <PosterOptions
-                      posters={posters}
-                      posterActivePath={posterActivePath}
-                      lang={lang}
-                      selectPoster={selectPoster}
-                      activeGroup={activePosterTab}
-                      onActiveGroupChange={setActivePosterTab}
-                      showTabs
-                    />
-                  )}
-                </EditorPanel>
-              </div>
-
-              {/* CENTER: Live Preview — visible on desktop always, on mobile only in "preview" tab */}
-              <div className={`${mobileSection === "preview" ? "block" : "hidden md:block"} h-full min-w-0`}>
-                <EditorPanel
-                  className="animate-fade-scale-in h-full"
-                  title={<><span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 align-middle shadow-[0_0_6px_rgba(52,211,153,0.7)]" aria-hidden="true" />{t("ui.previewLive")}</>}
-                  footer={
-                    previewPoster && selected ? (
-                      <div className="flex flex-wrap items-center justify-center gap-2">
-                        {/* Remove mapping button */}
-                        {(() => {
-                          const key = `${selected.media_type}:${selected.id}`
-                          const hasMapping = mappingsMap.get(key)
-                          if (!hasMapping) return null
-                          return (
-                            <button
-                              type="button"
-                              aria-label={t("ui.remove")}
-                              onClick={() => {
-                                removeMapping(hasMapping).catch((e) => console.error("[pictorium] Remove mapping failed:", e))
-                                handleBack()
-                              }}
-                              className="btn-danger min-h-[44px] px-4 rounded-xl text-xs"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              {t("ui.remove")}
-                            </button>
-                          )
-                        })()}
-                        <button
-                          type="button"
-                          aria-label={t("ui.testUrl")}
-                          onClick={() => {
-                            const url = buildTestUrl()
-                            if (!url) return
-                            setUrlCopied(false)
-                            setTestUrl(`${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`)
-                          }}
-                          className="btn-secondary min-h-[44px] px-4 rounded-xl text-xs"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          {t("ui.testUrl")}
+            {/* CENTER: Preview */}
+            <div className={mobileSection === "preview" ? "block w-full" : "hidden lg:block h-full min-w-0"}>
+              <EditorPanel className="animate-fade-scale-in h-full" title={<><span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 align-middle shadow-[0_0_6px_rgba(52,211,153,0.7)]" aria-hidden="true" />{t("ui.previewLive")}</>} footer={
+                previewPoster && selected ? (
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {(() => {
+                      if (!selected) return null
+                      const key = `${selected.media_type}:${selected.id}`
+                      const hasMapping = mappingsMap.get(key)
+                      if (!hasMapping) return null
+                      return (
+                        <button type="button" aria-label={t("ui.remove")} onClick={() => { removeMapping(hasMapping).catch((e) => console.error("[pictorium] Remove mapping failed:", e)); setSelected(null); setPreviewPoster(null); setSelectedLogo(null); setPreviewId(null) }} className="btn-danger min-h-[44px] px-4 rounded-xl text-xs">
+                          <Trash2 className="w-4 h-4" />
+                          {t("ui.remove")}
                         </button>
-                        <button
-                          type="button"
-                          aria-label={t("ui.savePoster")}
-                          onClick={handleSave}
-                          className="btn-primary min-h-[44px] px-5 rounded-xl"
-                        >
-                          <Save className="w-4 h-4" />
-                          {t("ui.savePoster")}
-                        </button>
-                      </div>
-                    ) : undefined
-                  }
-                >
-                  <div className="flex flex-col items-center h-full min-h-0">
-                    <div className="flex-1 min-h-0 w-full flex items-center justify-center">
-                      <div className="editor-preview-fit relative">
-                        <div className={`editor-stage editor-stage-fill isolate ${previewPoster?.file_path ? "editor-stage-glow" : ""}`}>
-                          <PosterDepthEdge edgeStrength={40} edgeCoverage={10} />
-                          <div
-                            className="absolute -inset-8 rounded-3xl opacity-45 blur-3xl pointer-events-none transition-all duration-700 ease-out z-0"
-                            style={{
-                              background: accentColor
-                                ? `radial-gradient(circle at 50% 50%, ${accentColor}, transparent 70%)`
-                                : "radial-gradient(circle at 50% 50%, rgba(232, 93, 42, 0.40), transparent 70%)",
-                            }}
-                          />
-                          <div className="absolute inset-0 z-[1]">
-                            <PosterPreview
-                              previewLoading={previewLoading}
-                              loadProgress={loadProgress}
-                              imageError={imageError}
-                              setImageError={setImageError}
-                              imgSrc={imgSrc}
-                              onRetry={retry}
-                            />
-                          </div>
-                          <PosterDepthSheen sheenStrength={20} />
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 text-center mt-3 shrink-0">
-                      {selectedLogo
-                        ? t("ui.logoSelected")
-                        : previewPoster?.iso_639_1 === null
-                        ? `${t("ui.clean")} ${t("ui.selected").toLowerCase()}`
-                        : previewPoster
-                        ? t("ui.logoHint")
-                        : t("ui.noPosterSelected")}
-                    </p>
+                      )
+                    })()}
+                    <button type="button" aria-label={t("ui.testUrl")} onClick={() => {
+                      if (!selected || !previewPoster) return
+                      const url = buildPreviewUrl({
+                        selected: selected,
+                        previewPoster: previewPoster,
+                        selectedLogo: selectedLogo,
+                        selectedBackdrop: ed.selectedBackdrop,
+                        logoScale: ed.logoScale,
+                        logoOffsetX: ed.logoOffsetX,
+                        logoOffsetY: ed.logoOffsetY,
+                        backdropScale: ed.backdropScale,
+                        backdropOffsetX: ed.backdropOffsetX,
+                        backdropOffsetY: ed.backdropOffsetY,
+                        metaInfo: metaInfo,
+                        trendRank: trendRank,
+                        mdblistAnimeList: mdblistAnimeList,
+                        topEdgeColor: topEdgeColor,
+                        accentColor: accentColor,
+                        lang: lang,
+                        tmdbKey: tmdbKey,
+                      }, {
+                        globalBadges: ed.globalBadges,
+                        rankingBadges: ed.rankingBadges,
+                        badgeGenre: ed.badgeGenre,
+                        badgeYear: ed.badgeYear,
+                        badgeRating: ed.badgeRating,
+                        badgeQuality: ed.badgeQuality,
+                        ratingSources: ed.ratingSources,
+                        badgeStyle: ed.badgeStyle,
+                        rankingBadgeStyle: ed.rankingBadgeStyle,
+                        customBadge: ed.customBadge,
+                        gradientHeight: ed.gradientHeight,
+                        blurIntensity: ed.blurIntensity,
+                        blurFade: ed.blurFade,
+                        blurDarkness: ed.blurDarkness,
+                        blurEnabled: ed.blurEnabled,
+                        networkLogo: ed.networkLogo,
+                        ribbonSide: ed.ribbonSide,
+                      })
+                      if (!url) return
+                      setUrlCopied(false)
+                      setTestUrl(`${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`)
+                    }} className="btn-secondary min-h-[44px] px-4 rounded-xl text-xs">
+                      <ExternalLink className="w-4 h-4" />
+                      {t("ui.testUrl")}
+                    </button>
+                    <button type="button" aria-label={t("ui.savePoster")} onClick={handleSave} className="btn-primary min-h-[44px] px-5 rounded-xl">
+                      <Save className="w-4 h-4" />
+                      {t("ui.savePoster")}
+                    </button>
                   </div>
-                </EditorPanel>
-              </div>
+              ) : undefined}>
+              <div className="flex flex-col items-center h-full min-h-0">
+                <div className="flex-1 min-h-0 w-full flex items-center justify-center">
+                  <div className="editor-preview-fit relative">
+                    <div className={`editor-stage editor-stage-fill isolate ${previewPoster?.file_path ? "editor-stage-glow" : ""}`}>
+                      {/* NuvioDesktop-style depth edge */}
+                      <PosterDepthEdge edgeStrength={40} edgeCoverage={10} />
+                      {/* Accent Glow (firma Pictorium: si ritinta col colore dominante) */}
+                      <div
+                        className="absolute -inset-8 rounded-3xl opacity-45 blur-3xl pointer-events-none transition-all duration-700 ease-out z-0"
+                        style={{
+                          background: accentColor
+                            ? `radial-gradient(circle at 50% 50%, ${accentColor}, transparent 70%)`
+                            : "radial-gradient(circle at 50% 50%, rgba(232, 93, 42, 0.40), transparent 70%)",
+                        }}
+                      />
+                      <div className="absolute inset-0 z-[1]">
+                        <PosterPreview
+                          previewLoading={previewLoading}
+                          loadProgress={loadProgress}
+                          imageError={imageError}
+                          setImageError={setImageError}
+                          imgSrc={imgSrc}
+                          onRetry={retry}
+                        />
+                      </div>
+                      <PosterDepthSheen sheenStrength={20} />
+                    </div>
+                  </div>
+                </div>
 
-              {/* RIGHT: Customization (hidden on tablet — shown via tab on mobile) */}
-              <div className={`${mobileSection === "customize" ? "block" : "hidden md:block"} h-full min-w-0`}>
-                <EditorPanel
-                  className="animate-fade-scale-in-panel-right h-full"
-                  title={t("ui.customize")}
-                  tabs={rightTabs}
-                  activeTab={activeRightTab}
-                  onTabChange={(k) => setActiveRightTab(k as typeof activeRightTab)}
-                >
-                  {/* Details sub-header */}
+                <p className="text-[11px] text-zinc-500 text-center mt-3 shrink-0">{selectedLogo ? t("ui.logoSelected") : previewPoster?.iso_639_1 === null ? `${t("ui.clean")} ${t("ui.selected").toLowerCase()}` : previewPoster ? t("ui.logoHint") : t("ui.noPosterSelected")}</p>
+              </div>
+            </EditorPanel>
+            </div>
+
+            {/* RIGHT: Edit */}
+            <div className={mobileSection === "customize" ? "block w-full" : "hidden lg:block h-full min-w-0"}>
+              <EditorPanel className="animate-fade-scale-in-panel-right h-full" title={t("ui.customize")} tabs={rightTabs} activeTab={activeRightTab} onTabChange={(k) => setActiveRightTab(k as typeof activeRightTab)}>
+                {selected && (
                   <div className="mb-3 pb-3 border-b border-white/[0.08]">
                     <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1.5">{t("ui.details")}</h3>
                     <p className="text-sm font-bold tracking-tight text-zinc-50 truncate">{titleOf(selected)}</p>
-                    <p className="text-[11px] font-mono text-zinc-500 mt-1">
-                      {yearOf(selected)} · {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")} · TMDB{" "}
-                      <a href={`https://www.themoviedb.org/${selected.media_type}/${selected.id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">
-                        {selected.id}
-                      </a>
-                      {selected.imdb_id ? (
-                        <>
-                          {" "}· IMDB{" "}
-                          <a href={`https://www.imdb.com/title/${selected.imdb_id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">
-                            {selected.imdb_id}
-                          </a>
-                        </>
-                      ) : ""}
-                      {tvdbId ? (
-                        <>
-                          {" "}· TVDB{" "}
-                          <a href={`https://thetvdb.com/?tab=series&id=${tvdbId}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">
-                            {tvdbId}
-                          </a>
-                        </>
-                      ) : ""}
-                    </p>
+                    <p className="text-[11px] font-mono text-zinc-500 mt-1">{yearOf(selected)} · {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")} · TMDB <a href={`https://www.themoviedb.org/${selected.media_type}/${selected.id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{selected.id}</a>{selected.imdb_id ? <> · IMDB <a href={`https://www.imdb.com/title/${selected.imdb_id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{selected.imdb_id}</a></> : ""}{tvdbId ? <> · TVDB <a href={`https://thetvdb.com/?tab=series&id=${tvdbId}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{tvdbId}</a></> : ""}</p>
 
                     <div className="flex items-center gap-2 flex-wrap mt-2">
                       {cleanPoster && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-muted uppercase tracking-wide">
-                          {t("ui.clean")}
-                        </span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-muted uppercase tracking-wide">{t("ui.clean")}</span>
                       )}
-                      {isSavedPoster && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center gap-1">
-                          <Check className="w-3 h-3 stroke-[3]" />
-                          {t("ui.savedShort")}
-                        </span>
-                      )}
+                      {(() => {
+                        const key = `${selected.media_type}:${selected.id}`
+                        if (!mappingsMap.get(key)) return null
+                        return (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center gap-1">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                            {t("ui.savedShort")}
+                          </span>
+                        )
+                      })()}
                       <JwRankBadge tmdbId={selected.id} type={selected.media_type === "movie" ? "movie" : "tv"} regionCode={ed.defaultRegion} />
                     </div>
                   </div>
+                )}
+                <div className="animate-tab-fade-in space-y-3">
+                {activeRightTab === "logo" && <>
+                  <LogoOptions logos={logos} selectedLogo={selectedLogo} lang={lang} selectLogo={selectLogo} removeLogo={removeLogo} disabled={!cleanPoster} />
+                  {!cleanPoster && <p className="text-xs text-zinc-500 text-center mt-2 px-1">{t("ui.logoHint")}</p>}
+                </>}
+                {activeRightTab === "badge" && <BadgeControls />}
+                {activeRightTab === "transform" && <TransformControls />}
+                {activeRightTab === "stagioni" && <EpisodeGroupControls />}
+                </div>
 
-                  <div className="animate-tab-fade-in space-y-3">
-                    {activeRightTab === "logo" && (
-                      <>
-                        <LogoOptions logos={logos} selectedLogo={selectedLogo} lang={lang} selectLogo={selectLogo} removeLogo={removeLogo} disabled={!cleanPoster} />
-                        {!cleanPoster && <p className="text-xs text-zinc-500 text-center mt-2 px-1">{t("ui.logoHint")}</p>}
-                      </>
-                    )}
-                    {activeRightTab === "badge" && <BadgeControls />}
-                    {activeRightTab === "transform" && <TransformControls />}
-                    {activeRightTab === "stagioni" && <EpisodeGroupControls />}
-                  </div>
-                </EditorPanel>
-              </div>
-
+              </EditorPanel>
             </div>
+
           </div>
         </div>
-
-        {/* ─── Test URL Modal (portal) ──────────────────────────────── */}
-        {testUrl && createPortal(
-          <div
-            className="fixed inset-0 z-[80] bg-black/85 backdrop-blur-sm overflow-y-auto animate-fade-scale-in"
-            onClick={() => setTestUrl(null)}
-          >
-            <div
-              className="max-w-md mx-auto px-4 py-8 min-h-full flex flex-col justify-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-zinc-50">{t("ui.testUrlTitle")}</h3>
-                <button
-                  type="button"
-                  onClick={() => setTestUrl(null)}
-                  aria-label={t("ui.close")}
-                  className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface2 hover:bg-zinc-700 text-muted hover:text-zinc-200 transition-all"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="rounded-2xl overflow-hidden border border-white/10 bg-surface shadow-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element -- poster reale renderizzato dal server */}
-                <img src={testUrl} alt={t("ui.testUrlTitle")} className="w-full" />
-              </div>
-              <div className="mt-4 flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-3 py-2">
-                <code className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-mono text-muted select-text">
-                  {testUrl}
-                </code>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(testUrl)
-                      setUrlCopied(true)
-                      if (urlCopiedTimerRef.current) clearTimeout(urlCopiedTimerRef.current)
-                      urlCopiedTimerRef.current = setTimeout(() => setUrlCopied(false), 2000)
-                    } catch { /* clipboard not available */ }
-                  }}
-                  className="btn-secondary min-h-[44px] rounded-xl text-xs"
-                >
-                  {urlCopied ? t("ui.copied") : t("ui.copyPosterUrl")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => window.open(testUrl, "_blank")}
-                  className="btn-primary min-h-[44px] rounded-xl text-xs"
-                >
-                  {t("ui.openInNewTab")}
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-      </>
-    )
-  }
-
-  // ── HOME / SEARCH / LANDING STATE ────────────────────────────────────────
-  return (
-    <div>
-      {searchBar}
-
-      {!tmdbKey && (
+      )}
+      {!selected && (
+        <div>
+          {searchBar}
+        </div>
+      )}
+      {!selected && !tmdbKey && (
         <div className="max-w-md mx-auto mt-16 mb-16">
           <div className="glass-panel relative overflow-hidden p-8 flex flex-col items-center text-center animate-fade-scale-in-hero">
             <div className="welcome-accent" />
@@ -672,8 +468,7 @@ export default function EditView() {
           </div>
         </div>
       )}
-
-      {tmdbKey && (
+      {!selected && tmdbKey && (
         <>
           <HomeHero />
           <ScrollReveal animation="fade-up" threshold={0.05}>
@@ -683,6 +478,36 @@ export default function EditView() {
             <PosterCarousel />
           </ScrollReveal>
         </>
+      )}
+
+      {testUrl && createPortal(
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm overflow-y-auto animate-fade-scale-in" onClick={() => setTestUrl(null)}>
+          <div className="max-w-md mx-auto px-4 py-8 min-h-full flex flex-col justify-center" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-zinc-50">{t("ui.testUrlTitle")}</h3>
+              <button type="button" onClick={() => setTestUrl(null)} aria-label={t("ui.close")} className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface2 hover:bg-zinc-700 text-muted hover:text-zinc-200 transition-all"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-white/10 bg-surface shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element -- poster reale renderizzato dal server */}
+              <img src={testUrl} alt={t("ui.testUrlTitle")} className="w-full" />
+            </div>
+            <div className="mt-4 flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-3 py-2">
+              <code className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-mono text-muted select-text">{testUrl}</code>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button type="button" onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(testUrl)
+                  setUrlCopied(true)
+                  if (urlCopiedTimerRef.current) clearTimeout(urlCopiedTimerRef.current)
+                  urlCopiedTimerRef.current = setTimeout(() => setUrlCopied(false), 2000)
+                } catch { /* clipboard non disponibile */ }
+              }} className="btn-secondary min-h-[44px] rounded-xl text-xs">{urlCopied ? t("ui.copied") : t("ui.copyPosterUrl")}</button>
+              <button type="button" onClick={() => window.open(testUrl, "_blank")} className="btn-primary min-h-[44px] rounded-xl text-xs">{t("ui.openInNewTab")}</button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   )

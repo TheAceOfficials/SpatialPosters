@@ -211,8 +211,8 @@ export function AppShell() {
         />
       )}
 
-      {/* Desktop Toolbar — Floating Island (hidden when editor is open) */}
-      <div className={`hidden md:flex absolute top-4 right-4 z-20 transition-opacity duration-150 ${view === "edit" && selected ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+      {/* Desktop Toolbar — Floating Island */}
+      <div className="hidden md:flex absolute top-4 right-4 z-20">
         <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-zinc-950/70 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60 relative z-50">
           {/* Installa Pictorium Hub Pill Button */}
           <button
@@ -329,8 +329,8 @@ export function AppShell() {
         {!(view === "edit" && selected) && <HomeStatusStrip />}
       </div>
 
-      {/* Desktop Bottom-Right Utility Cluster (hidden when editor is open) */}
-      <div className={`hidden md:block fixed bottom-5 right-5 z-50 transition-opacity duration-150 ${view === "edit" && selected ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+      {/* Desktop Bottom-Right Utility Cluster */}
+      <div className="hidden md:block fixed bottom-5 right-5 z-50">
         <div className="flex items-center gap-2 floating-group">
           <button type="button"
             aria-label={t("ui.refreshLists")}
