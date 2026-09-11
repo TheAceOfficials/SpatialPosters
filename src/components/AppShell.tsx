@@ -284,9 +284,15 @@ export function AppShell() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-[1680px] mx-auto px-3 sm:px-4 pt-3 sm:pt-5 md:pt-[68px] pb-24 md:pb-6">
+      {/* Full-Page Editor Overlay */}
+      {view === "edit" && selected && (
+        <div key="edit-overlay" className="fixed inset-0 z-50 bg-background overflow-hidden animate-view-enter h-[100dvh] w-full">
+          <EditView />
+        </div>
+      )}
+
+      <div className={`relative z-10 max-w-[1680px] mx-auto px-3 sm:px-4 pt-3 sm:pt-5 md:pt-[68px] pb-24 md:pb-6 ${view === "edit" && selected ? "hidden" : "block"}`}>
         {/* Header globale (logo + tagline + toolbar mobile) */}
-        {!(view === "edit" && selected) && (
         <div className="flex flex-col items-center pb-3 sm:pb-4 animate-fade-scale-in relative">
           <>
           {/* eslint-disable-next-line @next/next/no-img-element -- local SVG asset */}
@@ -318,15 +324,16 @@ export function AppShell() {
           {mobileToolbar}
           </>
         </div>
-        )}
 
         <ProxyModal isOpen={proxyOpen} onClose={() => setProxyOpen(false)} />
         <InstallModal isOpen={installOpen} onClose={() => setInstallOpen(false)} posterUrlPattern={urlPattern} />
+        
         <div key={view} className="animate-view-enter">
-          {view === "search" ? <SearchView /> : view === "myposters" ? <MyPostersView /> : view === "cataloghi" ? <CataloghiView /> : <EditView />}
+          {view === "search" ? <SearchView /> : view === "myposters" ? <MyPostersView /> : view === "cataloghi" ? <CataloghiView /> : (!selected ? <EditView /> : null)}
         </div>
-        {/* Strip di stato: presente nelle viste principali, nascosto in editor poster */}
-        {!(view === "edit" && selected) && <HomeStatusStrip />}
+        
+        {/* Strip di stato */}
+        <HomeStatusStrip />
       </div>
 
       {/* Desktop Bottom-Right Utility Cluster */}

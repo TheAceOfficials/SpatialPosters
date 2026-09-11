@@ -657,9 +657,9 @@ input[type="range"]::-moz-range-thumb {
 /* Workspace editor: 3 colonne su desktop, colonna singola fluida sotto 1024px */
 .editor-workspace {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(340px, 480px) minmax(280px, 1fr);
+  grid-template-columns: minmax(280px, 1fr) minmax(400px, 3fr) minmax(280px, 1fr);
   grid-template-rows: minmax(0, 1fr);
-  gap: 1.25rem;
+  gap: 1.5rem;
   align-items: stretch;
   width: 100%;
 }
