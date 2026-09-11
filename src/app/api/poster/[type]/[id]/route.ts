@@ -503,8 +503,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
                 return Buffer.from(await res.arrayBuffer())
               },
               fetchCandidateImage: async (path: string) => {
-                if (path.startsWith("http") && !path.startsWith("https://image.tmdb.org/t/p/")) {
-                  throw new Error("Blocked external URL in fetchCandidateImage")
+                if (path.startsWith("http") && !path.startsWith("https://image.tmdb.org/t/p/") && !path.startsWith("http://") && !path.startsWith("https://")) {
+                  throw new Error("Blocked external URL in fetchCandidateImage");
                 }
                 const url = path.startsWith("http") ? path : `https://image.tmdb.org/t/p/w342${path}`
                 const res = await fetch(url, { signal: AbortSignal.timeout(5000) })

@@ -11,7 +11,7 @@ import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import { usePosterFit } from "@/lib/usePosterFit"
-import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, ChevronDown } from "lucide-react"
+import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus } from "lucide-react"
 
 interface Props {
   posters: TMDBImage[]
@@ -33,7 +33,34 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
 
   const excludedSet = useMemo(() => new Set(ed.excludedPosters), [ed.excludedPosters])
 
-  const cleanPosters = useMemo(() => posters.filter((img) => img.iso_639_1 === null && !excludedSet.has(img.file_path)), [posters, excludedSet])
+  const [customPosters, setCustomPosters] = useState<TMDBImage[]>([])
+  const [customUrlInput, setCustomUrlInput] = useState("")
+  const [showUrlInput, setShowUrlInput] = useState(false)
+
+  const handleAddCustomUrl = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!customUrlInput || (!customUrlInput.startsWith("http://") && !customUrlInput.startsWith("https://"))) {
+      toast.error(t("ui.invalidUrl") || "Invalid URL")
+      return
+    }
+    const newPoster: TMDBImage = {
+      file_path: customUrlInput,
+      width: 1000,
+      height: 1500,
+      iso_639_1: null,
+      vote_average: 0
+    }
+    setCustomPosters((prev) => [newPoster, ...prev])
+    setCustomUrlInput("")
+    setShowUrlInput(false)
+    toast.success(t("ui.urlAdded") || "URL Poster Added")
+  }
+
+  const cleanPosters = useMemo(() => {
+    const defaultClean = posters.filter((img) => img.iso_639_1 === null && !excludedSet.has(img.file_path))
+    const userClean = customPosters.filter((img) => !excludedSet.has(img.file_path))
+    return [...userClean, ...defaultClean]
+  }, [posters, excludedSet, customPosters])
   const hasClean = cleanPosters.length > 0
   const langGroups = useMemo(
     () => Object.entries(groupBy(posters.filter((img) => img.iso_639_1 !== null), (img) => img.iso_639_1 || "other")).sort(([a], [b]) => {
@@ -48,10 +75,14 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
     const tabs: { key: string; label: string; count: number }[] = []
     if (hasClean) tabs.push({ key: "clean", label: "Clean", count: cleanPosters.length })
     for (const [language, imgs] of langGroups) {
-      if (imgs.length > 0) tabs.push({ key: language, label: LANG_NAMES[language] || language, count: imgs.length })
+      const unexcludedCount = imgs.filter(img => !excludedSet.has(img.file_path)).length
+      if (unexcludedCount > 0) tabs.push({ key: language, label: LANG_NAMES[language] || language, count: unexcludedCount })
+    }
+    if (excludedSet.size > 0) {
+      tabs.push({ key: "excluded", label: t("ui.excluded") || "Excluded", count: excludedSet.size })
     }
     return tabs
-  }, [hasClean, cleanPosters.length, langGroups])
+  }, [hasClean, cleanPosters.length, langGroups, excludedSet.size, t, excludedSet])
 
   const [internalActiveGroup, setInternalActiveGroup] = useState("clean")
   const activeGroup = controlledActiveGroup ?? internalActiveGroup
@@ -179,8 +210,12 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
 
   const activeClean = activeGroup === "clean"
   const activeLangImgs = useMemo(() => {
-    return !activeClean ? langGroups.find(([l]) => l === activeGroup)?.[1] ?? [] : []
-  }, [activeClean, langGroups, activeGroup])
+    if (activeGroup === "excluded") {
+      return posters.filter(img => excludedSet.has(img.file_path))
+    }
+    const rawImgs = !activeClean ? langGroups.find(([l]) => l === activeGroup)?.[1] ?? [] : []
+    return rawImgs.filter(img => !excludedSet.has(img.file_path))
+  }, [activeClean, langGroups, activeGroup, posters, excludedSet])
 
   const visibleLangImgs = useMemo(() => {
     return activeLangImgs.slice(0, visibleLangCount)
@@ -203,30 +238,32 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
 
   const [excludedSaveState, setExcludedSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle")
 
-  const excludePoster = (filePath: string) => {
-    // Fix L29: rollback su errore — prima l'exclude ottimistico restava in UI
-    // anche se il salvataggio falliva (mostrava escluso, disco no).
+  const toggleExcludePoster = (filePath: string) => {
     const prevExcluded = ed.excludedPosters
     const prevRotation = ed.rotationPosters
-    const nextExcluded = Array.from(new Set([...ed.excludedPosters, filePath]))
-    const nextRotationPosters = ed.rotationPosters.filter((path) => path !== filePath)
+    const isExcluding = !ed.excludedPosters.includes(filePath)
+    const nextExcluded = isExcluding
+      ? Array.from(new Set([...ed.excludedPosters, filePath]))
+      : ed.excludedPosters.filter((p) => p !== filePath)
+    const nextRotationPosters = isExcluding
+      ? ed.rotationPosters.filter((path) => path !== filePath)
+      : ed.rotationPosters
+    
     ed.setExcludedPosters(nextExcluded)
     ed.setRotationPosters(nextRotationPosters)
     setExcludedSaveState("saving")
-    // Se escludiamo il poster attivo, seleziona un fallback valido e passalo al
-    // save: altrimenti il mapping resterebbe agganciato al poster appena escluso.
-    // Cerca prima tra i clean, poi tra tutti i poster (incluse le lingue) non esclusi.
+
     let fallback: TMDBImage | undefined
-    if (posterActivePath === filePath) {
+    if (posterActivePath === filePath && isExcluding) {
       fallback =
         cleanPosters.find((poster) => poster.file_path !== filePath) ??
         posters.find((poster) => poster.file_path !== filePath && !nextExcluded.includes(poster.file_path))
       if (fallback) selectPoster(fallback)
     }
+
     autoSaveExcludedPosters(nextExcluded, nextRotationPosters, fallback)
-      .then(() => { setExcludedSaveState("saved"); toast.success(t("ui.posterExcluded")) })
+      .then(() => { setExcludedSaveState("saved"); toast.success(isExcluding ? t("ui.posterExcluded") : (t("ui.posterRestored") || "Poster restored")) })
       .catch(() => {
-        // Rollback dello stato ottimistico: l'UI torna a riflettere il disco.
         ed.setExcludedPosters(prevExcluded)
         ed.setRotationPosters(prevRotation)
         setExcludedSaveState("error")
@@ -247,7 +284,30 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
   return (
     <div>
       {showTabs && (
-        <PosterTabs tabs={posterTabs} activeGroup={activeGroup} onSelect={setActiveGroup} />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex-1 overflow-x-auto scrollbar-none">
+            <PosterTabs tabs={posterTabs} activeGroup={activeGroup} onSelect={setActiveGroup} />
+          </div>
+          <button type="button" aria-label="Add custom URL" onClick={() => setShowUrlInput(!showUrlInput)} className="h-7 w-9 rounded-lg bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all shrink-0 flex items-center justify-center">
+            <Link className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {showUrlInput && (
+        <form onSubmit={handleAddCustomUrl} className="flex gap-2 mb-3 px-1">
+          <input
+            type="url"
+            value={customUrlInput}
+            onChange={(e) => setCustomUrlInput(e.target.value)}
+            placeholder="https://..."
+            className="flex-1 bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-accent-orange/50"
+            autoFocus
+          />
+          <button type="submit" className="px-3 rounded-lg bg-accent-orange/20 text-accent-orange hover:bg-accent-orange/30 font-semibold text-xs transition-colors flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> {t("ui.add") || "Add"}
+          </button>
+        </form>
       )}
 
       {activeClean && hasClean && (
@@ -342,19 +402,19 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                       {isHighScore ? t("ui.bestFit") : t("ui.bestFitAlt")}
                     </div>
                   )}
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 md:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     <button type="button"
                       aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
                       onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
-                      className={`w-6 h-6 rounded-lg flex items-center justify-center backdrop-blur-md border transition-all duration-150 ${inRotation ? "bg-accent-orange text-white border-accent-orange shadow-sm shadow-accent-orange/40" : "bg-black/55 border-white/10 text-zinc-200 hover:bg-accent-orange/90 hover:text-white hover:border-accent-orange/60"}`}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${inRotation ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-accent-orange hover:text-white"}`}
                       title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
                     >
                       {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
                     </button>
                     <button type="button"
                       aria-label={t("ui.excludePoster")}
-                      onClick={(e) => { e.stopPropagation(); excludePoster(img.file_path) }}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center backdrop-blur-md border transition-all duration-150 bg-black/55 border-white/10 text-zinc-300 hover:bg-red-500/90 hover:text-white hover:border-red-400/60"
+                      onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
+                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/60 text-white/80 hover:bg-red-500 hover:text-white"
                       title={t("ui.excludePoster")}
                     >
                       <EyeOff className="w-3.5 h-3.5" />
@@ -393,7 +453,23 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
           <div className="grid grid-cols-3 gap-2">
             {visibleLangImgs.map((img) => {
               const stagger = idx++
-              return <PosterBtn key={img.file_path} staggerIndex={stagger} img={img} active={posterActivePath === img.file_path} onSelect={selectPoster} />
+              const isExcluded = excludedSet.has(img.file_path)
+              return (
+                <div key={img.file_path} className="relative group rounded-xl overflow-hidden">
+                  <PosterBtn staggerIndex={stagger} img={img} active={posterActivePath === img.file_path} onSelect={selectPoster} />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 md:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                    <button type="button"
+                      aria-label={isExcluded ? (t("ui.restorePoster") || "Restore") : t("ui.excludePoster")}
+                      onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${isExcluded ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-red-500 hover:text-white"}`}
+                      title={isExcluded ? (t("ui.restorePoster") || "Restore") : t("ui.excludePoster")}
+                    >
+                      {isExcluded ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+              )
             })}
           </div>
 
