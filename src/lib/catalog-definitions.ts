@@ -11,7 +11,28 @@ export type PictoriumCatalogDefinition = {
   readonly type: PictoriumCatalogType
 }
 
-export const PICTORIUM_CATALOGS: readonly PictoriumCatalogDefinition[] = []
+export const PICTORIUM_CATALOGS: readonly PictoriumCatalogDefinition[] = [
+  { id: "pictorium-jw-movies", name: "📈 Top 20 Film", type: "movie" },
+  { id: "pictorium-jw-series", name: "📈 Top 20 Serie TV", type: "series" },
+  { id: "pictorium-jw-new-movies", name: "🆕 Nuove Uscite Film", type: "movie" },
+  { id: "pictorium-jw-new-series", name: "🆕 Nuove Uscite Serie TV", type: "series" },
+  { id: "pictorium-netflix-movies", name: "🔴 Netflix — Film", type: "movie" },
+  { id: "pictorium-netflix-series", name: "🔴 Netflix — Serie TV", type: "series" },
+  { id: "pictorium-prime-movies", name: "📦 Prime Video — Film", type: "movie" },
+  { id: "pictorium-prime-series", name: "📦 Prime Video — Serie TV", type: "series" },
+  { id: "pictorium-disney-movies", name: "✨ Disney+ — Film", type: "movie" },
+  { id: "pictorium-disney-series", name: "✨ Disney+ — Serie TV", type: "series" },
+  { id: "pictorium-apple-movies", name: "🍏 Apple TV+ — Film", type: "movie" },
+  { id: "pictorium-apple-series", name: "🍏 Apple TV+ — Serie TV", type: "series" },
+  { id: "pictorium-hbo-movies", name: "🟣 HBO Max — Film", type: "movie" },
+  { id: "pictorium-hbo-series", name: "🟣 HBO Max — Serie TV", type: "series" },
+  { id: "pictorium-paramount-movies", name: "🏔️ Paramount+ — Film", type: "movie" },
+  { id: "pictorium-paramount-series", name: "🏔️ Paramount+ — Serie TV", type: "series" },
+  { id: "pictorium-crunchyroll-series", name: "🍥 Crunchyroll — Anime & Serie", type: "series" },
+  { id: "pictorium-crunchyroll-movies", name: "🍥 Crunchyroll — Film Anime", type: "movie" },
+  { id: "pictorium-anime-movies", name: "⛩️ Top 20 Film Anime", type: "movie" },
+  { id: "pictorium-anime", name: "⛩️ Top 20 Serie Anime", type: "series" },
+] as const
 
 export type StremioCatalogExtra = {
   readonly name: string
@@ -36,7 +57,16 @@ export const PICTORIUM_PEOPLE_SEARCH_CATALOGS = [
   { id: "pictorium-search-people-series", name: "🔍 SpatialPosters — Search by Person (TV Shows)", type: "series" },
 ] as const satisfies readonly PictoriumCatalogDefinition[]
 
-export const WARMUP_CATALOG_IDS = [] as const
+export const WARMUP_CATALOG_IDS = [
+  "pictorium-jw-movies",
+  "pictorium-jw-series",
+  "pictorium-netflix-movies",
+  "pictorium-netflix-series",
+  "pictorium-prime-movies",
+  "pictorium-prime-series",
+  "pictorium-anime-movies",
+  "pictorium-anime",
+] as const
 
 const WARMUP_CATALOG_ID_SET: ReadonlySet<string> = new Set(WARMUP_CATALOG_IDS)
 
