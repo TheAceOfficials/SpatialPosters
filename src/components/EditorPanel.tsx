@@ -30,10 +30,10 @@ export function EditorPanel({ title, tabs, activeTab, onTabChange, headerRight, 
     <section aria-label={ariaLabel} className={`editor-panel rounded-2xl border border-white/10 bg-zinc-950/75 shadow-2xl shadow-black/40 backdrop-blur-xl ${className}`}>
       {(title || tabs) && (
         <div className="editor-panel-header">
-          <div className="flex gap-1 overflow-x-auto scrollbar-none flex-1 min-w-0 items-center">
+          <div className="flex items-center justify-between gap-2 w-full min-w-0">
             {title && <h3 className="text-xs font-semibold text-muted uppercase tracking-wider shrink-0">{title}</h3>}
             {tabs && (
-              <div className="flex gap-1 overflow-x-auto scrollbar-none" role="tablist" onKeyDown={handleKeyDown}>
+              <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5 min-w-0 flex-1 justify-end" role="tablist" onKeyDown={handleKeyDown}>
                 {tabs.map((tab) => (
                   <button type="button"
                     key={tab.key}
@@ -41,7 +41,7 @@ export function EditorPanel({ title, tabs, activeTab, onTabChange, headerRight, 
                     aria-selected={activeTab === tab.key}
                     tabIndex={activeTab === tab.key ? 0 : -1}
                     onClick={() => onTabChange?.(tab.key)}
-                    className={`tab-chip h-7 px-2.5 rounded-lg text-[11px] font-semibold border transition-all shrink-0 ${activeTab === tab.key ? "tab-chip-active bg-accent-orange/15 text-accent-orange border-accent-orange/35" : "bg-white/5 text-muted border-white/10 hover:text-zinc-200 hover:bg-white/10"}`}
+                    className={`tab-chip h-7 px-2.5 rounded-lg text-[11px] font-semibold border transition-all shrink-0 whitespace-nowrap ${activeTab === tab.key ? "tab-chip-active bg-accent-orange/15 text-accent-orange border-accent-orange/35" : "bg-white/5 text-muted border-white/10 hover:text-zinc-200 hover:bg-white/10"}`}
                   >
                     {tab.label}
                     {tab.count !== undefined && <span className="ml-1 text-[10px] opacity-60">{tab.count}</span>}
