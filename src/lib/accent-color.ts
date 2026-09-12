@@ -106,7 +106,7 @@ function hslToRgb(H: number, S: number, L: number): AccentResult {
   }
 }
 
-export function findAccentColor(pixels: Uint8ClampedArray | Buffer, width: number, height: number, genre: string): AccentResult {
+export function findAccentColor(pixels: Uint8ClampedArray | Uint8Array | Buffer, width: number, height: number, genre: string): AccentResult {
   const step = 2
   let sumR = 0, sumG = 0, sumB = 0, countLuma = 0
 
@@ -114,8 +114,12 @@ export function findAccentColor(pixels: Uint8ClampedArray | Buffer, width: numbe
   const buckets = Array.from({ length: 12 }, () => ({
     count: 0,
     totalSat: 0,
+    totalLum: 0,
     hueSin: 0,
     hueCos: 0,
+    rSum: 0,
+    gSum: 0,
+    bSum: 0,
   }))
   let totalVibrantWeight = 0
 
@@ -132,70 +136,67 @@ export function findAccentColor(pixels: Uint8ClampedArray | Buffer, width: numbe
       const r = pr / 255, g = pg / 255, b = pb / 255
       const max = Math.max(r, g, b), min = Math.min(r, g, b)
       const l = (max + min) / 2, d = max - min
-      const s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+      const s = d === 0 ? 0 : (l > 0.5 ? d / (2 - max - min) : d / (max + min))
+
+      // Skip non-vibrant monochrome pixels (grays/blacks/whites)
       if (s < 0.12 || l < 0.08 || l > 0.94) continue
 
       const hue = fastHue(r, g, b, d, max)
       const bucketIdx = Math.floor(hue / 30) % 12
       const bkt = buckets[bucketIdx]
-      const weight = Math.pow(s, 1.5) * (1 - Math.abs(l - 0.5) * 1.5)
+
+      // Weight favors vibrant colors (title logos, high-saturation highlights)
+      const weight = Math.pow(s, 1.5) * (1 - Math.abs(l - 0.5) * 1.2)
       bkt.count += weight
       bkt.totalSat += s * weight
+      bkt.totalLum += l * weight
       bkt.hueSin += Math.sin(hue * Math.PI / 180) * weight
       bkt.hueCos += Math.cos(hue * Math.PI / 180) * weight
+      bkt.rSum += pr * weight
+      bkt.gSum += pg * weight
+      bkt.bSum += pb * weight
       totalVibrantWeight += weight
     }
   }
 
-  // Compute background relative luminance (WCAG) from average RGB
-  const avgR = countLuma > 0 ? sumR / countLuma : 128
-  const avgG = countLuma > 0 ? sumG / countLuma : 128
-  const avgB = countLuma > 0 ? sumB / countLuma : 128
-  const bgRelLum = relativeLuminance(avgR, avgG, avgB)
-
-  // Fallback for monochrome/flat posters → genre palette color, contrast-adjusted
-  if (totalVibrantWeight < 1) {
-    const fb = GENRE_FALLBACK[genre] || '#C0C0C0'
+  // Fallback for monochrome / flat posters -> genre fallback color adjusted for contrast
+  if (totalVibrantWeight < 0.5) {
+    const fb = GENRE_FALLBACK[genre] || '#E0A96D'
     const cr = parseInt(fb.slice(1, 3), 16)
     const cg = parseInt(fb.slice(3, 5), 16)
     const cb = parseInt(fb.slice(5, 7), 16)
-    const avgRawLum = countLuma > 0 ? (0.2126 * avgR + 0.7152 * avgG + 0.0722 * avgB) / 255 : 0.5
+    const avgRawLum = countLuma > 0 ? (0.2126 * (sumR / countLuma) + 0.7152 * (sumG / countLuma) + 0.0722 * (sumB / countLuma)) / 255 : 0.5
     return pushContrast({ r: cr, g: cg, b: cb }, avgRawLum)
   }
 
-  // Find most vibrant hue bucket
+  // Find most vibrant hue bucket with highest total weight
   let bestBucket = buckets[0]
   for (const bkt of buckets) {
     if (bkt.count > bestBucket.count) bestBucket = bkt
   }
 
-  // Dominant hue of the poster
+  // Calculate actual dominant hue of poster's vibrant elements
   const posterHue = ((Math.atan2(bestBucket.hueSin, bestBucket.hueCos) * 180 / Math.PI) % 360 + 360) % 360
+  const avgSat = bestBucket.totalSat / bestBucket.count
+  const avgLum = bestBucket.totalLum / bestBucket.count
 
-  // --- Split-Complementary Harmony (+150°) ---
-  // Rotating by 150° gives a badge color that is:
-  //   - Harmonious with the poster by color theory
-  //   - Naturally contrasting (not the same hue family as the bg)
-  // Examples:
-  //   Blue-violet (251°) → 251+150 = 41° → warm orange  🟠
-  //   Orange-sandy (35°) → 35+150  = 185° → cool cyan   🩵
-  //   Green (120°)       → 120+150 = 270° → violet      🟣
-  //   Red (0°)           → 0+150   = 150° → teal        🩵
-  //   Cyan (180°)        → 180+150 = 330° → pink-rose   🌸
-  const badgeHue = (posterHue + 150) % 360
+  // Keep vivid saturation (0.65 to 0.90) for poppiness
+  const vibrantSat = Math.min(0.92, Math.max(0.65, avgSat * 1.2))
 
-  // Higher saturation since we're using a contrasting hue (not blending, but popping)
-  const badgeSat = Math.min(0.82, Math.max(0.55, bestBucket.totalSat / bestBucket.count))
+  // Calibrate lightness by color family so badges are rich and readable:
+  let vibrantLum = avgLum
+  if (posterHue >= 35 && posterHue <= 65) {
+    // Yellow / Gold (e.g. Avatar logo): keep bright for sharp yellow look
+    vibrantLum = Math.max(0.48, Math.min(0.62, avgLum))
+  } else if (posterHue >= 80 && posterHue <= 160) {
+    // Green (e.g. Ted logo): keep rich emerald / lime tone
+    vibrantLum = Math.max(0.42, Math.min(0.55, avgLum))
+  } else {
+    // Red, Orange, Blue, Violet, Cyan: keep rich pop color
+    vibrantLum = Math.max(0.45, Math.min(0.58, avgLum))
+  }
 
-  // Lightness strategy:
-  //   Dark poster  (bgRelLum < 0.18)  → very light badge (L=0.88) → cream/pastel tones
-  //                                      Contrast on these dark bgs is always >8:1 at L=0.88
-  //   Mid/light poster (bgRelLum ≥ 0.18) → binary-search for a darker badge that passes 3:1
-  const targetL = bgRelLum < 0.18
-    ? 0.88
-    : findContrastingLightness(badgeHue, badgeSat, bgRelLum, 3.0)
-
-  const result = hslToRgb(badgeHue, badgeSat, targetL)
+  const result = hslToRgb(posterHue, vibrantSat, vibrantLum)
   result.r = Math.max(0, Math.min(255, result.r))
   result.g = Math.max(0, Math.min(255, result.g))
   result.b = Math.max(0, Math.min(255, result.b))
@@ -267,7 +268,7 @@ function pushContrast(color: AccentResult, bgLum: number): AccentResult {
   return { r, g, b }
 }
 
-export function topEdgeAverage(pixels: Uint8ClampedArray | Buffer, width: number, height: number): { r: number; g: number; b: number } {
+export function topEdgeAverage(pixels: Uint8ClampedArray | Uint8Array | Buffer, width: number, height: number): { r: number; g: number; b: number } {
   const rowCount = Math.max(Math.round(height * 0.08), 3)
   let r = 0, g = 0, b = 0, n = 0
   for (let y = 0; y < rowCount; y++) {

@@ -4,6 +4,7 @@ import { computeTopBadge, getNewSeasonLabel, isKDramaOrigin } from "@/lib/poster
 import { getUpcomingReleaseLabel } from "@/lib/release-badge"
 import { mappingSchema } from "@/lib/validation"
 import { createT } from "@/lib/i18n"
+import { findAccentColor } from "@/lib/accent-color"
 
 const t = createT("it")
 
@@ -345,5 +346,36 @@ describe("getAllBadgeOptions (nuovi badge)", () => {
     })
     expect(options).toContain("__badge.newSeason")
     expect(options).toContain("K-Drama")
+  })
+})
+
+describe("findAccentColor (vibrant color extraction)", () => {
+  it("extracts vibrant yellow RGB from yellow-dominated pixel buffer", () => {
+    // Buffer with bright yellow pixels RGBA (255, 200, 20, 255)
+    const pixels = new Uint8Array(10 * 10 * 4)
+    for (let i = 0; i < pixels.length; i += 4) {
+      pixels[i] = 255
+      pixels[i + 1] = 200
+      pixels[i + 2] = 20
+      pixels[i + 3] = 255
+    }
+    const color = findAccentColor(pixels, 10, 10, "Action")
+    expect(color.r).toBeGreaterThan(200)
+    expect(color.g).toBeGreaterThan(150)
+    expect(color.b).toBeLessThan(80)
+  })
+
+  it("extracts vibrant green RGB from green-dominated pixel buffer", () => {
+    // Buffer with bright green pixels RGBA (30, 220, 80, 255)
+    const pixels = new Uint8Array(10 * 10 * 4)
+    for (let i = 0; i < pixels.length; i += 4) {
+      pixels[i] = 30
+      pixels[i + 1] = 220
+      pixels[i + 2] = 80
+      pixels[i + 3] = 255
+    }
+    const color = findAccentColor(pixels, 10, 10, "Comedy")
+    expect(color.g).toBeGreaterThan(color.r)
+    expect(color.g).toBeGreaterThan(color.b)
   })
 })
