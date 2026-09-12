@@ -515,7 +515,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                     </div>
                   )}
 
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-60 group-hover:opacity-100 transition-opacity duration-150" />
                   
                   {showBadge && (
                     <div className={`fit-badge z-20 ${isHighScore ? "fit-badge-amber" : ""}`}>
@@ -524,8 +524,8 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                     </div>
                   )}
 
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
-                    {isCustom ? (
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-90 sm:opacity-75 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
+                    {isCustom && (
                       <button
                         type="button"
                         aria-label="Delete custom poster"
@@ -535,17 +535,17 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                    ) : (
-                      <button
-                        type="button"
-                        aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
-                        onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 border border-white/10 ${inRotation ? "bg-accent-orange text-white" : "bg-black/80 text-white/90 hover:bg-accent-orange hover:text-white"}`}
-                        title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
-                      >
-                        {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
-                      </button>
                     )}
+
+                    <button
+                      type="button"
+                      aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
+                      onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 border border-white/10 ${inRotation ? "bg-accent-orange text-white" : "bg-black/80 text-white/90 hover:bg-accent-orange hover:text-white"}`}
+                      title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
+                    >
+                      {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                    </button>
 
                     <button
                       type="button"
@@ -603,15 +603,15 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                     </div>
                   )}
 
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-60 group-hover:opacity-100 transition-opacity" />
                   
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-90 sm:opacity-75 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     {isCustom && (
                       <button
                         type="button"
                         aria-label="Delete custom poster"
                         onClick={(e) => handleRemoveCustomPoster(img.file_path, e)}
-                        className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-red-600/90 text-white hover:bg-red-500"
+                        className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-red-600/90 text-white hover:bg-red-500 border border-white/10"
                         title="Delete custom poster"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -622,7 +622,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                       type="button"
                       aria-label={isExcluded ? (t("ui.restorePoster") || "Restore") : t("ui.excludePoster")}
                       onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${isExcluded ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-amber-500 hover:text-white"}`}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${isExcluded ? "bg-accent-orange text-white" : "bg-black/80 text-white/90 hover:bg-amber-500 hover:text-white border border-white/10"}`}
                       title={isExcluded ? (t("ui.restorePoster") || "Restore") : t("ui.excludePoster")}
                     >
                       {isExcluded ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}

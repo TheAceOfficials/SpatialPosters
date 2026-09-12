@@ -29,10 +29,10 @@ export const PosterBtn = React.memo(function PosterBtn({ img, active, onSelect, 
         {active && (
           <>
             <div className="absolute inset-0 bg-accent-orange/10" />
-            <div className="absolute top-1 right-1 w-4 h-4 bg-accent-orange rounded-full flex items-center justify-center shadow-lg shadow-accent-orange/40">
+            <div className="absolute top-1.5 left-1.5 z-10 w-4 h-4 bg-accent-orange rounded-full flex items-center justify-center shadow-lg shadow-accent-orange/40">
               <Check className="w-2.5 h-2.5 text-white" />
             </div>
-            <span className="absolute bottom-0 left-0 right-0 text-[10px] font-semibold text-orange-100 text-center py-0.5 bg-accent-orange/25 backdrop-blur-sm">{t("ui.selected")}</span>
+            <span className="absolute bottom-0 left-0 right-0 text-[10px] font-semibold text-orange-100 text-center py-0.5 bg-accent-orange/30 backdrop-blur-sm">{t("ui.selected")}</span>
           </>
         )}
         {!active && <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/5 transition-opacity duration-300" />}
