@@ -20,6 +20,8 @@ afterEach(() => {
 const itDict: Record<string, string> = {
   "badge.newMovie": "Nuovo film",
   "badge.newSeries": "Nuova serie",
+  "badge.newEpisode": "Nuovo episodio",
+  "badge.bingeWorthy": "Binge-Worthy",
   "badge.newSeason": "Nuova stagione",
   "badge.newSeasonN": "Nuova stagione S{n}",
   "badge.anime": "Anime",

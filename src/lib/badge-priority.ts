@@ -40,8 +40,8 @@ export function computeBadge(params: {
   if (params.trendRank) return { type: "rank", label: t(params.mediaType === "movie" ? "badge.movie" : "badge.series"), rank: params.trendRank }
   if (params.isNewMovie) return { type: "extra", label: t("badge.newMovie") }
   if (params.isNewSeries) return { type: "extra", label: t("badge.newSeries") }
-  if (params.isNewEpisode) return { type: "extra", label: t("badge.newEpisode") }
   if (params.newSeason) return { type: "extra", label: params.newSeason }
+  if (params.isNewEpisode) return { type: "extra", label: t("badge.newEpisode") }
   if (params.isBingeWorthy) return { type: "extra", label: t("badge.bingeWorthy") }
   if (params.award) return { type: "extra", label: params.award }
   if (params.imdbTop250) return { type: "extra", label: t("badge.absoluteCinema") }
