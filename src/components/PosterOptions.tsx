@@ -11,7 +11,7 @@ import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import { usePosterFit } from "@/lib/usePosterFit"
-import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus, Trash2, Grid2X2, Grid3X3 } from "lucide-react"
+import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus, Trash2, Grid2X2, Grid3X3, RefreshCw } from "lucide-react"
 
 interface Props {
   posters: TMDBImage[]
@@ -28,8 +28,24 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
   const selected = usePSelector((v) => v.selected)
   const mappingsMap = usePSelector((v) => v.mappingsMap)
   const autoSaveExcludedPosters = usePSelector((v) => v.autoSaveExcludedPosters)
+  const refreshPosters = usePSelector((v) => v.refreshPosters)
   const { t } = useT()
   const ed = usePosterEditor()
+
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    try {
+      await refreshPosters()
+      toast.success(t("ui.postersRefreshed") || "Refreshed latest posters from TMDB!")
+    } catch {
+      toast.error(t("ui.refreshFailed") || "Failed to refresh posters")
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   const excludedSet = useMemo(() => new Set(ed.excludedPosters), [ed.excludedPosters])
 
@@ -377,19 +393,33 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
               </div>
             </div>
 
-            <button
-              type="button"
-              aria-label="Add custom poster URL"
-              onClick={() => setShowUrlInput(!showUrlInput)}
-              className={`h-8 px-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-medium shadow-sm shrink-0 ${
-                showUrlInput
-                  ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
-                  : "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10"
-              }`}
-            >
-              <Link className="w-3.5 h-3.5" />
-              <span>{t("ui.customUrl")}</span>
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                aria-label="Refresh posters from TMDB"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="h-8 px-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-50 active:scale-95"
+                title="Refresh posters from TMDB"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-accent-orange" : ""}`} />
+                <span>{t("ui.refresh") || "Refresh"}</span>
+              </button>
+
+              <button
+                type="button"
+                aria-label="Add custom poster URL"
+                onClick={() => setShowUrlInput(!showUrlInput)}
+                className={`h-8 px-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-medium shadow-sm ${
+                  showUrlInput
+                    ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
+                    : "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <Link className="w-3.5 h-3.5" />
+                <span>{t("ui.customUrl")}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

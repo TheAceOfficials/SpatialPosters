@@ -48,6 +48,7 @@ export const MOCK_CTX: PictoriumCtx = {
   goHome: stubFn,
   navigateToPoster: stubFn,
   refreshLists: asyncStubFn,
+  refreshPosters: asyncStubFn,
   tmdbKey: "test-key",
   setQuery: stubFn,
   doSearch: asyncStubFn,

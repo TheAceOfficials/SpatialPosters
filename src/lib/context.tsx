@@ -176,6 +176,7 @@ export interface PictoriumCtx {
   renameCatalog: (id: string, newName: string) => void
   resetCatalogNames: () => void
   resetCatalogOrder: () => void
+  refreshPosters: () => Promise<void>
 }
 
 const Ctx = createContext<PictoriumCtx | null>(null)
@@ -930,6 +931,24 @@ export function usePictorium(): PictoriumCtx {
     })
   }, [savePosterConfig, rotationPosters])
 
+  const refreshPosters = useCallback(async () => {
+    if (!navigation.selected) return
+    const itemId = navigation.selected.id
+    const itemType = navigation.selected.media_type
+    const origLang = (navigation.selected as { original_language?: string })?.original_language || "en"
+    const imageLangs = origLang && origLang !== lang && origLang !== "en" ? `${lang},en,null,${origLang}` : `${lang},en,null`
+    const data = await http<{ posters: TMDBImage[]; logos: TMDBImage[]; backdrops: TMDBImage[] }>(
+      `/api/tmdb/${itemId}/images?type=${itemType}&languages=${imageLangs}&api_key=${tmdbKey}&_t=${Date.now()}`,
+      { timeout: 30000 }
+    ).catch(() => ({ posters: [] as TMDBImage[], logos: [] as TMDBImage[], backdrops: [] as TMDBImage[] }))
+
+    if (data.posters && data.posters.length > 0) {
+      navigation.setPosters(data.posters)
+      if (data.logos && data.logos.length > 0) navigation.setLogos(data.logos)
+      if (data.backdrops && data.backdrops.length > 0) setBackdrops(data.backdrops)
+    }
+  }, [navigation.selected, lang, tmdbKey, navigation.setPosters, navigation.setLogos, setBackdrops])
+
   return useMemo(() => ({
     selected: navigation.selected, setSelected: navigation.setSelected,
     view: navigation.view, setView: navigation.setView as React.Dispatch<React.SetStateAction<ViewType>>,
@@ -953,6 +972,7 @@ export function usePictorium(): PictoriumCtx {
     saveConfig, removeMapping, mappingsMap,
     goHome: navigation.goHome, sourceView: navigation.sourceView, navigateToPoster: (item: SearchResult, source?: string) => { navigation.navigateToPoster(item, source); openPosterBrowserRef.current(item) },
     refreshLists: trending.refreshLists,
+    refreshPosters,
     tmdbKey, setQuery: search.setQuery, doSearch: search.doSearch, loadMore: search.loadMore,
     titleOf, yearOf, posterUrl,
     trending: trending.trending, trendingError: trending.trendingError, streamingCharts: trending.streamingCharts, mdblistAnimeList: trending.mdblistAnimeList,
@@ -997,6 +1017,7 @@ export function usePictorium(): PictoriumCtx {
     topEdgeColor, autoSaveExcludedPosters,
     trending.trending, trending.trendingError, trending.streamingCharts, trending.mdblistAnimeList,
     trending.refreshLists,
+    refreshPosters,
     theme, uiAccent, serviceErrors, hasNetflixRank,
     customCatalogs, disabledCatalogIds, homeDisabledCatalogIds, catalogOrder, catalogRenames,
   ])
