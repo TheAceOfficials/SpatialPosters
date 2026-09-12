@@ -9,6 +9,7 @@ import { LANG_FLAGS, LANG_NAMES, UI_LANGUAGES } from "@/lib/utils"
 import { LangPicker } from "@/components/LangPicker"
 import { ToastProvider } from "@/components/Toast"
 import { HomeStatusStrip } from "@/components/HomeStatusStrip"
+import { AnimatedSpatialWord } from "@/components/AnimatedSpatialWord"
 import { RefreshCw, Settings, Globe, HeartPulse, Sparkles, Check, QrCode, Palette, Layers } from "lucide-react"
 
 function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
@@ -305,8 +306,9 @@ export function AppShell() {
             decoding="async"
             className="header-logo h-10 sm:h-14 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1.5 md:mb-2"
           />
-          <p className="header-tagline text-center text-[10px] sm:text-xs md:text-sm mb-3.5 sm:mb-5 md:mb-6 max-w-xs sm:max-w-none text-zinc-400 flex items-center justify-center gap-1.5 flex-wrap">
-            <span>Upgrade your Poster Experience with SpatialPosters</span>
+          <p className="header-tagline text-center text-xs sm:text-sm md:text-base mb-3.5 sm:mb-5 md:mb-6 max-w-xl text-zinc-300 flex items-center justify-center gap-2 flex-wrap font-medium">
+            <span>Enhance your Poster Experience with</span>
+            <AnimatedSpatialWord />
           </p>
           {mobileToolbar}
           </>
