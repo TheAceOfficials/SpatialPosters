@@ -11,7 +11,7 @@ import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import { usePosterFit } from "@/lib/usePosterFit"
-import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus, Trash2 } from "lucide-react"
+import { RotateCcw, Check, Clock, Sparkles, ArrowUpDown, EyeOff, Eye, ChevronDown, Link, Plus, Trash2, Grid2X2, Grid3X3 } from "lucide-react"
 
 interface Props {
   posters: TMDBImage[]
@@ -40,6 +40,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
   const [customPosters, setCustomPosters] = useState<TMDBImage[]>([])
   const [customUrlInput, setCustomUrlInput] = useState("")
   const [showUrlInput, setShowUrlInput] = useState(false)
+  const [gridCols, setGridCols] = useState<2 | 3>(2)
 
   // Load saved custom posters from localStorage
   useEffect(() => {
@@ -344,23 +345,47 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
   return (
     <div>
       {showTabs && (
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex-1 overflow-x-auto scrollbar-none">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex-1 overflow-x-auto scrollbar-none py-0.5">
             <PosterTabs tabs={posterTabs} activeGroup={activeGroup} onSelect={setActiveGroup} />
           </div>
-          <button
-            type="button"
-            aria-label="Add custom poster URL"
-            onClick={() => setShowUrlInput(!showUrlInput)}
-            className={`h-8 px-2.5 rounded-xl border transition-all shrink-0 flex items-center gap-1.5 text-xs font-medium shadow-sm ${
-              showUrlInput
-                ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
-                : "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            <Link className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t("ui.customUrl") || "+ URL"}</span>
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Grid Columns Toggle (2-Col Large vs 3-Col Compact) */}
+            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-0.5 shadow-sm">
+              <button
+                type="button"
+                aria-label="2 columns large view"
+                onClick={() => setGridCols(2)}
+                className={`p-1.5 rounded-lg text-xs transition-all ${gridCols === 2 ? "bg-white/15 text-white shadow-sm font-bold" : "text-zinc-400 hover:text-white"}`}
+                title="Large view (2 cols)"
+              >
+                <Grid2X2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                aria-label="3 columns compact view"
+                onClick={() => setGridCols(3)}
+                className={`p-1.5 rounded-lg text-xs transition-all ${gridCols === 3 ? "bg-white/15 text-white shadow-sm font-bold" : "text-zinc-400 hover:text-white"}`}
+                title="Compact view (3 cols)"
+              >
+                <Grid3X3 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Add custom poster URL"
+              onClick={() => setShowUrlInput(!showUrlInput)}
+              className={`h-8 px-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-medium shadow-sm ${
+                showUrlInput
+                  ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
+                  : "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <Link className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{t("ui.customUrl")}</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -387,61 +412,66 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
       )}
 
       {activeClean && hasClean && (
-        <div className="space-y-2 mb-2 px-1">
+        <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-2.5 space-y-2 mb-3 backdrop-blur-sm">
           {isBestSelected && (
-            <div className="editor-pill">
-              <Check className="w-3 h-3" />{t("ui.bestFitSelected")}
+            <div className="editor-pill w-fit text-xs font-semibold py-1 px-2.5">
+              <Check className="w-3.5 h-3.5" />{t("ui.bestFitSelected")}
             </div>
           )}
-          {ed.rotationPosters.length > 1 && (
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted flex items-center gap-1"><Clock className="w-3 h-3" />{t("ui.autoRotate")}</span>
-              <button type="button"
-                aria-label={ed.autoRotateClean ? t("ui.removeFromRotation") : t("ui.autoRotate")}
-                onClick={toggleAutoRotateClean}
-                className={`px-2 py-1 text-[11px] font-semibold rounded-lg border transition-all ${ed.autoRotateClean ? "bg-accent-orange/20 text-accent-orange border-accent-orange/25 animate-pulse-ring" : "bg-white/5 text-muted border-white/10"}`}
-              >
-                {ed.autoRotateClean ? <><Check className="w-3 h-3 inline mr-1" />ON</> : "OFF"}
-              </button>
-            </div>
-          )}
-          {hasFitData && (
-            <div className="flex items-center justify-between">
-              <span className="control-label flex items-center gap-1"><ArrowUpDown className="w-3 h-3" />{t("ui.posterOrder")}</span>
-              <div className="segmented-control">
+          
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            {ed.rotationPosters.length > 1 && (
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[11px] text-muted flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" />{t("ui.autoRotate")}</span>
                 <button type="button"
-                  aria-label={t("ui.sortByTmdb")}
-                  onClick={() => setSortByFit(false)}
-                  className={`segmented-option ${!sortByFit ? "segmented-option-active" : ""}`}
+                  aria-label={ed.autoRotateClean ? t("ui.removeFromRotation") : t("ui.autoRotate")}
+                  onClick={toggleAutoRotateClean}
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all ${ed.autoRotateClean ? "bg-accent-orange/20 text-accent-orange border-accent-orange/25 animate-pulse-ring" : "bg-white/5 text-muted border-white/10"}`}
                 >
-                  {t("ui.tmdb")}
-                </button>
-                <button type="button"
-                  aria-label={t("ui.sortByBestFit")}
-                  onClick={() => setSortByFit(true)}
-                  className={`segmented-option ${sortByFit ? "segmented-option-active" : ""}`}
-                >
-                  {t("ui.bestFit")}
+                  {ed.autoRotateClean ? <><Check className="w-3 h-3 inline mr-1" />ON</> : "OFF"}
                 </button>
               </div>
-            </div>
-          )}
+            )}
+
+            {hasFitData && (
+              <div className="flex items-center justify-between w-full pt-1 border-t border-white/[0.05]">
+                <span className="control-label text-[11px] flex items-center gap-1.5"><ArrowUpDown className="w-3.5 h-3.5" />{t("ui.posterOrder")}</span>
+                <div className="segmented-control">
+                  <button type="button"
+                    aria-label={t("ui.sortByTmdb")}
+                    onClick={() => setSortByFit(false)}
+                    className={`segmented-option text-[11px] px-2.5 py-1 ${!sortByFit ? "segmented-option-active" : ""}`}
+                  >
+                    {t("ui.tmdb")}
+                  </button>
+                  <button type="button"
+                    aria-label={t("ui.sortByBestFit")}
+                    onClick={() => setSortByFit(true)}
+                    className={`segmented-option text-[11px] px-2.5 py-1 ${sortByFit ? "segmented-option-active" : ""}`}
+                  >
+                    {t("ui.bestFit")}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {(bestPoster && !isBestSelected && !fitLoading) && (
             <button type="button"
               aria-label={t("ui.chooseBestPosterAria")}
               onClick={() => selectPoster(bestPoster)}
-              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-150 bg-accent-orange/15 text-accent-orange hover:bg-accent-orange/25 active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all duration-150 bg-accent-orange/15 text-accent-orange hover:bg-accent-orange/25 active:scale-[0.98] border border-accent-orange/20"
             >
-              <Sparkles className="w-3 h-3" />{t("ui.chooseBestPoster")}
+              <Sparkles className="w-3.5 h-3.5" />{t("ui.chooseBestPoster")}
             </button>
           )}
           {fitLoading && (
-            <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] text-zinc-500">
-              <Clock className="w-3 h-3 animate-spin" />{t("ui.analyzing")}
+            <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-zinc-400">
+              <Clock className="w-3.5 h-3.5 animate-spin" />{t("ui.analyzing")}
             </div>
           )}
           {fitError && !fitLoading && (
-            <div className="px-3 py-1.5 text-[10px] text-amber-400/90 leading-relaxed">
+            <div className="px-3 py-1.5 text-xs text-amber-400/90 leading-relaxed">
               {fitError}
             </div>
           )}
@@ -450,7 +480,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
               type="button"
               aria-label={showFitDebug ? t("ui.hideDebug") : t("ui.showDebug")}
               onClick={() => setShowFitDebug((v) => !v)}
-              className="w-full flex items-center justify-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-lg transition-all duration-150 text-zinc-600 hover:text-muted hover:bg-white/[0.03]"
+              className="w-full flex items-center justify-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-lg transition-all duration-150 text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03]"
             >
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
               {showFitDebug ? t("ui.hide") : t("ui.debugFit")}
@@ -461,7 +491,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
 
       {activeClean && hasClean && (
         <>
-          <div className="grid grid-cols-3 gap-2">
+          <div className={`grid ${gridCols === 2 ? "grid-cols-2 gap-3" : "grid-cols-3 gap-2"} transition-all duration-200`}>
             {visibleCleanPosters.map((img) => {
               const stagger = idx++
               const inRotation = ed.rotationPosters.includes(img.file_path)
@@ -489,13 +519,13 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                     </div>
                   )}
 
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 sm:opacity-90 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     {isCustom ? (
                       <button
                         type="button"
                         aria-label="Delete custom poster"
                         onClick={(e) => handleRemoveCustomPoster(img.file_path, e)}
-                        className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-red-600/90 text-white hover:bg-red-500"
+                        className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-red-600/90 text-white hover:bg-red-500 border border-white/10"
                         title="Delete custom poster"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -505,7 +535,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                         type="button"
                         aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
                         onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 ${inRotation ? "bg-accent-orange text-white" : "bg-black/60 text-white/80 hover:bg-accent-orange hover:text-white"}`}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 border border-white/10 ${inRotation ? "bg-accent-orange text-white" : "bg-black/70 text-white/80 hover:bg-accent-orange hover:text-white"}`}
                         title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
                       >
                         {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
@@ -516,7 +546,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                       type="button"
                       aria-label={t("ui.excludePoster")}
                       onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
-                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/60 text-white/80 hover:bg-amber-500 hover:text-white"
+                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/70 text-white/80 hover:bg-amber-500 hover:text-white border border-white/10"
                       title={t("ui.excludePoster")}
                     >
                       <EyeOff className="w-3.5 h-3.5" />
@@ -552,7 +582,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
 
       {!activeClean && (
         <>
-          <div className="grid grid-cols-3 gap-2">
+          <div className={`grid ${gridCols === 2 ? "grid-cols-2 gap-3" : "grid-cols-3 gap-2"} transition-all duration-200`}>
             {visibleLangImgs.map((img) => {
               const stagger = idx++
               const isExcluded = excludedSet.has(img.file_path)

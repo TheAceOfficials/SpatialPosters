@@ -47,6 +47,8 @@
   "ui.savePoster": "포스터 저장",
   "ui.testUrl": "URL 테스트",
   "ui.testUrlTitle": "URL 미리보기",
+  "ui.customUrl": "사용자 지정 URL",
+  "ui.excluded": "제외됨",
   "ui.copyPosterUrl": "포스터 URL 복사",
   "ui.openInNewTab": "새 탭에서 열기",
   "ui.saveState": "자동 저장",

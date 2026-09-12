@@ -47,6 +47,8 @@
   "ui.savePoster": "Save Poster",
   "ui.testUrl": "Test URL",
   "ui.testUrlTitle": "URL preview",
+  "ui.customUrl": "Custom URL",
+  "ui.excluded": "Excluded",
   "ui.copyPosterUrl": "Copy poster URL",
   "ui.openInNewTab": "Open in new tab",
   "ui.saveState": "Auto-save",
