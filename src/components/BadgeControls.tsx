@@ -282,7 +282,7 @@ export function BadgeControls() {
                 const nomination = !award && metaInfo.nominations?.length ? getNominationBadgeLabel(metaInfo.nominations, t) : null
                 const studio = metaInfo.studios?.length ? metaInfo.studios[0] : null
                 const isSeason1 = typeof metaInfo.number_of_seasons === "number" ? metaInfo.number_of_seasons <= 1 : (isNewSeries || isNewAnime)
-                const extra = selected.media_type === "tv" ? (tvType?.toLowerCase() === "miniseries" || tvType?.toLowerCase() === "miniserie" ? t("badge.miniseries") : (tvStatus?.toLowerCase() === "returning series" || tvStatus?.toLowerCase() === "in corso") && !isSeason1 ? t("badge.returning") : null) : null
+                const extra = selected.media_type === "tv" ? (tvType?.toLowerCase().includes("miniseries") || tvType?.toLowerCase().includes("miniserie") || tvType?.toLowerCase().includes("limited") ? t("badge.miniseries") : (tvStatus?.toLowerCase() === "returning series" || tvStatus?.toLowerCase() === "in corso") && !isSeason1 ? t("badge.returning") : null) : null
                 const upcomingRelease = getUpcomingReleaseLabel({
                   mediaType: selected.media_type === "tv" ? "tv" : "movie",
                   releaseDate: metaInfo.release_date,
