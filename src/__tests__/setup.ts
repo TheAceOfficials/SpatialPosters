@@ -90,7 +90,6 @@ const itDict: Record<string, string> = {
   "ui.existingProfileUuid": "UUID Profilo Esistente",
   "ui.profileYourPassword": "La tua password",
   "ui.loadAndAccess": "Accedi & Carica Profilo",
-  "badge.bingeWorthy": "Binge-Worthy",
   "badge.absoluteCinema": "Absolute Cinema",
   "badge.trending": "Di tendenza",
   "badge.trendingSeries": "Serie di tendenza",
