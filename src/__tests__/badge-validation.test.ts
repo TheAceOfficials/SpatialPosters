@@ -108,6 +108,14 @@ describe("computeBadge", () => {
     expect(computeBadge({ ...base, isKDrama: true, director: "Di Christopher Nolan" }, t)?.label).toBe("K-Drama")
     expect(computeBadge({ ...base, isKDrama: true, studio: "A24" }, t)?.label).toBe("K-Drama")
   })
+
+  it("computes Binge-Worthy badge for ended TV shows", () => {
+    expect(computeBadge({ ...base, mediaType: "tv", isBingeWorthy: true }, t)?.label).toBe("Binge-Worthy")
+  })
+
+  it("computes New Episode badge for series with recent episode", () => {
+    expect(computeBadge({ ...base, mediaType: "tv", isNewEpisode: true }, t)?.label).toBe("Nuovo episodio")
+  })
 })
 
 describe("computeAbsoluteCinema (replaces old computeExtraFallback)", () => {

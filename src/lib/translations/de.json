@@ -1,6 +1,8 @@
 {
   "badge.newMovie": "Neuer Film",
   "badge.newSeries": "Neue Serie",
+  "badge.newEpisode": "Neue Episode",
+  "badge.bingeWorthy": "Binge-Worthy",
   "badge.newSeason": "Neue Staffel",
   "badge.newSeasonN": "Neue Staffel S{n}",
   "badge.anime": "Anime",

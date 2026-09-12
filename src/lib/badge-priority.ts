@@ -17,7 +17,8 @@ export function computeBadge(params: {
   upcomingRelease: string | null
   isNewMovie: boolean
   isNewSeries: boolean
-  /** Label "Nuova stagione [S2]" già localizzata (da getNewSeasonLabel) o null. */
+  isNewEpisode?: boolean
+  isBingeWorthy?: boolean
   newSeason?: string | null
   animeRank: number | null
   trendRank: number | null
@@ -39,7 +40,9 @@ export function computeBadge(params: {
   if (params.trendRank) return { type: "rank", label: t(params.mediaType === "movie" ? "badge.movie" : "badge.series"), rank: params.trendRank }
   if (params.isNewMovie) return { type: "extra", label: t("badge.newMovie") }
   if (params.isNewSeries) return { type: "extra", label: t("badge.newSeries") }
+  if (params.isNewEpisode) return { type: "extra", label: t("badge.newEpisode") }
   if (params.newSeason) return { type: "extra", label: params.newSeason }
+  if (params.isBingeWorthy) return { type: "extra", label: t("badge.bingeWorthy") }
   if (params.award) return { type: "extra", label: params.award }
   if (params.imdbTop250) return { type: "extra", label: t("badge.absoluteCinema") }
   if (params.nomination) return { type: "extra", label: params.nomination }
@@ -107,6 +110,8 @@ export function getAllBadgeOptions(params: {
     const sLower = (params.tvStatus || "").toLowerCase()
     if (tLower === "miniseries" || tLower === "miniserie") options.add(keyed("badge.miniseries"))
     if (sLower === "returning series" || sLower === "in corso") options.add(keyed("badge.returning"))
+    if (sLower === "ended" || sLower === "canceled" || sLower === "fine" || sLower === "concluso") options.add(keyed("badge.bingeWorthy"))
+    options.add(keyed("badge.newEpisode"))
   }
   options.delete("")
   return [...options]

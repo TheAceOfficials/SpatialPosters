@@ -1,6 +1,8 @@
 {
   "badge.newMovie": "סרט חדש",
   "badge.newSeries": "סדרה חדשה",
+  "badge.newEpisode": "פרק חדש",
+  "badge.bingeWorthy": "Binge-Worthy",
   "badge.newSeason": "עונה חדשה",
   "badge.newSeasonN": "עונה חדשה {n}",
   "badge.anime": "אנימה",

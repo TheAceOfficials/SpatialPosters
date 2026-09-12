@@ -1,6 +1,8 @@
 {
-  "badge.newMovie": "신작 영화",
-  "badge.newSeries": "신작 시리즈",
+  "badge.newMovie": "새 영화",
+  "badge.newSeries": "새 시리즈",
+  "badge.newEpisode": "새 에피소드",
+  "badge.bingeWorthy": "Binge-Worthy",
   "badge.newSeason": "새 시즌",
   "badge.newSeasonN": "새 시즌 S{n}",
   "badge.anime": "애니메이션",

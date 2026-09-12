@@ -149,13 +149,21 @@ export function computeTopBadge(input: BadgeInput, t: BadgeT, locale?: string): 
         t,
       })
     : null
-  const isKDrama = input.mediaType === "tv" && isKDramaOrigin(input.originCountries)
+  const sLower = (input.tvStatus || "").toLowerCase()
+  const isBingeWorthy = input.mediaType === "tv" && (sLower === "ended" || sLower === "canceled" || sLower === "fine" || sLower === "concluso")
+
+  const lastAirTime = input.lastAirDate ? new Date(input.lastAirDate).getTime() : NaN
+  const isNewEpisode = input.mediaType === "tv" && Number.isFinite(lastAirTime)
+    ? lastAirTime <= now && (now - lastAirTime) < TWO_WEEKS_MS && Number.isFinite(firstAirTime) && (now - firstAirTime) >= TWO_WEEKS_MS
+    : false
 
   const badge = computeBadge({
     mediaType: input.mediaType,
     upcomingRelease,
     isNewMovie,
     isNewSeries,
+    isNewEpisode,
+    isBingeWorthy,
     newSeason,
     animeRank: input.animeRank,
     trendRank: input.trendRank,
