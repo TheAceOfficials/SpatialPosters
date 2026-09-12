@@ -93,6 +93,7 @@ export function getAllBadgeOptions(params: {
   voteAverage: number
   tvType: string | null | undefined
   tvStatus: string | null | undefined
+  seasonCount?: number | null
 }): string[] {
   const options = new Set<string>()
   if (params.upcomingRelease) options.add(params.upcomingRelease)
@@ -113,8 +114,9 @@ export function getAllBadgeOptions(params: {
     const tLower = (params.tvType || "").toLowerCase()
     const sLower = (params.tvStatus || "").toLowerCase()
     const isEnded = sLower === "ended" || sLower === "canceled" || sLower === "cancelled" || sLower === "fine" || sLower === "concluso"
+    const isSeason1 = typeof params.seasonCount === "number" ? params.seasonCount <= 1 : (params.isNewSeries || params.isNewAnime)
     if (tLower === "miniseries" || tLower === "miniserie") options.add(keyed("badge.miniseries"))
-    if (sLower === "returning series" || sLower === "in corso") options.add(keyed("badge.returning"))
+    if ((sLower === "returning series" || sLower === "in corso") && !isSeason1) options.add(keyed("badge.returning"))
     if (isEnded) {
       options.add(keyed("badge.bingeWorthy"))
     } else {

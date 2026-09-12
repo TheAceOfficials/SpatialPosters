@@ -89,6 +89,10 @@ export function getNewSeasonLabel(input: {
   if (sLower === "ended" || sLower === "canceled" || sLower === "cancelled" || sLower === "fine" || sLower === "concluso") {
     return null
   }
+  const count = input.seasonCount
+  if (typeof count === "number" && Number.isFinite(count) && count <= 1) {
+    return null
+  }
   const now = Date.now()
   const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
   const lastTime = input.lastAirDate ? new Date(input.lastAirDate).getTime() : NaN

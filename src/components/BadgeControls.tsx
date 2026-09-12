@@ -11,7 +11,7 @@ import { BadgeStyleSelector } from "@/components/ui"
 import { getAwardBadgeLabel, getNominationBadgeLabel } from "@/lib/awards"
 import { getSubGenreLabel } from "@/lib/subgenres"
 import { getUpcomingReleaseLabel } from "@/lib/release-badge"
-import { getNewSeasonLabel, isKDramaOrigin } from "@/lib/poster-badge"
+import { getNewSeasonLabel, isKDramaOrigin, isAnimeContent } from "@/lib/poster-badge"
 import { isPrefixedKey, badgeKey } from "@/lib/i18n"
 import { getAllBadgeOptions } from "@/lib/badge-priority"
 import { defaultGradientHeightForPoster } from "@/lib/gradient-defaults"
@@ -264,16 +264,25 @@ export function BadgeControls() {
               {(() => {
                 if (!selected) return null
                 const twoWeeks = 14 * 24 * 60 * 60 * 1000
-                const isNewMovie = selected.media_type === "movie" && metaInfo.release_date ? (now - new Date(metaInfo.release_date).getTime()) < twoWeeks : false
-                const isNewSeries = selected.media_type === "tv" && metaInfo.first_air_date ? (now - new Date(metaInfo.first_air_date).getTime()) < twoWeeks : false
-                const award = metaInfo.awards?.length ? getAwardBadgeLabel(metaInfo.awards, t) : null
-                const nomination = !award && metaInfo.nominations?.length ? getNominationBadgeLabel(metaInfo.nominations, t) : null
+                const relTime = metaInfo.release_date ? new Date(metaInfo.release_date).getTime() : NaN
+                const isNewMovie = selected.media_type === "movie" && Number.isFinite(relTime) ? relTime <= now && (now - relTime) < twoWeeks : false
+
                 const animeRankData = mdblistAnimeList?.find((a) => a.id === selected.id)
                 const animeRank = animeRankData ? animeRankData.rank : null
-                const studio = metaInfo.studios?.length ? metaInfo.studios[0] : null
                 const tvType = selected.media_type === "tv" ? metaInfo.type : null
                 const tvStatus = selected.media_type === "tv" ? metaInfo.status : null
-                const extra = selected.media_type === "tv" ? (tvType?.toLowerCase() === "miniseries" || tvType?.toLowerCase() === "miniserie" ? t("badge.miniseries") : tvStatus?.toLowerCase() === "returning series" || tvStatus?.toLowerCase() === "in corso" ? t("badge.returning") : null) : null
+                const isAnime = isAnimeContent({ animeRank, keywords: metaInfo.keywords, tvType })
+
+                const firstAirTime = metaInfo.first_air_date ? new Date(metaInfo.first_air_date).getTime() : NaN
+                const isFreshSeries = selected.media_type === "tv" && Number.isFinite(firstAirTime) ? firstAirTime <= now && (now - firstAirTime) < twoWeeks : false
+                const isNewAnime = isFreshSeries && isAnime
+                const isNewSeries = isFreshSeries && !isAnime
+
+                const award = metaInfo.awards?.length ? getAwardBadgeLabel(metaInfo.awards, t) : null
+                const nomination = !award && metaInfo.nominations?.length ? getNominationBadgeLabel(metaInfo.nominations, t) : null
+                const studio = metaInfo.studios?.length ? metaInfo.studios[0] : null
+                const isSeason1 = typeof metaInfo.number_of_seasons === "number" ? metaInfo.number_of_seasons <= 1 : (isNewSeries || isNewAnime)
+                const extra = selected.media_type === "tv" ? (tvType?.toLowerCase() === "miniseries" || tvType?.toLowerCase() === "miniserie" ? t("badge.miniseries") : (tvStatus?.toLowerCase() === "returning series" || tvStatus?.toLowerCase() === "in corso") && !isSeason1 ? t("badge.returning") : null) : null
                 const upcomingRelease = getUpcomingReleaseLabel({
                   mediaType: selected.media_type === "tv" ? "tv" : "movie",
                   releaseDate: metaInfo.release_date,
@@ -286,6 +295,7 @@ export function BadgeControls() {
                   lastAirDate: metaInfo.last_air_date,
                   firstAirDate: metaInfo.first_air_date,
                   seasonCount: metaInfo.number_of_seasons,
+                  tvStatus,
                   t,
                 }) : null
                 const isKDrama = selected.media_type === "tv" && isKDramaOrigin([
@@ -293,11 +303,12 @@ export function BadgeControls() {
                   ...(metaInfo.productionCompaniesDetailed ?? []),
                 ].map((c) => c.origin_country).filter((c): c is string => !!c))
                 const options = getAllBadgeOptions({
-                  upcomingRelease, isNewMovie, isNewSeries, newSeason, animeRank, trendRank: trendRank,
+                  upcomingRelease, isNewMovie, isNewSeries, isNewAnime, newSeason, animeRank, trendRank: trendRank,
                   award, nomination, studio,
                   director: metaInfo.director || null, subGenre, isKDrama, extra,
                   mediaType: selected.media_type === "tv" ? "tv" : "movie",
                   voteAverage: metaInfo.voteAverage, tvType, tvStatus,
+                  seasonCount: metaInfo.number_of_seasons,
                   imdbTop250: !!imdbTop250,
                 })
                 const savedMissing = ed.customBadge && !options.includes(ed.customBadge) ? ed.customBadge : null
