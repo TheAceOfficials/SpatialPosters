@@ -96,11 +96,15 @@ describe("computeBadge", () => {
   })
 
   it("prioritizes new season over award (dopo nuova serie)", () => {
-    expect(computeBadge({ ...base, newSeason: "Nuova stagione S2", award: "Vincitore Oscar" }, t)?.label).toBe("Nuova stagione S2")
+    expect(computeBadge({ ...base, newSeason: "Nuova stagione", award: "Vincitore Oscar" }, t)?.label).toBe("Nuova stagione")
   })
 
   it("prioritizes new series over new season", () => {
-    expect(computeBadge({ ...base, isNewSeries: true, newSeason: "Nuova stagione S2" }, t)?.label).toBe("Nuova serie")
+    expect(computeBadge({ ...base, isNewSeries: true, newSeason: "Nuova stagione" }, t)?.label).toBe("Nuova serie")
+  })
+
+  it("prioritizes new anime over new series and new season", () => {
+    expect(computeBadge({ ...base, isNewAnime: true, isNewSeries: false, newSeason: "Nuova stagione" }, t)?.label).toBe("Nuovo anime")
   })
 
   it("prioritizes subgenre over kdrama, kdrama over director and studio", () => {
@@ -222,16 +226,16 @@ describe("getNewSeasonLabel", () => {
   const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   const inDays = (n: number) => new Date(Date.now() + n * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 
-  it("returns numbered label for recent last air + old first air", () => {
-    expect(getNewSeasonLabel({ lastAirDate: daysAgo(3), firstAirDate: daysAgo(400), seasonCount: 2, t })).toBe("Nuova stagione S2")
+  it("returns clean label for recent last air + old first air", () => {
+    expect(getNewSeasonLabel({ lastAirDate: daysAgo(3), firstAirDate: daysAgo(400), seasonCount: 2, t })).toBe("Nuova stagione")
   })
 
   it("returns generic label without season count", () => {
     expect(getNewSeasonLabel({ lastAirDate: daysAgo(3), firstAirDate: daysAgo(400), seasonCount: null, t })).toBe("Nuova stagione")
   })
 
-  it("returns generic label for season 1 (no suffix)", () => {
-    expect(getNewSeasonLabel({ lastAirDate: daysAgo(3), firstAirDate: daysAgo(400), seasonCount: 1, t })).toBe("Nuova stagione")
+  it("returns null for ended shows", () => {
+    expect(getNewSeasonLabel({ lastAirDate: daysAgo(3), firstAirDate: daysAgo(400), seasonCount: 2, tvStatus: "Ended", t })).toBeNull()
   })
 
   it("returns null for old last air date", () => {
@@ -289,10 +293,28 @@ describe("computeTopBadge (nuovi badge)", () => {
     imdbTop250: false,
   }
 
-  it("computes Nuova stagione S3 for returning series with recent last air", () => {
+  it("computes Nuova stagione for returning series with recent last air", () => {
     const c = computeTopBadge({ ...baseInput, lastAirDate: daysAgo(3), seasonCount: 3 }, t, "it")
-    expect(c.newSeason).toBe("Nuova stagione S3")
-    expect(c.badge).toEqual({ type: "extra", label: "Nuova stagione S3" })
+    expect(c.newSeason).toBe("Nuova stagione")
+    expect(c.badge).toEqual({ type: "extra", label: "Nuova stagione" })
+  })
+
+  it("computes Binge-Worthy for ended series even with recent last air date", () => {
+    const c = computeTopBadge({ ...baseInput, tvStatus: "Ended", lastAirDate: daysAgo(3), seasonCount: 3 }, t, "it")
+    expect(c.newSeason).toBeNull()
+    expect(c.badge).toEqual({ type: "extra", label: "Binge-Worthy" })
+  })
+
+  it("computes Nuovo anime for Season 1 anime premiere", () => {
+    const c = computeTopBadge({
+      ...baseInput,
+      firstAirDate: daysAgo(3),
+      lastAirDate: daysAgo(3),
+      animeRank: 10,
+      keywords: ["anime"],
+    }, t, "it")
+    expect(c.isNewAnime).toBe(true)
+    expect(c.badge).toEqual({ type: "rank", label: "Anime", rank: 10 })
   })
 
   it("computes K-Drama for KR origin without stronger badges", () => {
@@ -307,7 +329,6 @@ describe("computeTopBadge (nuovi badge)", () => {
   })
 
   it("upcoming release wins over new season", () => {
-    // Serie annunciata: first_air futura → upcoming, anche con last_air valorizzata
     const c = computeTopBadge({ ...baseInput, firstAirDate: inDays(30), lastAirDate: daysAgo(3), seasonCount: 2 }, t, "it")
     expect(c.badge?.label).toBe(c.upcomingRelease)
   })
@@ -317,7 +338,7 @@ describe("getAllBadgeOptions (nuovi badge)", () => {
   it("includes newSeason key and K-Drama literal", () => {
     const options = getAllBadgeOptions({
       upcomingRelease: null, isNewMovie: false, isNewSeries: false,
-      newSeason: "Nuova stagione S2", animeRank: null, trendRank: null,
+      newSeason: "Nuova stagione", animeRank: null, trendRank: null,
       award: null, nomination: null, studio: null, director: null,
       subGenre: null, isKDrama: true, imdbTop250: false, extra: null,
       mediaType: "tv", voteAverage: 8, tvType: null, tvStatus: null,

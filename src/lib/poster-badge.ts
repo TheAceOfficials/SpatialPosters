@@ -40,6 +40,7 @@ export interface ComputedTopBadge {
   readonly upcomingRelease: string | null
   readonly isNewMovie: boolean
   readonly isNewSeries: boolean
+  readonly isNewAnime?: boolean
   readonly newSeason: string | null
   readonly extraFallback: string | null
   readonly awardBadge: string | null
@@ -63,20 +64,31 @@ export function isNetworkStudio(studioName: string | null): boolean {
 }
 
 /**
- * Badge "Nuova stagione": serie TV con ultima messa in onda recente (<14gg)
- * ma prima messa in onda vecchia (altrimenti è "Nuova serie", non nuova stagione).
- * Con seasonCount > 1 usa `badge.newSeasonN`, che include il numero (es.
- * "Nuova stagione S2"). Il numero sta DENTRO la stringa tradotta e non
- * concatenato dopo: in ebraico un " S2" attaccato a un testo RTL produce una
- * stringa a direzione mista, mentre così ogni lingua decide dove metterlo.
- * Formula condivisa con BadgeControls (mai forkare): entrambi importano da qui.
+ * Check if content is anime based on anime rank, keywords, or tvType.
+ */
+export function isAnimeContent(input: { animeRank?: number | null; keywords?: string[]; tvType?: string | null }): boolean {
+  if (typeof input.animeRank === "number" && Number.isFinite(input.animeRank)) return true
+  if (input.keywords?.some((k) => k.toLowerCase().includes("anime"))) return true
+  if ((input.tvType || "").toLowerCase().includes("anime")) return true
+  return false
+}
+
+/**
+ * Badge "Nuova stagione": serie TV in corso con ultima messa in onda recente (<14gg)
+ * ma prima messa in onda vecchia (altrimenti è "Nuova serie" / "Nuovo anime", non nuova stagione).
+ * Restituisce una stringa pulita e minimale "badge.newSeason" (es. "New season").
  */
 export function getNewSeasonLabel(input: {
   lastAirDate?: string | null
   firstAirDate?: string | null
   seasonCount?: number | null
+  tvStatus?: string | null
   t: BadgeT
 }): string | null {
+  const sLower = (input.tvStatus || "").toLowerCase()
+  if (sLower === "ended" || sLower === "canceled" || sLower === "cancelled" || sLower === "fine" || sLower === "concluso") {
+    return null
+  }
   const now = Date.now()
   const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
   const lastTime = input.lastAirDate ? new Date(input.lastAirDate).getTime() : NaN
@@ -84,9 +96,7 @@ export function getNewSeasonLabel(input: {
   if (!(lastTime <= now && (now - lastTime) < TWO_WEEKS_MS)) return null
   const firstTime = input.firstAirDate ? new Date(input.firstAirDate).getTime() : NaN
   if (Number.isFinite(firstTime) && firstTime <= now && (now - firstTime) < TWO_WEEKS_MS) return null
-  const n = input.seasonCount
-  const numbered = typeof n === "number" && Number.isFinite(n) && n > 1
-  return numbered ? input.t("badge.newSeasonN", { n: n! }) : input.t("badge.newSeason")
+  return input.t("badge.newSeason")
 }
 
 /**
@@ -106,18 +116,25 @@ export function isKDramaOrigin(originCountries: readonly string[] | undefined | 
 export function computeTopBadge(input: BadgeInput, t: BadgeT, locale?: string): ComputedTopBadge {
   const now = Date.now()
   const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
-  // Date FUTURE bug: con una data di uscita in avanti, (now - date) era negativo
-  // e quindi < TWO_WEEKS_MS sempre → badge "nuovo" per tutto il periodo pre-release.
-  // Il badge "nuovo" vale SOLO se la data è nel passato e dentro le 2 settimane;
-  // le date future sono gestite dal badge "in arrivo" (upcomingRelease).
   const releaseTime = input.releaseDate ? new Date(input.releaseDate).getTime() : NaN
   const isNewMovie = input.mediaType === "movie" && Number.isFinite(releaseTime)
     ? releaseTime <= now && (now - releaseTime) < TWO_WEEKS_MS
     : false
+
+  const sLower = (input.tvStatus || "").toLowerCase()
+  const isEndedOrCanceled = input.mediaType === "tv" && (
+    sLower === "ended" || sLower === "canceled" || sLower === "cancelled" || sLower === "fine" || sLower === "concluso"
+  )
+  const isBingeWorthy = isEndedOrCanceled
+
+  const isAnime = isAnimeContent(input)
   const firstAirTime = input.firstAirDate ? new Date(input.firstAirDate).getTime() : NaN
-  const isNewSeries = input.mediaType === "tv" && Number.isFinite(firstAirTime)
+  const isFreshSeries = input.mediaType === "tv" && Number.isFinite(firstAirTime)
     ? firstAirTime <= now && (now - firstAirTime) < TWO_WEEKS_MS
     : false
+
+  const isNewAnime = isFreshSeries && isAnime
+  const isNewSeries = isFreshSeries && !isAnime
 
   const awardBadge = input.awards.length ? getAwardBadgeLabel(input.awards, t) : null
   const nomination = !awardBadge && input.nominations.length
@@ -141,19 +158,18 @@ export function computeTopBadge(input: BadgeInput, t: BadgeT, locale?: string): 
 
   const subGenreBadge = getSubGenreLabel(input.keywords || [], locale)
 
-  const newSeason = input.mediaType === "tv"
+  const newSeason = input.mediaType === "tv" && !isEndedOrCanceled
     ? getNewSeasonLabel({
         lastAirDate: input.lastAirDate,
         firstAirDate: input.firstAirDate,
         seasonCount: input.seasonCount,
+        tvStatus: input.tvStatus,
         t,
       })
     : null
-  const sLower = (input.tvStatus || "").toLowerCase()
-  const isBingeWorthy = input.mediaType === "tv" && (sLower === "ended" || sLower === "canceled" || sLower === "fine" || sLower === "concluso")
 
   const lastAirTime = input.lastAirDate ? new Date(input.lastAirDate).getTime() : NaN
-  const isNewEpisode = input.mediaType === "tv" && Number.isFinite(lastAirTime)
+  const isNewEpisode = input.mediaType === "tv" && !isEndedOrCanceled && !newSeason && Number.isFinite(lastAirTime)
     ? lastAirTime <= now && (now - lastAirTime) < TWO_WEEKS_MS && Number.isFinite(firstAirTime) && (now - firstAirTime) >= TWO_WEEKS_MS
     : false
 
@@ -162,6 +178,7 @@ export function computeTopBadge(input: BadgeInput, t: BadgeT, locale?: string): 
     upcomingRelease,
     isNewMovie,
     isNewSeries,
+    isNewAnime,
     isNewEpisode,
     isBingeWorthy,
     newSeason,
@@ -182,6 +199,7 @@ export function computeTopBadge(input: BadgeInput, t: BadgeT, locale?: string): 
     upcomingRelease,
     isNewMovie,
     isNewSeries,
+    isNewAnime,
     newSeason,
     extraFallback,
     awardBadge,

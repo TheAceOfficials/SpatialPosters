@@ -17,6 +17,7 @@ export function computeBadge(params: {
   upcomingRelease: string | null
   isNewMovie: boolean
   isNewSeries: boolean
+  isNewAnime?: boolean
   isNewEpisode?: boolean
   isBingeWorthy?: boolean
   newSeason?: string | null
@@ -39,6 +40,7 @@ export function computeBadge(params: {
   // (invece del periodo "Oggi"). qLabel/rankLabel possono comunque sovrascrivere.
   if (params.trendRank) return { type: "rank", label: t(params.mediaType === "movie" ? "badge.movie" : "badge.series"), rank: params.trendRank }
   if (params.isNewMovie) return { type: "extra", label: t("badge.newMovie") }
+  if (params.isNewAnime) return { type: "extra", label: t("badge.newAnime") }
   if (params.isNewSeries) return { type: "extra", label: t("badge.newSeries") }
   if (params.newSeason) return { type: "extra", label: params.newSeason }
   if (params.isNewEpisode) return { type: "extra", label: t("badge.newEpisode") }
@@ -75,6 +77,7 @@ export function getAllBadgeOptions(params: {
   upcomingRelease: string | null
   isNewMovie: boolean
   isNewSeries: boolean
+  isNewAnime?: boolean
   newSeason?: string | null
   animeRank: number | null
   trendRank: number | null
@@ -94,6 +97,7 @@ export function getAllBadgeOptions(params: {
   const options = new Set<string>()
   if (params.upcomingRelease) options.add(params.upcomingRelease)
   if (params.isNewMovie) options.add(keyed("badge.newMovie"))
+  if (params.isNewAnime) options.add(keyed("badge.newAnime"))
   if (params.isNewSeries) options.add(keyed("badge.newSeries"))
   if (params.newSeason) options.add(keyed("badge.newSeason"))
   if (params.trendRank) options.add(keyed(params.mediaType === "movie" ? "badge.movie" : "badge.series"))
@@ -108,10 +112,14 @@ export function getAllBadgeOptions(params: {
   if (params.mediaType === "tv") {
     const tLower = (params.tvType || "").toLowerCase()
     const sLower = (params.tvStatus || "").toLowerCase()
+    const isEnded = sLower === "ended" || sLower === "canceled" || sLower === "cancelled" || sLower === "fine" || sLower === "concluso"
     if (tLower === "miniseries" || tLower === "miniserie") options.add(keyed("badge.miniseries"))
     if (sLower === "returning series" || sLower === "in corso") options.add(keyed("badge.returning"))
-    if (sLower === "ended" || sLower === "canceled" || sLower === "fine" || sLower === "concluso") options.add(keyed("badge.bingeWorthy"))
-    options.add(keyed("badge.newEpisode"))
+    if (isEnded) {
+      options.add(keyed("badge.bingeWorthy"))
+    } else {
+      options.add(keyed("badge.newEpisode"))
+    }
   }
   options.delete("")
   return [...options]
