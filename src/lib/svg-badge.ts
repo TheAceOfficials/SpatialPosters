@@ -257,7 +257,7 @@ export async function buildGenreBadgeSVG(
 
   const textColor = s === "colored"
     ? textColorForBg(accentColor || "")
-    : (isPill ? "rgba(0,0,0,0.80)" : "#D1D5DB")
+    : (isPill ? "rgba(0,0,0,0.80)" : "rgba(255, 255, 255, 0.68)")
   const bgColor = s === "colored"
     ? (accentColor && accentColor !== "#555555" ? accentColor : "rgba(255,255,255,0.80)")
     : (isPill ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.80)")

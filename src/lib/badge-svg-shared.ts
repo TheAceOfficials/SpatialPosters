@@ -120,7 +120,7 @@ export function genreBadgeSvgDims(fs: number, genreName: string, voteStr: string
   return { starW, gap, gapStar, totalW, svgH, genreW, voteW, yearW, bulletW, textContentW }
 }
 
-function buildGenreTextFlow({ genreName, voteStr, yearStr, fs, centerX, y, textColor = "#D1D5DB", starBase64, parts }: GenreTextFlowArgs) {
+function buildGenreTextFlow({ genreName, voteStr, yearStr, fs, centerX, y, textColor = "rgba(255, 255, 255, 0.68)", starBase64, parts }: GenreTextFlowArgs) {
   const opts = normalizeParts(parts)
   const dims = genreBadgeSvgDims(fs, genreName, voteStr, yearStr, opts)
   const starDy = Math.max(2, Math.round(fs * 0.14))
