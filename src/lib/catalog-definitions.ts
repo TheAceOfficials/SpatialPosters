@@ -1,17 +1,16 @@
-export const CATALOG_ID_PREFIX = "pictorium-"
+export const CATALOG_ID_PREFIX = "spatial-"
+export const LEGACY_PICTORIUM_PREFIX = "pictorium-"
+export const LEGACY_POSTERIUM_PREFIX = "posterium-"
 
-/** Prefisso legacy pre-rename: accettato in ingresso (alias), mai più emesso. */
-export const LEGACY_CATALOG_ID_PREFIX = "posterium-"
+export type SpatialCatalogType = "movie" | "series"
 
-export type PictoriumCatalogType = "movie" | "series"
-
-export type PictoriumCatalogDefinition = {
+export type SpatialCatalogDefinition = {
   readonly id: string
   readonly name: string
-  readonly type: PictoriumCatalogType
+  readonly type: SpatialCatalogType
 }
 
-export const PICTORIUM_CATALOGS: readonly PictoriumCatalogDefinition[] = [
+export const SPATIALPOSTERS_CATALOGS: readonly SpatialCatalogDefinition[] = [
   { id: "pictorium-jw-movies", name: "📈 Top 20 Film", type: "movie" },
   { id: "pictorium-jw-series", name: "📈 Top 20 Serie TV", type: "series" },
   { id: "pictorium-jw-new-movies", name: "🆕 Nuove Uscite Film", type: "movie" },
@@ -40,22 +39,22 @@ export type StremioCatalogExtra = {
   readonly options?: readonly string[]
 }
 
-export type PictoriumManifestCatalog = {
+export type SpatialManifestCatalog = {
   id: string
   name: string
-  type: PictoriumCatalogType
+  type: SpatialCatalogType
   extra?: readonly StremioCatalogExtra[]
 }
 
-export const PICTORIUM_SEARCH_CATALOGS = [
+export const SPATIALPOSTERS_SEARCH_CATALOGS = [
   { id: "pictorium-search-movies", name: "🔍 SpatialPosters — Search Movies", type: "movie" },
   { id: "pictorium-search-series", name: "🔍 SpatialPosters — Search TV Shows", type: "series" },
-] as const satisfies readonly PictoriumCatalogDefinition[]
+] as const satisfies readonly SpatialCatalogDefinition[]
 
-export const PICTORIUM_PEOPLE_SEARCH_CATALOGS = [
+export const SPATIALPOSTERS_PEOPLE_SEARCH_CATALOGS = [
   { id: "pictorium-search-people-movies", name: "🔍 SpatialPosters — Search by Person (Movies)", type: "movie" },
   { id: "pictorium-search-people-series", name: "🔍 SpatialPosters — Search by Person (TV Shows)", type: "series" },
-] as const satisfies readonly PictoriumCatalogDefinition[]
+] as const satisfies readonly SpatialCatalogDefinition[]
 
 export const WARMUP_CATALOG_IDS = [
   "pictorium-jw-movies",
@@ -70,18 +69,17 @@ export const WARMUP_CATALOG_IDS = [
 
 const WARMUP_CATALOG_ID_SET: ReadonlySet<string> = new Set(WARMUP_CATALOG_IDS)
 
-export function getWarmupCatalogs(): readonly PictoriumCatalogDefinition[] {
-  return PICTORIUM_CATALOGS.filter((catalog) => WARMUP_CATALOG_ID_SET.has(catalog.id))
+export function getWarmupCatalogs(): readonly SpatialCatalogDefinition[] {
+  return SPATIALPOSTERS_CATALOGS.filter((catalog) => WARMUP_CATALOG_ID_SET.has(catalog.id))
 }
 
 /**
- * Normalizza un ID catalogo: gli ID legacy `posterium-*` (addon già installati,
- * config salvate, localStorage) vengono mappati al canonico `pictorium-*`.
- * Gli ID già canonici o custom senza prefisso passano invariati.
+ * Normalizza un ID catalogo: gli ID legacy `posterium-*` / `pictorium-*` (addon già installati,
+ * config salvate, localStorage) vengono mappati al formato canonico.
  */
 export function normalizeCatalogId(id: string): string {
-  if (id.startsWith(LEGACY_CATALOG_ID_PREFIX)) {
-    return `${CATALOG_ID_PREFIX}${id.slice(LEGACY_CATALOG_ID_PREFIX.length)}`
+  if (id.startsWith(LEGACY_POSTERIUM_PREFIX)) {
+    return `pictorium-${id.slice(LEGACY_POSTERIUM_PREFIX.length)}`
   }
   return id
 }
@@ -103,9 +101,13 @@ export function normalizeCatalogIdKeys(record: Record<string, string> | undefine
   return out
 }
 
-/** @deprecated Alias legacy — usare PICTORIUM_CATALOGS. */
-export const POSTERIUM_CATALOGS = PICTORIUM_CATALOGS
-/** @deprecated Alias legacy — usare PICTORIUM_SEARCH_CATALOGS. */
-export const POSTERIUM_SEARCH_CATALOGS = PICTORIUM_SEARCH_CATALOGS
-/** @deprecated Alias legacy — usare PICTORIUM_PEOPLE_SEARCH_CATALOGS. */
-export const POSTERIUM_PEOPLE_SEARCH_CATALOGS = PICTORIUM_PEOPLE_SEARCH_CATALOGS
+// Export aliases for backward compatibility across existing codebase and tests
+export type PictoriumCatalogType = SpatialCatalogType
+export type PictoriumCatalogDefinition = SpatialCatalogDefinition
+export type PictoriumManifestCatalog = SpatialManifestCatalog
+export const PICTORIUM_CATALOGS = SPATIALPOSTERS_CATALOGS
+export const PICTORIUM_SEARCH_CATALOGS = SPATIALPOSTERS_SEARCH_CATALOGS
+export const PICTORIUM_PEOPLE_SEARCH_CATALOGS = SPATIALPOSTERS_PEOPLE_SEARCH_CATALOGS
+export const POSTERIUM_CATALOGS = SPATIALPOSTERS_CATALOGS
+export const POSTERIUM_SEARCH_CATALOGS = SPATIALPOSTERS_SEARCH_CATALOGS
+export const POSTERIUM_PEOPLE_SEARCH_CATALOGS = SPATIALPOSTERS_PEOPLE_SEARCH_CATALOGS

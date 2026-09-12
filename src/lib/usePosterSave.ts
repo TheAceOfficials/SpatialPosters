@@ -144,7 +144,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       loadMappings()
       if (selected) setPreviewId(`${selected.media_type}:${selected.id}`)
     } catch (e) {
-      console.error("[pictorium] Remove logo failed:", e)
+      console.error("[spatialposters] Remove logo failed:", e)
       // M17: rollback dello stato se il PUT non va a buon fine
       if (logoPrecedente) setSelectedLogo(logoPrecedente)
       import("sonner").then(({ toast }) => toast(t("ui.saveError")))

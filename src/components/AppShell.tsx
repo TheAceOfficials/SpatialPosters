@@ -94,8 +94,12 @@ export function AppShell() {
       }
       checkPinStatus()
     }
+    window.addEventListener("spatialposters:pin-change", handlePinChange)
     window.addEventListener("pictorium:pin-change", handlePinChange)
-    return () => window.removeEventListener("pictorium:pin-change", handlePinChange)
+    return () => {
+      window.removeEventListener("spatialposters:pin-change", handlePinChange)
+      window.removeEventListener("pictorium:pin-change", handlePinChange)
+    }
   }, [checkPinStatus])
 
   const handlePinUnlock = () => {

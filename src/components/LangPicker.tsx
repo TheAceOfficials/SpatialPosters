@@ -63,6 +63,7 @@ export function LangPicker({ onPickLang, onPickRegion, onDone }: SetupWizardProp
 
       if (res.ok) {
         if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("spatialposters:pin-change", { detail: { unlocked: true } }))
           window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: true } }))
         }
         onDone()

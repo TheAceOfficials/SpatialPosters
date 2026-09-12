@@ -40,12 +40,12 @@ export function useMappingsStore() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `pictorium-backup-${new Date().toISOString().slice(0, 10)}.json`
+      a.download = `spatialposters-backup-${new Date().toISOString().slice(0, 10)}.json`
       a.click()
       URL.revokeObjectURL(url)
       import("sonner").then(({ toast }) => toast.success(t("ui.saved") || "Backup esportato con successo!"))
     } catch (e) {
-      console.error("[pictorium] Export failed:", e)
+      console.error("[spatialposters] Export failed:", e)
       import("sonner").then(({ toast }) => toast.error(t("ui.exportError")))
     }
   }, [])

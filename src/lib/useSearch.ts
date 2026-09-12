@@ -81,7 +81,7 @@ export function useSearch(tmdbKey: string, lang: string) {
       }
     } catch (e) {
       if (rev !== revRef.current) return
-      console.error("[pictorium] Search failed:", e)
+      console.error("[spatialposters] Search failed:", e)
       toastRef.current.error(t("ui.searchError"))
       setError(t("ui.searchError"))
       if (page === 1) setResults([])

@@ -54,7 +54,7 @@ export interface MetaInfo {
   productionCompaniesDetailed?: { name: string; logo_path: string | null; origin_country?: string }[]
 }
 
-export interface PictoriumCtx {
+export interface SpatialCtx {
   selected: SearchResult | null
   setSelected: React.Dispatch<React.SetStateAction<SearchResult | null>>
   view: ViewType
@@ -179,27 +179,29 @@ export interface PictoriumCtx {
   refreshPosters: () => Promise<void>
 }
 
-const Ctx = createContext<PictoriumCtx | null>(null)
+export type PictoriumCtx = SpatialCtx
+
+const Ctx = createContext<SpatialCtx | null>(null)
 
 // Store scoped al provider per la subscription ottimizzata (usePSelector):
-// ogni PictoriumProvider ha il proprio store, così i test restano isolati e i
+// ogni SpatialProvider ha il proprio store, così i test restano isolati e i
 // selettori ri-renderizzano SOLO quando lo slice selezionato cambia (Object.is).
 interface SelectorStore {
-  value: PictoriumCtx | null
+  value: SpatialCtx | null
   listeners: Set<() => void>
 }
 const SelectorStoreCtx = createContext<SelectorStore | null>(null)
 
 /**
- * Consuma solo lo slice richiesto del contesto Pictorium. Il componente
+ * Consuma solo lo slice richiesto del contesto Spatial. Il componente
  * ri-renderizza SOLO quando il valore selezionato cambia (Object.is), non a
  * ogni aggiornamento di qualsiasi slice. Il selettore DEVE restituire un
  * riferimento stabile (primitiva o campo di stato esistente), mai un oggetto
  * nuovo creato inline, altrimenti il confronto fallisce.
  */
-export function usePSelector<T>(selector: (v: PictoriumCtx) => T): T {
+export function usePSelector<T>(selector: (v: SpatialCtx) => T): T {
   const store = useContext(SelectorStoreCtx)
-  if (!store) throw new Error("usePSelector must be inside PictoriumProvider")
+  if (!store) throw new Error("usePSelector must be inside SpatialProvider")
   const get = (): T | undefined => (store.value ? selector(store.value) : undefined)
   return useSyncExternalStore(
     (cb) => {
@@ -213,11 +215,11 @@ export function usePSelector<T>(selector: (v: PictoriumCtx) => T): T {
 
 export function useP() {
   const ctx = useContext(Ctx)
-  if (!ctx) throw new Error("useP must be inside PictoriumProvider")
+  if (!ctx) throw new Error("useP must be inside SpatialProvider")
   return ctx
 }
 
-export function PictoriumProvider({ value, children }: { value: PictoriumCtx; children: React.ReactNode }) {
+export function SpatialProvider({ value, children }: { value: SpatialCtx; children: React.ReactNode }) {
   const storeRef = useRef<SelectorStore | null>(null)
   if (!storeRef.current) storeRef.current = { value: null, listeners: new Set() }
   const store = storeRef.current
@@ -242,6 +244,8 @@ export function PictoriumProvider({ value, children }: { value: PictoriumCtx; ch
     </SelectorStoreCtx.Provider>
   )
 }
+
+export const PictoriumProvider = SpatialProvider
 
 /**
  * PictoriumRoot — racchiude la creazione dello stato e la catena provider.

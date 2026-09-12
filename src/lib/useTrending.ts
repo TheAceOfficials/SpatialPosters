@@ -24,7 +24,7 @@ export function useTrending(tmdbKey: string, mdblistApiKey: string, regionCode =
     const signal = ctrl.signal
     http<{ movies: Array<SearchResult & { rank: number }>; tv: Array<SearchResult & { rank: number }> }>(`/api/tmdb/trending?api_key=${tmdbKey}&country=${encodeURIComponent(region.code)}`, { timeout: 30000, signal })
       .then((data) => { if (signal.aborted) return; setTrending([...(data.movies || []), ...(data.tv || [])]); setTrendingError(false) })
-      .catch((e) => { if (signal.aborted) return; console.error("[pictorium] Failed to load trending:", e); setTrendingError(true) })
+      .catch((e) => { if (signal.aborted) return; console.error("[spatialposters] Failed to load trending:", e); setTrendingError(true) })
     http<EnrichedAnimeItem[]>(`/api/mdblist/anime?mdblist_key=${encodeURIComponent(mdblistApiKey || "")}&api_key=${encodeURIComponent(tmdbKey)}`, { timeout: 30000, signal })
       .then((data) => {
         if (signal.aborted) return
@@ -84,7 +84,7 @@ export function useTrending(tmdbKey: string, mdblistApiKey: string, regionCode =
         Promise.all(batch.map((p) =>
           http<FlixPatrolChart>(`/api/flixpatrol/top10?platform=${p.slug}&country=${encodeURIComponent(flixCountry)}&api_key=${encodeURIComponent(tmdbKey)}`, { timeout: 30000, signal })
             .then((data) => { if (!signal.aborted) setStreamingCharts((prev) => ({ ...prev, [p.slug]: data })) })
-            .catch((e) => { if (!signal.aborted) console.error("[pictorium] FlixPatrol fetch failed for", p.slug, e) })
+            .catch((e) => { if (!signal.aborted) console.error("[spatialposters] FlixPatrol fetch failed for", p.slug, e) })
         )).finally(() => {
           if (!signal.aborted) setTimeout(runNext, 300)
         })
@@ -132,13 +132,13 @@ export function useTrending(tmdbKey: string, mdblistApiKey: string, regionCode =
       if (animeData) setMdblistAnimeList(animeData as EnrichedAnimeItem[])
     } catch (e) {
       if ((e as Error).name === "AbortError") return
-      console.error("[pictorium] Failed to refresh lists:", e)
+      console.error("[spatialposters] Failed to refresh lists:", e)
       setTrendingError(true)
     }
     for (const p of STREAMING_PLATFORMS) {
       http<FlixPatrolChart>(`/api/flixpatrol/top10?platform=${p.slug}&country=${encodeURIComponent(flixCountry)}&api_key=${encodeURIComponent(tmdbKey)}&_t=${now}`, { timeout: 30000, signal })
         .then((data) => { if (signal.aborted) return; setStreamingCharts((prev) => ({ ...prev, [p.slug]: data })) })
-        .catch((e) => { if (signal.aborted) return; console.error("[pictorium] FlixPatrol refresh failed for", p.slug, e) })
+        .catch((e) => { if (signal.aborted) return; console.error("[spatialposters] FlixPatrol refresh failed for", p.slug, e) })
     }
     import("sonner").then(({ toast }) => toast(t("ui.listsRefreshed")))
   }, [tmdbKey, mdblistApiKey, region.code, flixCountry])

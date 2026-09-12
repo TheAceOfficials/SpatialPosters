@@ -958,6 +958,7 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
                         })
                         if (res.ok) {
                           if (typeof window !== "undefined") {
+                            window.dispatchEvent(new CustomEvent("spatialposters:pin-change", { detail: { unlocked: true } }))
                             window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: true } }))
                           }
                           toast.success(t("ui.pinSavedSuccess"))
@@ -1015,6 +1016,7 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
                         })
                         if (res.ok) {
                           if (typeof window !== "undefined") {
+                            window.dispatchEvent(new CustomEvent("spatialposters:pin-change", { detail: { unlocked: false } }))
                             window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: false } }))
                           }
                           toast.success(t("ui.pinRemovedSuccess"))

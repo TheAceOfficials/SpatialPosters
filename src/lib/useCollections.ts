@@ -9,13 +9,14 @@ export interface PosterCollection {
   createdAt: number
 }
 
-const STORAGE_KEY = "pictorium_collections"
+const PRIMARY_STORAGE_KEY = "spatial_collections"
+const LEGACY_STORAGE_KEY = "pictorium_collections"
 
 // ── localStorage helpers ──────────────────────────────────────────
 function load(): PosterCollection[] {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined" || !window?.localStorage) return []
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(PRIMARY_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed) ? parsed : []
   } catch {
@@ -26,7 +27,7 @@ function load(): PosterCollection[] {
 function save(cols: PosterCollection[]) {
   try {
     if (typeof window !== "undefined" && typeof localStorage !== "undefined" && window?.localStorage) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cols))
+      localStorage.setItem(PRIMARY_STORAGE_KEY, JSON.stringify(cols))
     }
   } catch {}
 }

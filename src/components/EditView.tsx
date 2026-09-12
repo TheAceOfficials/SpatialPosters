@@ -279,7 +279,7 @@ export default function EditView() {
                       const hasMapping = mappingsMap.get(key)
                       if (!hasMapping) return null
                       return (
-                        <button type="button" aria-label={t("ui.remove")} onClick={() => { removeMapping(hasMapping).catch((e) => console.error("[pictorium] Remove mapping failed:", e)); setSelected(null); setPreviewPoster(null); setSelectedLogo(null); setPreviewId(null) }} className="btn-danger min-h-[44px] px-4 rounded-xl text-xs">
+                        <button type="button" aria-label={t("ui.remove")} onClick={() => { removeMapping(hasMapping).catch((e) => console.error("[spatialposters] Remove mapping failed:", e)); setSelected(null); setPreviewPoster(null); setSelectedLogo(null); setPreviewId(null) }} className="btn-danger min-h-[44px] px-4 rounded-xl text-xs">
                           <Trash2 className="w-4 h-4" />
                           {t("ui.remove")}
                         </button>

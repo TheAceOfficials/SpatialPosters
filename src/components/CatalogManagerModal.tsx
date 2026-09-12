@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
-import { PICTORIUM_CATALOGS } from "@/lib/catalog-definitions"
+import { SPATIALPOSTERS_CATALOGS } from "@/lib/catalog-definitions"
 import { EmojiPicker } from "@/components/ui"
 
 interface CatalogManagerModalProps {
@@ -94,7 +94,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
     const list: CatalogEntryItem[] = []
 
     // Built-in catalogs
-    for (const c of PICTORIUM_CATALOGS) {
+    for (const c of SPATIALPOSTERS_CATALOGS) {
       list.push({
         id: c.id,
         name: catalogRenames[c.id] || c.name,

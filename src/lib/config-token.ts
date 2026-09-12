@@ -62,7 +62,8 @@ export const configTokenSchema = z.object({
   region: z.string().max(32).optional(),
 })
 
-export type PictoriumUserConfig = z.infer<typeof configTokenSchema>
+export type SpatialUserConfig = z.infer<typeof configTokenSchema>
+export type PictoriumUserConfig = SpatialUserConfig
 
 // ---- HMAC setup ----
 
@@ -73,14 +74,14 @@ const HMAC_SECRET = process.env.ENCRYPTION_KEY_SECRET || process.env.CONFIG_HMAC
 // individuare la causa quando un deploy parte senza la variabile d'ambiente.
 if (process.env.NODE_ENV === "production" && !HMAC_SECRET) {
   console.error(
-    "[pictorium] CONFIG_HMAC_SECRET (or ENCRYPTION_KEY_SECRET) is not set. " +
+    "[spatialposters] CONFIG_HMAC_SECRET (or ENCRYPTION_KEY_SECRET) is not set. " +
       "Config token encoding/decoding is fail-closed in production — encoding " +
       "throws and unsigned tokens are rejected. Set the secret to enable tokens.",
   )
 }
 
 /**
- * Encode a PictoriumUserConfig into a compact signed URL-safe token.
+ * Encode a SpatialUserConfig into a compact signed URL-safe token.
  * Formato: `base64url-json.hmac-base64url`
  *
  * In produzione richiede HMAC_SECRET: senza firma il payload è modificabile
@@ -88,10 +89,10 @@ if (process.env.NODE_ENV === "production" && !HMAC_SECRET) {
  * quindi lancio un errore invece di emettere un token unsigned.
  * In dev/test senza HMAC_SECRET genera un token unsigned (utile per i test).
  */
-export function encodeConfig(config: PictoriumUserConfig): string {
+export function encodeConfig(config: SpatialUserConfig): string {
   if (process.env.NODE_ENV === "production" && !HMAC_SECRET) {
     throw new Error(
-      "[pictorium] Cannot encode config token without HMAC_SECRET in production. " +
+      "[spatialposters] Cannot encode config token without HMAC_SECRET in production. " +
         "Set CONFIG_HMAC_SECRET (or ENCRYPTION_KEY_SECRET) to enforce token integrity.",
     )
   }
@@ -103,12 +104,12 @@ export function encodeConfig(config: PictoriumUserConfig): string {
 }
 
 /**
- * Decode a config token back to a PictoriumUserConfig.
+ * Decode a config token back to a SpatialUserConfig.
  * Verifica la firma HMAC se presente e se HMAC_SECRET è configurato.
  * Accetta token legacy (senza firma) solo in assenza di HMAC_SECRET.
  * Restituisce null in caso di token malformato o firma non valida (fail-safe).
  */
-export function decodeConfig(token: string): PictoriumUserConfig | null {
+export function decodeConfig(token: string): SpatialUserConfig | null {
   try {
     // Batch E (fail-closed): in produzione senza HMAC_SECRET rifiuta QUALSIASI
     // token — anche in formato firmato `b64.sig`. Senza secret non possiamo
@@ -155,7 +156,7 @@ export function decodeConfig(token: string): PictoriumUserConfig | null {
     // Clamp difensivo dei numeri: impedisce a valori estremi da token firmato
     // (o profilo) di raggiungere sharp.blur con sigma enormi o gradienti fuori scala.
     // L'arrotondamento è esplicito a monte (Batch B: semantica standard di clamp).
-    const clamped: PictoriumUserConfig = {
+    const clamped: SpatialUserConfig = {
       ...result.data,
       blurIntensity: clamp(Math.round(result.data.blurIntensity), 1, 100),
       blurFade: clamp(Math.round(result.data.blurFade), 0, 100),

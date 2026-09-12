@@ -13,7 +13,8 @@ const STEPS = [
   { icon: MonitorSmartphone, titleKey: "ui.onboardingSaveTitle", descKey: "ui.onboardingSaveDesc" },
 ]
 
-const LS_KEY = "pictorium_onboarding_done"
+const LS_KEY = "spatial_onboarding_done"
+const LEGACY_LS_KEY = "pictorium_onboarding_done"
 
 export function OnboardingTour() {
   const { t } = useT()
@@ -24,7 +25,7 @@ export function OnboardingTour() {
 
   useEffect(() => {
     try {
-      const done = localStorage.getItem(LS_KEY)
+      const done = localStorage.getItem(LS_KEY) || localStorage.getItem(LEGACY_LS_KEY)
       if (!done) setShow(true)
     } catch {
       setShow(true)

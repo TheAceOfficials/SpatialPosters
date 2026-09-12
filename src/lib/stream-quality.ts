@@ -68,7 +68,7 @@ export async function fetchTorrentioQuality(
       }
 
       const res = await fetch(url, {
-        headers: { "User-Agent": "Pictorium/1.0" },
+        headers: { "User-Agent": "SpatialPosters/1.0" },
         signal: combinedSignal,
       })
       if (!res.ok) {

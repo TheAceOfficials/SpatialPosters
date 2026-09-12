@@ -185,7 +185,7 @@ async function fetchLetterboxdList(url: string, limit: number = 500): Promise<MD
     const headRes = await fetch(requestUrl, {
       method: "HEAD",
       headers: {
-        "User-Agent": "Mozilla/5.0 Pictorium",
+        "User-Agent": "Mozilla/5.0 SpatialPosters",
         "Accept-Language": "en-US,en;q=0.9",
       },
       signal: AbortSignal.timeout(8000),
@@ -205,7 +205,7 @@ async function fetchLetterboxdList(url: string, limit: number = 500): Promise<MD
     const res = await fetch(stremThruUrl, {
       headers: {
         Accept: "application/json",
-        "User-Agent": "Mozilla/5.0 Pictorium",
+        "User-Agent": "Mozilla/5.0 SpatialPosters",
       },
       signal: AbortSignal.timeout(12000),
     }).catch(() => null)
@@ -256,7 +256,7 @@ async function fetchTraktList(url: string, limit: number = 500): Promise<MDBList
     if (user && slug) {
       const stremThruUrl = `https://stremthru.13377001.xyz/v0/meta/trakt/users/${encodeURIComponent(user)}/lists/${encodeURIComponent(slug)}/items`
       const res = await fetch(stremThruUrl, {
-        headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 Pictorium" },
+        headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 SpatialPosters" },
         signal: AbortSignal.timeout(10000),
       }).catch(() => null)
 
