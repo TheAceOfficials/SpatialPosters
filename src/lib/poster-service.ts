@@ -469,9 +469,11 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   const hasGenreBadge = badgesEnabled
     && ((genreAvailable && badgeGenre) || (ratingAvailable && badgeRating) || (yearAvailable && badgeYear))
 
+  const needBadgeColors = hasGenreBadge || rankingEnabled
+
   const [blurOverlay, badgeColors, logoResult] = await Promise.all([
     applyBlur({ posterBuf, blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness }),
-    hasGenreBadge
+    needBadgeColors
       ? (accentOverride
           ? Promise.resolve(accentOverride)
           : resolveBadgeColors(posterBuf, logoFetch, genreName, posterSrc, logoSrc))
