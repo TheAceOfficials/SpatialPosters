@@ -345,45 +345,50 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
   return (
     <div>
       {showTabs && (
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex-1 overflow-x-auto scrollbar-none py-0.5">
+        <div className="space-y-2 mb-3">
+          {/* Row 1: Dedicated 100% width scrollable PosterTabs */}
+          <div className="w-full min-w-0">
             <PosterTabs tabs={posterTabs} activeGroup={activeGroup} onSelect={setActiveGroup} />
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Grid Columns Toggle (2-Col Large vs 3-Col Compact) */}
-            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-0.5 shadow-sm">
-              <button
-                type="button"
-                aria-label="2 columns large view"
-                onClick={() => setGridCols(2)}
-                className={`p-1.5 rounded-lg text-xs transition-all ${gridCols === 2 ? "bg-white/15 text-white shadow-sm font-bold" : "text-zinc-400 hover:text-white"}`}
-                title="Large view (2 cols)"
-              >
-                <Grid2X2 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                aria-label="3 columns compact view"
-                onClick={() => setGridCols(3)}
-                className={`p-1.5 rounded-lg text-xs transition-all ${gridCols === 3 ? "bg-white/15 text-white shadow-sm font-bold" : "text-zinc-400 hover:text-white"}`}
-                title="Compact view (3 cols)"
-              >
-                <Grid3X3 className="w-3.5 h-3.5" />
-              </button>
+
+          {/* Row 2: Grid Switcher + Custom URL button */}
+          <div className="flex items-center justify-between gap-2 px-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">{t("ui.view") || "View"}</span>
+              <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-0.5 shadow-sm">
+                <button
+                  type="button"
+                  aria-label="2 columns large view"
+                  onClick={() => setGridCols(2)}
+                  className={`p-1.5 rounded-lg text-xs transition-all ${gridCols === 2 ? "bg-accent-orange text-white shadow-sm font-bold" : "text-zinc-400 hover:text-white"}`}
+                  title="Large view (2 cols)"
+                >
+                  <Grid2X2 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="3 columns compact view"
+                  onClick={() => setGridCols(3)}
+                  className={`p-1.5 rounded-lg text-xs transition-all ${gridCols === 3 ? "bg-accent-orange text-white shadow-sm font-bold" : "text-zinc-400 hover:text-white"}`}
+                  title="Compact view (3 cols)"
+                >
+                  <Grid3X3 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
             <button
               type="button"
               aria-label="Add custom poster URL"
               onClick={() => setShowUrlInput(!showUrlInput)}
-              className={`h-8 px-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-medium shadow-sm ${
+              className={`h-8 px-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-medium shadow-sm shrink-0 ${
                 showUrlInput
                   ? "bg-accent-orange/20 border-accent-orange/40 text-accent-orange"
                   : "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10"
               }`}
             >
               <Link className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t("ui.customUrl")}</span>
+              <span>{t("ui.customUrl")}</span>
             </button>
           </div>
         </div>
@@ -510,7 +515,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                     </div>
                   )}
 
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
                   
                   {showBadge && (
                     <div className={`fit-badge z-20 ${isHighScore ? "fit-badge-amber" : ""}`}>
@@ -519,7 +524,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                     </div>
                   )}
 
-                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-100 sm:opacity-90 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <div className="absolute top-1.5 right-1.5 z-20 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
                     {isCustom ? (
                       <button
                         type="button"
@@ -535,7 +540,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                         type="button"
                         aria-label={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
                         onClick={(e) => { e.stopPropagation(); toggleRotation(img.file_path) }}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 border border-white/10 ${inRotation ? "bg-accent-orange text-white" : "bg-black/70 text-white/80 hover:bg-accent-orange hover:text-white"}`}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 border border-white/10 ${inRotation ? "bg-accent-orange text-white" : "bg-black/80 text-white/90 hover:bg-accent-orange hover:text-white"}`}
                         title={inRotation ? t("ui.removeFromRotation") : t("ui.addToRotation")}
                       >
                         {inRotation ? <Check className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
@@ -546,7 +551,7 @@ export function PosterOptions({ posters, posterActivePath, lang, selectPoster, a
                       type="button"
                       aria-label={t("ui.excludePoster")}
                       onClick={(e) => { e.stopPropagation(); toggleExcludePoster(img.file_path) }}
-                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/70 text-white/80 hover:bg-amber-500 hover:text-white border border-white/10"
+                      className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110 bg-black/80 text-white/90 hover:bg-amber-500 hover:text-white border border-white/10"
                       title={t("ui.excludePoster")}
                     >
                       <EyeOff className="w-3.5 h-3.5" />

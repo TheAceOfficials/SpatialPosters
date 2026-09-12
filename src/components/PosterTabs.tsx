@@ -21,7 +21,7 @@ export function PosterTabs({
 }) {
   if (tabs.length <= 1) return null
   return (
-    <div className="flex gap-1 mb-3 overflow-x-auto scrollbar-none">
+    <div className="flex gap-1 overflow-x-auto scrollbar-none py-0.5">
       {tabs.map((tab) => (
         <button
           type="button"
