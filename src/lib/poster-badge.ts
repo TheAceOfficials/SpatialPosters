@@ -172,7 +172,7 @@ export function computeTopBadge(input: BadgeInput, t: BadgeT, locale?: string): 
     studio,
     director: input.director,
     subGenre: subGenreBadge,
-    isKDrama,
+    isKDrama: isKDramaOrigin(input.originCountries),
     imdbTop250: !!input.imdbTop250,
     extra: extraFallback,
   }, t)
