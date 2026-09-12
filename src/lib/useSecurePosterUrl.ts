@@ -26,15 +26,25 @@ function stripApiKey(url: string): string {
   }
 }
 
+function isExternalUrl(url: string): boolean {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) return false
+  try {
+    const origin = typeof window !== "undefined" ? window.location.origin : ""
+    if (origin && url.startsWith(origin)) return false
+    return true
+  } catch {
+    return true
+  }
+}
+
 export function useSecurePosterUrl(url: string, apiKey: string | null | undefined): string | null {
-  // Stato iniziale GIA' senza chiave: se partisse dall'URL grezzo, il browser
-  // inizierebbe subito il download con api_key in query prima che l'effect
-  // pulisca (fuga nel DOM + nei log del proxy).
-  const [src, setSrc] = useState<string | null>(url ? (apiKey ? stripApiKey(url) : url) : null)
+  // External custom image URLs should not be fetched with x-api-key header (CORS preflight restriction)
+  const isExt = url ? isExternalUrl(url) : false
+  const [src, setSrc] = useState<string | null>(url ? (apiKey && !isExt ? stripApiKey(url) : url) : null)
 
   useEffect(() => {
     if (!url) { setSrc(null); return }
-    if (!apiKey) { setSrc(url); return }
+    if (!apiKey || isExt) { setSrc(url); return }
     let cancelled = false
     let objectUrl: string | null = null
     const ctrl = new AbortController()

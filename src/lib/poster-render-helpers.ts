@@ -43,7 +43,11 @@ export async function fetchImg(url: string, signal?: AbortSignal): Promise<Buffe
       combined = ctrl.signal
     }
   }
-  const res = await fetch(url, { signal: combined })
+  const headers: Record<string, string> = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+  }
+  const res = await fetch(url, { headers, signal: combined })
   if (!res.ok) throw new Error(`fetch failed: ${res.status}`)
   const cl = res.headers.get("content-length")
   if (cl && Number(cl) > MAX_IMG_SIZE) throw new Error("image too large")
