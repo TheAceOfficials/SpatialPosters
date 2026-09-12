@@ -306,18 +306,7 @@ export function AppShell() {
             className="header-logo h-10 sm:h-14 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1.5 md:mb-2"
           />
           <p className="header-tagline text-center text-[10px] sm:text-xs md:text-sm mb-3.5 sm:mb-5 md:mb-6 max-w-xs sm:max-w-none text-zinc-400 flex items-center justify-center gap-1.5 flex-wrap">
-            <span>{t("ui.homeTagline")}</span>
-            <span className="text-zinc-500">•</span>
-            <span>Created by</span>
-            <a
-              href="https://instagram.com/TheAceOfficials"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-semibold text-zinc-200 hover:text-white underline decoration-accent-orange/50 hover:decoration-accent-orange transition-all cursor-pointer"
-            >
-              <InstagramIcon className="w-3.5 h-3.5 text-accent-orange inline" />
-              <span>@TheAceOfficials</span>
-            </a>
+            <span>Upgrade your Poster Experience with SpatialPosters</span>
           </p>
           {mobileToolbar}
           </>

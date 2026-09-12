@@ -416,7 +416,7 @@ export default function EditView() {
         </div>
       )}
       {!selected && (
-        <div>
+        <div className="home-search-container mb-2">
           {searchBar}
         </div>
       )}
@@ -471,11 +471,62 @@ export default function EditView() {
       {!selected && tmdbKey && (
         <>
           <HomeHero />
-          <ScrollReveal animation="fade-up" threshold={0.05}>
-            <HomeFeaturesGrid />
-          </ScrollReveal>
+          
           <ScrollReveal animation="fade-up" threshold={0.05}>
             <PosterCarousel />
+          </ScrollReveal>
+
+          <ScrollReveal animation="fade-up" threshold={0.05}>
+            <section className="py-12 md:py-20 relative overflow-hidden">
+              <div className="absolute inset-0 bg-accent-orange/5 blur-[120px] rounded-full pointer-events-none" />
+              <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+                <h2 className="text-2xl md:text-4xl font-bold text-zinc-100 mb-6 tracking-tight">
+                  About SpatialPosters
+                </h2>
+                <div className="p-8 md:p-12 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent-orange/10 to-transparent opacity-20 pointer-events-none" />
+                  <p className="text-base md:text-lg text-zinc-300 leading-relaxed relative z-10">
+                    SpatialPosters is the ultimate artwork customization engine, designed to elevate your visual experience. Whether you're curating a personal media library or enhancing your setup, our platform empowers you to create stunning, dynamic posters with ultra-crisp vector logos, real-time ratings, and seamless integrations.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </ScrollReveal>
+
+          <ScrollReveal animation="fade-up" threshold={0.05}>
+            <div className="max-w-6xl mx-auto px-4 mt-8 mb-8 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 tracking-tight">
+                Why we are Different?
+              </h2>
+            </div>
+            <HomeFeaturesGrid />
+          </ScrollReveal>
+
+          <ScrollReveal animation="fade-up" threshold={0.05}>
+            <section className="py-16 md:py-24 border-t border-white/[0.05] mt-12">
+              <div className="max-w-4xl mx-auto px-6 text-center">
+                <h2 className="text-2xl md:text-3xl font-bold text-zinc-100 mb-10 tracking-tight">
+                  Compatible Platforms
+                </h2>
+                <div className="flex flex-wrap items-center justify-center gap-12 md:gap-24 opacity-90">
+                  <div className="flex flex-col items-center gap-4 group cursor-default">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/[0.03] border border-white/10 p-4 flex items-center justify-center group-hover:scale-110 group-hover:bg-white/[0.06] group-hover:border-white/20 transition-all duration-300 shadow-lg">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/icon/stremio.png" alt="Stremio" className="w-full h-full object-contain filter drop-shadow-md group-hover:drop-shadow-xl transition-all" />
+                    </div>
+                    <span className="text-sm font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">Stremio</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center gap-4 group cursor-default">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/[0.03] border border-white/10 p-4 flex items-center justify-center group-hover:scale-110 group-hover:bg-white/[0.06] group-hover:border-white/20 transition-all duration-300 shadow-lg">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/icon/nuvio.png" alt="Nuvio" className="w-full h-full object-contain filter drop-shadow-md group-hover:drop-shadow-xl transition-all" />
+                    </div>
+                    <span className="text-sm font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">Nuvio</span>
+                  </div>
+                </div>
+              </div>
+            </section>
           </ScrollReveal>
         </>
       )}

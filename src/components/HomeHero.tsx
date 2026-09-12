@@ -163,18 +163,7 @@ export function HomeHero() {
           {t("ui.heroTitleTail") || ""}
         </h1>
         <p className="home-hero-sub mt-4 text-sm sm:text-base text-zinc-400 leading-relaxed animate-fade-up" style={{ animationDelay: "140ms" }}>
-          <span>{t("ui.heroSubtitle") || "Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing."}</span>{" "}
-          <span>Created by</span>{" "}
-          <a
-            href="https://instagram.com/TheAceOfficials"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 font-semibold text-zinc-200 hover:text-white underline decoration-accent-orange/50 hover:decoration-accent-orange transition-all cursor-pointer"
-          >
-            <InstagramIcon className="w-3.5 h-3.5 text-accent-orange inline" />
-            <span>@TheAceOfficials</span>
-          </a>
-          .
+          <span>{t("ui.heroSubtitle") || "Transform your Stremio library with ultra-crisp vector logos, dynamic IMDb & Rotten Tomatoes rating badges, streaming provider ribbons, and instant catalog syncing."}</span>
         </p>
         <div className="stat-pills mt-5 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: "210ms" }}>
           <span className="stat-pill px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-1.5 backdrop-blur-md">
