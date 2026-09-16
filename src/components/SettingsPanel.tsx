@@ -428,7 +428,7 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
                 }}
                 className="w-full appearance-none bg-surface3/50 hover:bg-surface3 border border-surface2 text-zinc-100 text-xs font-semibold py-1.5 pl-3 pr-7 rounded-lg transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-accent-purple"
               >
-                <option value="">{t("ui.none") || "None"}</option>
+                <option value="">None</option>
                 <option value="4K DV">4K DV</option>
                 <option value="4K HDR">4K HDR</option>
                 <option value="4K">4K</option>

@@ -224,7 +224,7 @@ export function PosterEditorProvider({
   const setManualQuality = useCallback(
     (v: string | ((prev: string) => string)) => {
       const next = typeof v === "function" ? v(manualQuality) : v
-      update({ manualQuality: next, defaultManualQuality: next })
+      update({ manualQuality: next })
     }, [manualQuality, update])
   const setRatingSources = useCallback(
     (v: string[] | ((prev: string[]) => string[])) => {

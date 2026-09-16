@@ -596,7 +596,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   // Rilevato quando il topBadge è un rank derivato da animeRankResult.
   const isAnimeRank = topBadge?.type === "rank" && animeRankResult !== null && topBadge.rank === animeRankResult
 
-  const hasQualityBadge = badgesEnabled && !!manualQuality
+  const hasQualityBadge = !!manualQuality
   // Network: sempre visibile quando abilitato, subito sopra il logo film, quasi attaccato — SVG resta raw, TMDB fallback è A (ricolor + ombra) per non risultare scuro.
   const networkRawResult = networkLogoResult
     ? hasDetailed
