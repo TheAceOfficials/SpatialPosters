@@ -1,7 +1,7 @@
 {
-  "name": "Pictorium",
-  "short_name": "Pictorium",
-  "description": "Generatore di poster cinematografici per Stremio",
+  "name": "SpatialPosters",
+  "short_name": "SpatialPosters",
+  "description": "Dynamic movie & TV show poster generator for Stremio",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
