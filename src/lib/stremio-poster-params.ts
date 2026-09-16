@@ -13,6 +13,7 @@ export interface StremioPosterParamsInput {
   readonly badgeYear?: boolean
   readonly badgeRating?: boolean
   readonly manualQuality?: string | null
+  readonly badgeFormat?: string | null
   readonly ratingSources?: string[]
   readonly badgeStyle?: BadgeStyle
   readonly rankingBadgeStyle?: RankingBadgeStyle
@@ -67,6 +68,7 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   if (input.badgeYear === false) params.set("by", "0")
   if (input.badgeRating === false) params.set("br", "0")
   if (input.manualQuality) params.set("mq", input.manualQuality)
+  if (input.badgeFormat) params.set("mf", input.badgeFormat)
   if (input.ratingSources && input.ratingSources.length > 0) params.set("rsrc", input.ratingSources.join(","))
   if (input.customBadge) params.set("extra", input.customBadge)
   if (!networkLogo) params.set("netLogo", "0")

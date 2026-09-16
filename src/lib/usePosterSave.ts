@@ -40,6 +40,7 @@ interface PosterSaveDeps {
   rankingBadges: boolean
   badgeGenre: boolean
   badgeYear: boolean
+  badgeRating: boolean
   manualQuality: string
   badgeFormat: string
   customBadge: string | null

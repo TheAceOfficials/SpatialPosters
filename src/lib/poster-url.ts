@@ -18,6 +18,7 @@ interface BadgeParams {
   badgeYear?: boolean
   badgeRating?: boolean
   manualQuality?: string | null
+  badgeFormat?: string | null
   ratingSources?: string[]
   customBadge: string | null
   gradientHeight: number
@@ -76,6 +77,7 @@ export function buildUrlPattern(bp: BadgeParams & { tmdbKey: string; lang: strin
     badgeYear: bp.badgeYear,
     badgeRating: bp.badgeRating,
     manualQuality: bp.manualQuality,
+    badgeFormat: bp.badgeFormat,
     ratingSources: bp.ratingSources,
     badgeStyle: bp.badgeStyle,
     rankingBadgeStyle: bp.rankingBadgeStyle,
@@ -102,6 +104,7 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams): string {
   params.push(`by=${bp.badgeYear !== false ? "1" : "0"}`)
   params.push(`br=${bp.badgeRating !== false ? "1" : "0"}`)
   if (bp.manualQuality) params.push(`mq=${encodeURIComponent(bp.manualQuality)}`)
+  if (bp.badgeFormat) params.push(`mf=${encodeURIComponent(bp.badgeFormat)}`)
   if (bp.ratingSources && bp.ratingSources.length > 0) params.push(`rsrc=${encodeURIComponent(bp.ratingSources.join(","))}`)
   if (ps.previewPoster) {
     params.push(`poster=${encodeURIComponent(ps.previewPoster.file_path)}`)

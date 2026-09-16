@@ -67,6 +67,7 @@ export interface GenerationInput {
   badgeYear: boolean
   badgeRating: boolean
   manualQuality?: string | null
+  badgeFormat?: string | null
   topLight: boolean
   targetCenter: number
   /** Modalità layout nastro Netflix + logo network: "left" (Nuvio, default) o "right" (Stremio). */
