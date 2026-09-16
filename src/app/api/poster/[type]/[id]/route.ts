@@ -812,7 +812,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       badgeStyle, rankingBadgeStyle,
       blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
       badgesEnabled, rankingEnabled,
-      badgeGenre, badgeYear, badgeRating, manualQuality,
+      badgeGenre, badgeYear, badgeRating,
       logoScale, logoOffsetX, logoOffsetY,
       queryExtra, qNetLogo, networkLogo, ribbonSide,
     } = renderConfig

@@ -94,7 +94,6 @@ export async function PUT(req: NextRequest) {
     return Response.json({ error: `Failed to save: ${message}` }, { status: 500 })
   }
   cacheInvalidatePosterData()
-  import("@/lib/stream-quality").then(m => m.__resetStreamQualityCache())
   // Bump epoch cataloghi (F3): il cambio default globali impatta tutti i
   // poster URL (con lo sd-hash nel key come seconda rete di sicurezza).
   await bumpCatalogEpoch()
