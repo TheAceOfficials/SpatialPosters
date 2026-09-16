@@ -33,6 +33,7 @@ export interface ServerDefaults {
   /** Regione classifiche JustWatch/FlixPatrol + lingua titoli (codice JW, es. "IT"). */
   region?: string
   customCatalogs?: import("@/lib/types").CustomCatalogConfig[]
+  streamAddonUrls?: string[]
   disabledCatalogIds?: string[]
   homeDisabledCatalogIds?: string[]
   catalogOrder?: string[]

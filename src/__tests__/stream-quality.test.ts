@@ -69,12 +69,12 @@ describe("resolveStreamQuality", () => {
       })
     )
 
-    const quality = await resolveStreamQuality("movie", "tt0499549")
+    const quality = await resolveStreamQuality("movie", "tt0499549", null, null, undefined, ["https://torrentio.strem.fun"])
     expect(quality).toBe("4K")
     expect(fetchSpy).toHaveBeenCalledTimes(1)
 
     // Caching check
-    const cached = await resolveStreamQuality("movie", "tt0499549")
+    const cached = await resolveStreamQuality("movie", "tt0499549", null, null, undefined, ["https://torrentio.strem.fun"])
     expect(cached).toBe("4K")
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })

@@ -147,28 +147,12 @@ export async function resolveStreamQuality(
   if (customUrls.length > 0) {
     // Mode A: User has configured custom Stremio stream addons.
     // Query ONLY user's configured stream addons. If no streams are found, return null.
+
     if (targetImdbId && targetImdbId.startsWith("tt")) {
       const results = await Promise.all(
         customUrls.map((addonUrl) => fetchAddonStreamQuality(addonUrl, type, targetImdbId!, signal))
       )
       quality = getHighestQuality(results)
-    }
-  } else {
-    // Mode B: Default public resolution (Torrentio -> JustWatch fallback)
-    if (targetImdbId && targetImdbId.startsWith("tt")) {
-      quality = await fetchTorrentioQuality(type, targetImdbId, signal)
-    }
-
-    if (!quality && tmdbId) {
-      try {
-        quality = await getJWTitleQuality(
-          tmdbId,
-          type === "movie" ? "MOVIE" : "SHOW",
-          searchTitle,
-          "IT",
-          signal
-        )
-      } catch {}
     }
   }
 

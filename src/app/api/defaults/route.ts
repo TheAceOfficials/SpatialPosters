@@ -42,6 +42,7 @@ const defaultsSchema = z.object({
   ribbonSide: z.enum(["left", "right"]).optional(),
   episodeMetadataSource: z.enum(["tmdb", "tvdb"]).optional(),
   region: z.string().max(32).optional(),
+  streamAddonUrls: z.array(z.string()).optional(),
   customCatalogs: z.array(customCatalogSchema).optional(),
   disabledCatalogIds: z.array(z.string().max(80)).optional(),
   homeDisabledCatalogIds: z.array(z.string().max(80)).optional(),

@@ -127,6 +127,7 @@ interface StoredDefaults {
   defaultRatingSources?: string[]
   ratingSources?: string[]
   defaultStreamAddonUrls?: string[]
+  streamAddonUrls?: string[]
   defaultAutoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
   defaultNetworkLogo?: boolean
@@ -172,7 +173,7 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     defaultBadgeRating: d.defaultBadgeRating ?? d.badgeRating ?? true,
     defaultBadgeQuality: d.defaultBadgeQuality ?? d.badgeQuality ?? true,
     defaultRatingSources: d.defaultRatingSources ?? d.ratingSources ?? ["imdb", "tmdb"],
-    defaultStreamAddonUrls: d.defaultStreamAddonUrls ?? [],
+    defaultStreamAddonUrls: d.defaultStreamAddonUrls ?? d.streamAddonUrls ?? [],
     defaultAutoRotateClean: d.defaultAutoRotateClean ?? d.autoRotateClean ?? false,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled ?? true,
     defaultNetworkLogo: d.defaultNetworkLogo ?? d.networkLogo ?? true,
@@ -187,7 +188,7 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     badgeRating: d.badgeRating ?? d.defaultBadgeRating ?? true,
     badgeQuality: d.badgeQuality ?? d.defaultBadgeQuality ?? true,
     ratingSources: d.ratingSources ?? d.defaultRatingSources ?? ["imdb", "tmdb"],
-    streamAddonUrls: d.defaultStreamAddonUrls ?? [],
+    streamAddonUrls: d.streamAddonUrls ?? d.defaultStreamAddonUrls ?? [],
     networkLogo: d.networkLogo ?? d.defaultNetworkLogo ?? true,
     ribbonSide: d.ribbonSide ?? d.defaultRibbonSide ?? "left",
     episodeMetadataSource: d.episodeMetadataSource ?? d.defaultEpisodeMetadataSource ?? "tmdb",
