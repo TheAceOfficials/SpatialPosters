@@ -444,21 +444,6 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
             </div>
           </div>
 
-          <div className="pt-2">
-            <label className="text-[10px] text-muted block mb-1 uppercase tracking-wider">{t("ui.streamAddons") || "Custom Stream Addons"}</label>
-            <input
-              type="text"
-              value={ed.defaultStreamAddonUrls.join(", ")}
-              onChange={(e) => {
-                const urls = e.target.value.split(",").map(u => u.trim()).filter(Boolean)
-                ed.setDefaultStreamAddonUrls(urls)
-                ed.setStreamAddonUrls(urls)
-              }}
-              placeholder={t("ui.streamAddonsPlaceholder") || "https://torrentio.strem.fun, ..."}
-              className="w-full text-xs py-1.5 px-3 rounded-lg bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500/50"
-            />
-          </div>
-
           <div className="flex items-center justify-between">
             <span className="text-zinc-300 font-medium flex items-center gap-1.5">
               <Tv className="w-3.5 h-3.5 text-sky-400" />

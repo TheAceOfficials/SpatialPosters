@@ -87,7 +87,6 @@ export interface Mapping {
   badgeRating?: boolean | null
   manualQuality?: string | null
   badgeStyle?: BadgeStyle | null
-  customBadge?: string | null
   rankingBadgeStyle?: RankingBadgeStyle | null
   blurEnabled?: boolean | null
   blurIntensity?: number | null

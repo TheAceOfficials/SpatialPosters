@@ -38,6 +38,7 @@ export interface DefaultsState {
   badgeYear: boolean
   badgeRating: boolean
   manualQuality: string
+  ratingSources: string[]
   networkLogo: boolean
   ribbonSide: RibbonSide
   episodeMetadataSource: "tmdb" | "tvdb"

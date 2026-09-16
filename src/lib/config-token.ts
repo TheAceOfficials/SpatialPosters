@@ -31,7 +31,7 @@ export const configTokenSchema = z.object({
   badgeGenre: z.boolean().optional(),
   badgeYear: z.boolean().optional(),
   badgeRating: z.boolean().optional(),
-  badgeQuality: z.boolean().optional(),
+  manualQuality: z.string().optional(),
   ratingSources: z.array(z.string().max(20)).optional(),
   badgeStyle: badgeStyleSchema,
   rankingBadgeStyle: rankingBadgeStyleSchema,
@@ -60,8 +60,7 @@ export const configTokenSchema = z.object({
   // Regione classifiche (codice JW "IT"/"US"... o slug FlixPatrol): validazione
   // lasca di proposito, la normalizzazione fail-closed avviene in risoluzione.
   region: z.string().max(32).optional(),
-  // URL addon di streaming Stremio dell'utente per la risoluzione precisa dei badge di qualità.
-  streamAddonUrls: z.array(z.string().max(500)).optional(),
+
 })
 
 export type SpatialUserConfig = z.infer<typeof configTokenSchema>
