@@ -11,6 +11,8 @@ import { BADGE_STYLES, RANKING_BADGE_STYLES } from "@/lib/badge-styles"
 import { readJsonBody, BodyTooLargeError, DEFAULT_MAX_BODY_BYTES } from "@/lib/read-body"
 import { envWithFallback } from "@/lib/env-compat"
 
+export const dynamic = "force-dynamic"
+
 const log = createLogger("defaults")
 
 const customCatalogSchema = z.object({
@@ -92,6 +94,7 @@ export async function PUT(req: NextRequest) {
     return Response.json({ error: `Failed to save: ${message}` }, { status: 500 })
   }
   cacheInvalidatePosterData()
+  import("@/lib/stream-quality").then(m => m.__resetStreamQualityCache())
   // Bump epoch cataloghi (F3): il cambio default globali impatta tutti i
   // poster URL (con lo sd-hash nel key come seconda rete di sicurezza).
   await bumpCatalogEpoch()

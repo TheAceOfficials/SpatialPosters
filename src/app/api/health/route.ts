@@ -9,6 +9,8 @@ import { getJWRankings } from "@/lib/justwatch"
 import { getTop10 } from "@/lib/flixpatrol"
 import { getServerDefaults } from "@/lib/server-defaults"
 
+export const dynamic = "force-dynamic"
+
 // Fix L15: i campi streaming devono testare DAVVERO JustWatch e FlixPatrol
 // (prima testavano due endpoint TMDB, fuorviante). I probe girano solo con
 // una chiave TMDB presente: senza, la status page mostra già "chiave mancante"
