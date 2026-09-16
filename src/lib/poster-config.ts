@@ -55,6 +55,7 @@ export interface PosterRenderConfig {
   badgeYear: boolean
   badgeRating: boolean
   manualQuality: string | null
+  badgeFormat: string | null
   ratingSources: string[]
   logoScale: number | null
   logoOffsetX: number | null
@@ -140,6 +141,8 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const badgeRating = qBr !== null ? qBr !== "0" : (mapping?.badgeRating ?? configOverride?.badgeRating ?? sd.badgeRating ?? true)
   const qMq = q.get("mq")
   const manualQuality = qMq !== null ? qMq : (mapping?.manualQuality ?? configOverride?.manualQuality ?? sd.manualQuality ?? null)
+  const qMf = q.get("mf")
+  const badgeFormat = qMf !== null ? qMf : (mapping?.badgeFormat ?? configOverride?.badgeFormat ?? sd.badgeFormat ?? null)
 
   const qRsrc = q.get("rsrc")
   const validSources = SUPPORTED_RATING_SOURCES as readonly string[]
@@ -195,6 +198,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     badgeYear,
     badgeRating,
     manualQuality,
+    badgeFormat,
     ratingSources,
     logoScale,
     logoOffsetX,

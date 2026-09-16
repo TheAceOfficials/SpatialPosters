@@ -812,7 +812,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       badgeStyle, rankingBadgeStyle,
       blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
       badgesEnabled, rankingEnabled,
-      badgeGenre, badgeYear, badgeRating,
+      badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat,
       logoScale, logoOffsetX, logoOffsetY,
       queryExtra, qNetLogo, networkLogo, ribbonSide,
     } = renderConfig
@@ -873,6 +873,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         genre: { name: genreName, year: releaseDate?.slice(0, 4) },
         vote: { average: voteAverage },
         quality: manualQuality,
+        format: badgeFormat,
         rankings: {
           justwatch: rankingResult,
           anime: animeRankResult,
@@ -905,6 +906,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
             badgeYear,
             badgeRating,
             manualQuality,
+            badgeFormat,
             customBadge: queryExtra,
           },
         },
@@ -942,7 +944,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       backdropScale, backdropOffsetX, backdropOffsetY,
       blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
       badgesEnabled, rankingEnabled, genreName, voteAverage, badgeStyle,
-      rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality,
+      rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat,
       topLight, targetCenter, ribbonSide,
       logoScale, logoOffsetX, logoOffsetY,
       mediaType: mediaType as "movie" | "tv",
