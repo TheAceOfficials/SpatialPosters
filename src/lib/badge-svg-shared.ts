@@ -309,47 +309,19 @@ export function buildRankingDefaultSvg(fullText: string, fs: number, textColor: 
 }
 
 export function buildRankingPillSvg(fullText: string, fs: number, textColor: string, bg: string) {
-  const px = Math.round(fs * 1.0)
-  const pt = Math.round(fs * 0.42)
+  const px = Math.round(fs * 0.75)
+  const pt = Math.round(fs * 0.35)
   const pb = pt
   const textW = Math.max(estimateTextWidth(fullText, fs), fs)
   const totalW = textW + px * 2
   const svgH = fs + pt + pb
   const r = svgH / 2
-  // Shadow padding so glow doesn't get clipped
-  const shadowBlur = Math.round(fs * 0.9)
-  const renderW = totalW + shadowBlur * 2
-  const renderH = svgH + shadowBlur
-  const ox = shadowBlur
-  const oy = Math.round(shadowBlur * 0.2)
-  // Warm orange/amber gradient like Moana reference
-  const gradId = "rpg"
-  const defs = [
-    `<defs>`,
-    `<linearGradient id="${gradId}" x1="0" y1="0" x2="1" y2="0">`,
-    `<stop offset="0%" stop-color="#FF8C00"/>`,
-    `<stop offset="55%" stop-color="#FF6200"/>`,
-    `<stop offset="100%" stop-color="#E83500"/>`,
-    `</linearGradient>`,
-    `<filter id="rpglow" x="-40%" y="-60%" width="180%" height="220%">`,
-    `<feGaussianBlur in="SourceGraphic" stdDeviation="${Math.round(shadowBlur * 0.55)}" result="blur"/>`,
-    `<feComposite in="blur" in2="SourceGraphic" operator="over"/>`,
-    `</filter>`,
-    `</defs>`,
-  ].join("")
-  const pillPath = `M ${ox + r},${oy} L ${ox + totalW - r},${oy} A ${r},${r} 0 0,1 ${ox + totalW - r},${oy + svgH} L ${ox + r},${oy + svgH} A ${r},${r} 0 0,1 ${ox + r},${oy} Z`
-  const glowRect = `<path d="${pillPath}" fill="url(#${gradId})" filter="url(#rpglow)" opacity="0.55"/>`
-  const bgRect = `<path d="${pillPath}" fill="url(#${gradId})" stroke="rgba(255,180,60,0.35)" stroke-width="1"/>`
-  // Subtle top-highlight shimmer
-  const highlightH = Math.round(svgH * 0.45)
-  const shimmer = `<clipPath id="rpc"><path d="${pillPath}"/></clipPath><rect x="${ox}" y="${oy}" width="${totalW}" height="${highlightH}" rx="${r}" fill="rgba(255,255,255,0.18)" clip-path="url(#rpc)"/>`
-  const textEl = `<text x="${ox + totalW / 2}" y="${oy + svgH / 2}" text-anchor="middle" dominant-baseline="central" font-family="${fontFamilyFor(fullText)}" font-weight="800" font-size="${fs}" fill="#ffffff" filter="url(#textShadow)"${textFitAttrs(textW)}>${escSvg(fullText)}</text>`
-  const textShadow = `<filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.5)"/></filter>`
-  return {
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}"><defs>${textShadow}</defs>${defs}${glowRect}${bgRect}${shimmer}${textEl}</svg>`,
-    w: renderW,
-    h: renderH,
-  }
+  const renderW = totalW
+  const ox = 0
+  const oy = 0
+  const textEl = `<text x="${renderW / 2}" y="${svgH / 2}" text-anchor="middle" dominant-baseline="central" font-family="${fontFamilyFor(fullText)}" font-weight="700" font-size="${fs}" fill="${textColor}"${textFitAttrs(textW)}>${escSvg(fullText)}</text>`
+  const bgEl = `<rect x="${ox}" y="${oy}" width="${totalW}" height="${svgH}" rx="${r}" fill="${bg}" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>`
+  return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${svgH}">${bgEl}${textEl}</svg>`, w: renderW, h: svgH }
 }
 
 export function buildRankingGlassSvg(fullText: string, fs: number, textColor: string, _bg: string, topLight: boolean) {
@@ -429,43 +401,16 @@ export function buildExtraDefaultSvg(label: string, fs: number, textColor: strin
 
 export function buildExtraPillSvg(label: string, fs: number, textColor: string, bg: string) {
   const px = Math.round(fs * 1.0)
-  const pt = Math.round(fs * 0.42)
+  const pt = Math.round(fs * 0.4)
   const pb = pt
   const textW = Math.max(estimateTextWidth(label, fs), fs)
   const totalW = textW + px * 2
   const svgH = fs + pt + pb
   const r = svgH / 2
-  const shadowBlur = Math.round(fs * 0.9)
-  const renderW = totalW + shadowBlur * 2
-  const renderH = svgH + shadowBlur
-  const ox = shadowBlur
-  const oy = Math.round(shadowBlur * 0.2)
-  // Same warm gradient as ranking pill for consistency
-  const defs = [
-    `<defs>`,
-    `<linearGradient id="epg" x1="0" y1="0" x2="1" y2="0">`,
-    `<stop offset="0%" stop-color="#FF8C00"/>`,
-    `<stop offset="55%" stop-color="#FF6200"/>`,
-    `<stop offset="100%" stop-color="#E83500"/>`,
-    `</linearGradient>`,
-    `<filter id="epglow" x="-40%" y="-60%" width="180%" height="220%">`,
-    `<feGaussianBlur in="SourceGraphic" stdDeviation="${Math.round(shadowBlur * 0.55)}" result="blur"/>`,
-    `<feComposite in="blur" in2="SourceGraphic" operator="over"/>`,
-    `</filter>`,
-    `</defs>`,
-  ].join("")
-  const pillPath = `M ${ox + r},${oy} L ${ox + totalW - r},${oy} A ${r},${r} 0 0,1 ${ox + totalW - r},${oy + svgH} L ${ox + r},${oy + svgH} A ${r},${r} 0 0,1 ${ox + r},${oy} Z`
-  const glowRect = `<path d="${pillPath}" fill="url(#epg)" filter="url(#epglow)" opacity="0.55"/>`
-  const bgRect = `<path d="${pillPath}" fill="url(#epg)" stroke="rgba(255,180,60,0.35)" stroke-width="1"/>`
-  const highlightH = Math.round(svgH * 0.45)
-  const shimmer = `<clipPath id="epc"><path d="${pillPath}"/></clipPath><rect x="${ox}" y="${oy}" width="${totalW}" height="${highlightH}" fill="rgba(255,255,255,0.18)" clip-path="url(#epc)"/>`
-  const textShadow = `<filter id="epts" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.5)"/></filter>`
-  const textEl = `<text x="${ox + totalW / 2}" y="${oy + svgH / 2}" text-anchor="middle" dominant-baseline="central" font-family="${fontFamilyFor(label)}" font-weight="800" font-size="${fs}" fill="#ffffff" filter="url(#epts)"${textFitAttrs(textW)}>${escSvg(label)}</text>`
-  return {
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}"><defs>${textShadow}</defs>${defs}${glowRect}${bgRect}${shimmer}${textEl}</svg>`,
-    w: renderW,
-    h: renderH,
-  }
+  const renderW = totalW
+  const textEl = `<text x="${renderW / 2}" y="${svgH / 2}" text-anchor="middle" dominant-baseline="central" font-family="${fontFamilyFor(label)}" font-weight="700" font-size="${fs}" fill="${textColor}"${textFitAttrs(textW)}>${escSvg(label)}</text>`
+  const bgEl = `<rect x="0" y="0" width="${totalW}" height="${svgH}" rx="${r}" fill="${bg}" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>`
+  return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${svgH}">${bgEl}${textEl}</svg>`, w: renderW, h: svgH }
 }
 
 export function buildExtraGlassSvg(label: string, fs: number, textColor: string, _bg: string, topLight: boolean) {
