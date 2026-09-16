@@ -12,7 +12,7 @@ export interface StremioPosterParamsInput {
   readonly badgeGenre?: boolean
   readonly badgeYear?: boolean
   readonly badgeRating?: boolean
-  readonly badgeQuality?: boolean
+  readonly manualQuality?: string | null
   readonly ratingSources?: string[]
   readonly badgeStyle?: BadgeStyle
   readonly rankingBadgeStyle?: RankingBadgeStyle
@@ -28,7 +28,7 @@ export interface StremioPosterParamsInput {
   readonly config?: string | null
   readonly user?: string | null
   readonly region?: string | null
-  readonly streamAddonUrls?: string[]
+
 }
 
 const DEFAULT_STREMIO_POSTER_PARAMS = {
@@ -66,15 +66,13 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   if (input.badgeGenre === false) params.set("bg", "0")
   if (input.badgeYear === false) params.set("by", "0")
   if (input.badgeRating === false) params.set("br", "0")
-  if (input.badgeQuality === false) params.set("bq", "0")
+  if (input.manualQuality) params.set("mq", input.manualQuality)
   if (input.ratingSources && input.ratingSources.length > 0) params.set("rsrc", input.ratingSources.join(","))
   if (input.customBadge) params.set("extra", input.customBadge)
   if (!networkLogo) params.set("netLogo", "0")
   if (input.ribbonSide === "right") params.set("side", "right")
   else if (input.ribbonSide === "left") params.set("side", "left")
-  if (input.streamAddonUrls && input.streamAddonUrls.length > 0) {
-    params.set("saddons", input.streamAddonUrls.join(","))
-  }
+
   params.set("lang", input.lang || "it")
   if (!blurEnabled) params.set("be", "0")
   params.set("gradHeight", String(input.gradientHeight ?? DEFAULT_STREMIO_POSTER_PARAMS.gradientHeight))

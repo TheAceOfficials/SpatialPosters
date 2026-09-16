@@ -240,24 +240,24 @@ describe("resolvePosterRenderConfig", () => {
     expect(r.badgeRating).toBe(false)
   })
 
-  it("mapping badgeGenre/badgeYear/badgeRating/badgeQuality wins over config token", () => {
+  it("mapping badgeGenre/badgeYear/badgeRating/manualQuality wins over config token", () => {
     const r = resolvePosterRenderConfig(baseInput({
-      mapping: mapping({ badgeGenre: false, badgeRating: false, badgeQuality: false }),
-      configOverride: config({ badgeGenre: true, badgeRating: true, badgeQuality: true }),
+      mapping: mapping({ badgeGenre: false, badgeRating: false, manualQuality: "1080p" }),
+      configOverride: config({ badgeGenre: true, badgeRating: true, manualQuality: "4K" }),
     }))
     expect(r.badgeGenre).toBe(false)
     expect(r.badgeYear).toBe(true)
     expect(r.badgeRating).toBe(false)
-    expect(r.badgeQuality).toBe(false)
+    expect(r.manualQuality).toBe("1080p")
   })
 
-  it("config token badgeGenre/badgeYear/badgeRating/badgeQuality wins over server defaults", () => {
+  it("config token badgeGenre/badgeYear/badgeRating/manualQuality wins over server defaults", () => {
     const r = resolvePosterRenderConfig(baseInput({
-      configOverride: config({ badgeYear: false, badgeQuality: false }),
-      sd: { badgeYear: true, badgeQuality: true },
+      configOverride: config({ badgeYear: false, manualQuality: "4K DV" }),
+      sd: { badgeYear: true, manualQuality: "SD" },
     }))
     expect(r.badgeYear).toBe(false)
-    expect(r.badgeQuality).toBe(false)
+    expect(r.manualQuality).toBe("4K DV")
     expect(r.badgeGenre).toBe(true)
     expect(r.badgeRating).toBe(true)
   })

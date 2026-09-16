@@ -12,7 +12,7 @@ export function saveDefaults(p: { selected: SpatialCtx["selected"]; mappingsMap:
     badgeGenre: ed.defaultBadgeGenre,
     badgeYear: ed.defaultBadgeYear,
     badgeRating: ed.defaultBadgeRating,
-    badgeQuality: ed.defaultBadgeQuality,
+    manualQuality: ed.defaultManualQuality,
     ratingSources: ed.defaultRatingSources,
     badgeStyle: ed.defaultBadgeStyle,
     rankingBadgeStyle: ed.defaultRankingBadgeStyle,
@@ -27,7 +27,6 @@ export function saveDefaults(p: { selected: SpatialCtx["selected"]; mappingsMap:
     defaultRibbonSide: ed.defaultRibbonSide,
     defaultEpisodeMetadataSource: ed.defaultEpisodeMetadataSource,
     region: ed.defaultRegion,
-    streamAddonUrls: ed.defaultStreamAddonUrls,
     networkLogo: ed.defaultNetworkLogo,
     ribbonSide: ed.defaultRibbonSide,
     episodeMetadataSource: ed.defaultEpisodeMetadataSource,
@@ -56,7 +55,7 @@ export function saveDefaults(p: { selected: SpatialCtx["selected"]; mappingsMap:
   ed.setBadgeGenre(d.badgeGenre)
   ed.setBadgeYear(d.badgeYear)
   ed.setBadgeRating(d.badgeRating)
-  ed.setBadgeQuality(d.badgeQuality)
+  ed.setManualQuality(d.manualQuality)
   ed.setNetworkLogo(d.networkLogo)
   ed.setRibbonSide(d.ribbonSide)
   ed.setBlurEnabled(d.blurEnabled)

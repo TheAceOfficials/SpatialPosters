@@ -23,7 +23,7 @@ export interface ServerDefaults {
   badgeGenre?: boolean
   badgeYear?: boolean
   badgeRating?: boolean
-  badgeQuality?: boolean
+  manualQuality?: string
   ratingSources?: string[]
   autoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
@@ -33,7 +33,6 @@ export interface ServerDefaults {
   /** Regione classifiche JustWatch/FlixPatrol + lingua titoli (codice JW, es. "IT"). */
   region?: string
   customCatalogs?: import("@/lib/types").CustomCatalogConfig[]
-  streamAddonUrls?: string[]
   disabledCatalogIds?: string[]
   homeDisabledCatalogIds?: string[]
   catalogOrder?: string[]
@@ -74,7 +73,7 @@ function defaultsFromEnv(): ServerDefaults {
   const bg = envBool("BADGE_GENRE")
   const by = envBool("BADGE_YEAR")
   const br = envBool("BADGE_RATING")
-  const bq = envBool("BADGE_QUALITY")
+  const mq = getEnv("MANUAL_QUALITY")?.trim()
   const blurEn = envBool("BLUR_ENABLED")
   const netLogo = envBool("NETWORK_LOGO")
   const autoRotate = envBool("AUTO_ROTATE_CLEAN")
@@ -84,7 +83,7 @@ function defaultsFromEnv(): ServerDefaults {
   if (bg !== undefined) d.badgeGenre = bg
   if (by !== undefined) d.badgeYear = by
   if (br !== undefined) d.badgeRating = br
-  if (bq !== undefined) d.badgeQuality = bq
+  if (mq !== undefined) d.manualQuality = mq
   const rsrcEnv = getEnv("RATING_SOURCES")?.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)
   if (rsrcEnv && rsrcEnv.length > 0) d.ratingSources = rsrcEnv
   if (blurEn !== undefined) d.blurEnabled = blurEn

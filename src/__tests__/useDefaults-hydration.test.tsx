@@ -34,7 +34,7 @@ const USER_SAVED = {
   badgeGenre: true,
   badgeYear: false,
   badgeRating: true,
-  badgeQuality: true,
+  manualQuality: "4K",
   ratingSources: ["imdb", "tmdb"],
   autoRotateClean: false,
   defaultLogoFitEnabled: true,

@@ -54,7 +54,7 @@ export interface PosterRenderConfig {
   badgeGenre: boolean
   badgeYear: boolean
   badgeRating: boolean
-  badgeQuality: boolean
+  manualQuality: string | null
   ratingSources: string[]
   logoScale: number | null
   logoOffsetX: number | null
@@ -63,7 +63,7 @@ export interface PosterRenderConfig {
   qNetLogo: string | null
   networkLogo: boolean
   ribbonSide: "left" | "right"
-  streamAddonUrls?: string[]
+
 }
 
 export function resolvePosterRenderConfig(input: PosterRenderConfigInput): PosterRenderConfig {
@@ -138,7 +138,8 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const badgeGenre = qBg !== null ? qBg !== "0" : (mapping?.badgeGenre ?? configOverride?.badgeGenre ?? sd.badgeGenre ?? true)
   const badgeYear = qBy !== null ? qBy !== "0" : (mapping?.badgeYear ?? configOverride?.badgeYear ?? sd.badgeYear ?? true)
   const badgeRating = qBr !== null ? qBr !== "0" : (mapping?.badgeRating ?? configOverride?.badgeRating ?? sd.badgeRating ?? true)
-  const badgeQuality = qBq !== null ? qBq !== "0" : (mapping?.badgeQuality ?? configOverride?.badgeQuality ?? sd.badgeQuality ?? true)
+  const qMq = q.get("mq")
+  const manualQuality = qMq !== null ? qMq : (mapping?.manualQuality ?? configOverride?.manualQuality ?? sd.manualQuality ?? null)
 
   const qRsrc = q.get("rsrc")
   const validSources = SUPPORTED_RATING_SOURCES as readonly string[]
@@ -178,10 +179,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     : qSide === "left"
       ? "left"
       : (mapping?.ribbonSide === "right" || configOverride?.ribbonSide === "right" ? "right" : "left")
-  const qSaddons = q.get("saddons")
-  const streamAddonUrls: string[] | undefined = qSaddons
-    ? qSaddons.split(",").map((s) => s.trim()).filter(Boolean)
-    : (configOverride?.streamAddonUrls && configOverride.streamAddonUrls.length > 0 ? configOverride.streamAddonUrls : undefined)
+
 
   return {
     badgeStyle,
@@ -196,7 +194,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     badgeGenre,
     badgeYear,
     badgeRating,
-    badgeQuality,
+    manualQuality,
     ratingSources,
     logoScale,
     logoOffsetX,
@@ -205,7 +203,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     qNetLogo,
     networkLogo,
     ribbonSide,
-    streamAddonUrls,
+
   }
 }
 

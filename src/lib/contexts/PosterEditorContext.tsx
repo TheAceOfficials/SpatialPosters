@@ -26,12 +26,10 @@ export interface PosterEditorCtx {
   setBadgeYear: (v: boolean | ((prev: boolean) => boolean)) => void
   badgeRating: boolean
   setBadgeRating: (v: boolean | ((prev: boolean) => boolean)) => void
-  badgeQuality: boolean
-  setBadgeQuality: (v: boolean | ((prev: boolean) => boolean)) => void
+  manualQuality: string
+  setManualQuality: (v: string | ((prev: string) => string)) => void
   ratingSources: string[]
   setRatingSources: (v: string[] | ((prev: string[]) => string[])) => void
-  streamAddonUrls: string[]
-  setStreamAddonUrls: (v: string[] | ((prev: string[]) => string[])) => void
   badgeStyle: BadgeStyle
   setBadgeStyle: (v: BadgeStyle | ((prev: BadgeStyle) => BadgeStyle)) => void
   rankingBadgeStyle: RankingBadgeStyle
@@ -74,12 +72,10 @@ export interface PosterEditorCtx {
   setDefaultBadgeYear: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultBadgeRating: boolean
   setDefaultBadgeRating: (v: boolean | ((prev: boolean) => boolean)) => void
-  defaultBadgeQuality: boolean
-  setDefaultBadgeQuality: (v: boolean | ((prev: boolean) => boolean)) => void
+  defaultManualQuality: string
+  setDefaultManualQuality: (v: string | ((prev: string) => string)) => void
   defaultRatingSources: string[]
   setDefaultRatingSources: (v: string[] | ((prev: string[]) => string[])) => void
-  defaultStreamAddonUrls: string[]
-  setDefaultStreamAddonUrls: (v: string[] | ((prev: string[]) => string[])) => void
   defaultAutoRotateClean: boolean
   setDefaultAutoRotateClean: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultLogoFitEnabled: boolean
@@ -187,13 +183,13 @@ export function PosterEditorProvider({
 
   const {
     globalBadges, rankingBadges, networkLogo, ribbonSide,
-    badgeGenre, badgeYear, badgeRating, badgeQuality, ratingSources, streamAddonUrls,
+    badgeGenre, badgeYear, badgeRating, manualQuality, ratingSources,
     gradientHeight, blurIntensity, blurFade, blurDarkness, blurEnabled,
     badgeStyle, rankingBadgeStyle,
     defaultBadgeStyle, defaultRankingBadgeStyle,
     defaultBlurEnabled, defaultBlurIntensity, defaultBlurFade, defaultBlurDarkness,
     defaultGradientHeight, defaultGlobalBadges, defaultRankingBadges,
-    defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultBadgeQuality, defaultRatingSources, defaultStreamAddonUrls,
+    defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultManualQuality, defaultRatingSources,
     defaultAutoRotateClean, defaultLogoFitEnabled, defaultNetworkLogo, defaultRibbonSide,
     episodeMetadataSource, defaultEpisodeMetadataSource,
     region, defaultRegion,
@@ -225,22 +221,16 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(badgeRating) : v
       update({ badgeRating: next, defaultBadgeRating: next })
     }, [badgeRating, update])
-  const setBadgeQuality = useCallback(
-    (v: boolean | ((prev: boolean) => boolean)) => {
-      const next = typeof v === "function" ? v(badgeQuality) : v
-      update({ badgeQuality: next, defaultBadgeQuality: next })
-    }, [badgeQuality, update])
+  const setManualQuality = useCallback(
+    (v: string | ((prev: string) => string)) => {
+      const next = typeof v === "function" ? v(manualQuality) : v
+      update({ manualQuality: next, defaultManualQuality: next })
+    }, [manualQuality, update])
   const setRatingSources = useCallback(
     (v: string[] | ((prev: string[]) => string[])) => {
       const next = typeof v === "function" ? v(ratingSources) : v
       update({ ratingSources: next, defaultRatingSources: next })
     }, [ratingSources, update])
-
-  const setStreamAddonUrls = useCallback(
-    (v: string[] | ((prev: string[]) => string[])) => {
-      const next = typeof v === "function" ? v(streamAddonUrls) : v
-      update({ streamAddonUrls: next, defaultStreamAddonUrls: next })
-    }, [streamAddonUrls, update])
   const setNetworkLogo = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       const next = typeof v === "function" ? v(networkLogo) : v
@@ -350,22 +340,16 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(defaultBadgeRating) : v
       update({ defaultBadgeRating: next, badgeRating: next })
     }, [defaultBadgeRating, update])
-  const setDefaultBadgeQuality = useCallback(
-    (v: boolean | ((prev: boolean) => boolean)) => {
-      const next = typeof v === "function" ? v(defaultBadgeQuality) : v
-      update({ defaultBadgeQuality: next, badgeQuality: next })
-    }, [defaultBadgeQuality, update])
+  const setDefaultManualQuality = useCallback(
+    (v: string | ((prev: string) => string)) => {
+      const next = typeof v === "function" ? v(defaultManualQuality) : v
+      update({ defaultManualQuality: next, manualQuality: next })
+    }, [defaultManualQuality, update])
   const setDefaultRatingSources = useCallback(
     (v: string[] | ((prev: string[]) => string[])) => {
       const next = typeof v === "function" ? v(defaultRatingSources) : v
       update({ defaultRatingSources: next, ratingSources: next })
     }, [defaultRatingSources, update])
-
-  const setDefaultStreamAddonUrls = useCallback(
-    (v: string[] | ((prev: string[]) => string[])) => {
-      const next = typeof v === "function" ? v(defaultStreamAddonUrls) : v
-      update({ defaultStreamAddonUrls: next, streamAddonUrls: next })
-    }, [defaultStreamAddonUrls, update])
   const setDefaultAutoRotateClean = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       const next = typeof v === "function" ? v(defaultAutoRotateClean) : v
@@ -421,12 +405,10 @@ export function PosterEditorProvider({
       setBadgeYear,
       badgeRating,
       setBadgeRating,
-      badgeQuality,
-      setBadgeQuality,
+      manualQuality,
+      setManualQuality,
       ratingSources,
       setRatingSources,
-      streamAddonUrls,
-      setStreamAddonUrls,
       badgeStyle,
       setBadgeStyle,
       rankingBadgeStyle,
@@ -469,12 +451,10 @@ export function PosterEditorProvider({
       setDefaultBadgeYear,
       defaultBadgeRating,
       setDefaultBadgeRating,
-      defaultBadgeQuality,
-      setDefaultBadgeQuality,
+      defaultManualQuality,
+      setDefaultManualQuality,
       defaultRatingSources,
       setDefaultRatingSources,
-      defaultStreamAddonUrls,
-      setDefaultStreamAddonUrls,
       defaultAutoRotateClean,
       setDefaultAutoRotateClean,
       defaultLogoFitEnabled,
@@ -542,9 +522,8 @@ export function PosterEditorProvider({
       badgeGenre, setBadgeGenre,
       badgeYear, setBadgeYear,
       badgeRating, setBadgeRating,
-      badgeQuality, setBadgeQuality,
+      manualQuality, setManualQuality,
       ratingSources, setRatingSources,
-      streamAddonUrls, setStreamAddonUrls,
       badgeStyle, setBadgeStyle,
       rankingBadgeStyle, setRankingBadgeStyle,
       customBadge, setCustomBadge,
@@ -568,9 +547,9 @@ export function PosterEditorProvider({
       defaultBadgeGenre, setDefaultBadgeGenre,
       defaultBadgeYear, setDefaultBadgeYear,
       defaultBadgeRating, setDefaultBadgeRating,
-      defaultBadgeQuality, setDefaultBadgeQuality,
+      defaultManualQuality, setDefaultManualQuality,
       defaultRatingSources, setDefaultRatingSources,
-      defaultStreamAddonUrls, setDefaultStreamAddonUrls,
+
       defaultAutoRotateClean, setDefaultAutoRotateClean,
       defaultLogoFitEnabled, setDefaultLogoFitEnabled,
       defaultNetworkLogo, setDefaultNetworkLogo,

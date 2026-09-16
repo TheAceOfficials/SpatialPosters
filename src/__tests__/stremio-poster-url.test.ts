@@ -58,7 +58,7 @@ describe("buildStremioPosterUrl", () => {
         badgeGenre: true,
         badgeYear: false,
         badgeRating: true,
-        badgeQuality: false,
+        manualQuality: "4K",
         ratingSources: ["tmdb", "imdb"],
         ribbonSide: "right",
       },
@@ -72,7 +72,7 @@ describe("buildStremioPosterUrl", () => {
     expect(url.searchParams.get("bg")).toBe("0") // mapping wins
     expect(url.searchParams.get("by")).toBe("0") // defaults
     expect(url.searchParams.has("br")).toBe(false) // badgeRating is true
-    expect(url.searchParams.get("bq")).toBe("0") // defaults
+    expect(url.searchParams.get("mq")).toBe("4K")
     expect(url.searchParams.get("rsrc")).toBe("tmdb,imdb")
     expect(url.searchParams.get("side")).toBe("left") // mapping wins
   })

@@ -51,29 +51,6 @@ async function probeFlixPatrol(): Promise<{ ok: boolean; status: number; time: n
   }
 }
 
-async function probeCustomAddon(): Promise<{ ok: boolean; status: number; time: number; url: string }> {
-  const defaults = getServerDefaults()
-  const customUrls = (defaults.streamAddonUrls || []).map((u) => u.trim()).filter(Boolean)
-  if (customUrls.length === 0) {
-    return { ok: true, status: 0, time: 0, url: "none" }
-  }
-  
-  const url = customUrls[0]
-  const start = Date.now()
-  try {
-    const { normalizeAddonStreamBaseUrl } = await import("@/lib/stream-quality")
-    const testUrl = normalizeAddonStreamBaseUrl(url) + "/manifest.json"
-    
-    await withTimeout(async () => {
-      const res = await fetch(testUrl)
-      if (!res.ok) throw new Error("HTTP " + res.status)
-      await res.json()
-    })
-    return { ok: true, status: 200, time: Date.now() - start, url }
-  } catch {
-    return { ok: false, status: 0, time: Date.now() - start, url }
-  }
-}
 
 async function fileExists(file: string): Promise<boolean> {
   try {
@@ -135,7 +112,7 @@ export async function GET(request: Request) {
   const flixpatrol = apiKey
     ? await probeFlixPatrol()
     : { ok: false, status: 401, time: 0 }
-  const addon = await probeCustomAddon()
+
 
   const mappingsFile = path.join(DATA_DIR, "mappings.json")
   const defaultsFile = path.join(DATA_DIR, "defaults.json")
@@ -175,7 +152,7 @@ export async function GET(request: Request) {
     // Nessun dettaglio di runtime (versioni, platform, NODE_ENV): rivelerli
     // aiuterebbe a bersagliare CVE note. L'endpoint dice solo se l'istanza
     // risponde e se le dipendenze esterne sono raggiungibili.
-    streaming: { justwatch, flixpatrol, addon },
+    streaming: { justwatch, flixpatrol },
     storage,
   }
 

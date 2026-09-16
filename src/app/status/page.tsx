@@ -25,7 +25,6 @@ interface HealthData {
   streaming: {
     justwatch: CheckResult
     flixpatrol: CheckResult
-    addon?: CheckResult & { url: string }
   }
   storage: {
     mode: "kv" | "file"
@@ -184,9 +183,7 @@ export default function StatusPage() {
               <div className="space-y-1">
                 <StatusRow label={t("ui.statusJustwatch")} ok={data.tmdb.apiKey ? data.streaming.justwatch.ok : null} extra={data.tmdb.apiKey ? <>{data.streaming.justwatch.status} — {data.streaming.justwatch.time}ms</> : t("ui.statusTmdbKeyMissing")} />
                 <StatusRow label={t("ui.statusFlixpatrol")} ok={data.tmdb.apiKey ? data.streaming.flixpatrol.ok : null} extra={data.tmdb.apiKey ? <>{data.streaming.flixpatrol.status} — {data.streaming.flixpatrol.time}ms</> : t("ui.statusTmdbKeyMissing")} />
-                {data.streaming.addon && (
-                  <StatusRow label="Custom Addons" ok={data.streaming.addon.url === "none" ? null : data.streaming.addon.ok} extra={data.streaming.addon.url === "none" ? "Not Configured" : <>{data.streaming.addon.status} — {data.streaming.addon.time}ms ({data.streaming.addon.url})</>} />
-                )}
+
               </div>
             </div>
 

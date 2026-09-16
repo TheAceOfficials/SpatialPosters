@@ -66,8 +66,7 @@ export interface GenerationInput {
   badgeGenre: boolean
   badgeYear: boolean
   badgeRating: boolean
-  badgeQuality?: boolean
-  quality?: string | null
+  manualQuality?: string | null
   topLight: boolean
   targetCenter: number
   /** Modalità layout nastro Netflix + logo network: "left" (Nuvio, default) o "right" (Stremio). */
@@ -425,7 +424,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     backdropScale, backdropOffsetX, backdropOffsetY,
     blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
     badgesEnabled, rankingEnabled, genreName, voteAverage, badgeStyle,
-    rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, badgeQuality, quality,
+    rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality,
     topLight, targetCenter, ribbonSide,
     logoScale, logoOffsetX, logoOffsetY,
     mediaType, finalRank, animeRankResult,
@@ -597,7 +596,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   // Rilevato quando il topBadge è un rank derivato da animeRankResult.
   const isAnimeRank = topBadge?.type === "rank" && animeRankResult !== null && topBadge.rank === animeRankResult
 
-  const hasQualityBadge = badgesEnabled && badgeQuality !== false && !!quality
+  const hasQualityBadge = badgesEnabled && !!manualQuality
   // Network: sempre visibile quando abilitato, subito sopra il logo film, quasi attaccato — SVG resta raw, TMDB fallback è A (ricolor + ombra) per non risultare scuro.
   const networkRawResult = networkLogoResult
     ? hasDetailed
@@ -612,7 +611,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     ? badgeCacheKey("rank", topBadge.type === "extra" ? topBadge.label : `${(topBadge as { rank: number }).rank}:${topBadge!.label}`, STD_W, topLight, rankingBadgeStyle, accentColorRank, ribbonSide, isAnimeRank)
     : null
   const qualityBadgeKey = hasQualityBadge
-    ? badgeCacheKey("quality", quality, STD_W, topLight)
+    ? badgeCacheKey("quality", manualQuality, STD_W, topLight)
     : null
 
   const [genreBadgeResult, rankBadgeResult, qualityBadgeResult] = await Promise.all([
@@ -637,7 +636,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     qualityBadgeKey
       ? (cacheGet<{ png: Buffer; w: number; h: number }>(qualityBadgeKey)
           || coalesceBadgeRender(qualityBadgeKey, () =>
-              renderQualityBadge(quality!, STD_W, topLight)
+              renderQualityBadge(manualQuality!, STD_W, topLight)
                 .then((r) => { if (r) cacheSet(qualityBadgeKey, r, ["badge"], BADGE_CACHE_TTL); return r })
             ))
       : Promise.resolve(null),

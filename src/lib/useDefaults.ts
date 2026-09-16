@@ -21,9 +21,8 @@ export interface DefaultsState {
   defaultBadgeGenre: boolean
   defaultBadgeYear: boolean
   defaultBadgeRating: boolean
-  defaultBadgeQuality: boolean
+  defaultManualQuality: string
   defaultRatingSources: string[]
-  defaultStreamAddonUrls: string[]
   defaultAutoRotateClean: boolean
   defaultLogoFitEnabled: boolean
   defaultNetworkLogo: boolean
@@ -38,9 +37,7 @@ export interface DefaultsState {
   badgeGenre: boolean
   badgeYear: boolean
   badgeRating: boolean
-  badgeQuality: boolean
-  ratingSources: string[]
-  streamAddonUrls: string[]
+  manualQuality: string
   networkLogo: boolean
   ribbonSide: RibbonSide
   episodeMetadataSource: "tmdb" | "tvdb"
@@ -66,9 +63,8 @@ const DEFAULTS: DefaultsState = {
   defaultBadgeGenre: true,
   defaultBadgeYear: true,
   defaultBadgeRating: true,
-  defaultBadgeQuality: true,
-  defaultRatingSources: ["imdb", "tmdb"],
-  defaultStreamAddonUrls: [],
+  defaultManualQuality: "",
+  defaultRatingSources: [],
   defaultAutoRotateClean: false,
   defaultLogoFitEnabled: true,
   defaultNetworkLogo: true,
@@ -81,9 +77,8 @@ const DEFAULTS: DefaultsState = {
   badgeGenre: true,
   badgeYear: true,
   badgeRating: true,
-  badgeQuality: true,
-  ratingSources: ["imdb", "tmdb"],
-  streamAddonUrls: [],
+  manualQuality: "",
+  ratingSources: [],
   networkLogo: true,
   ribbonSide: "left",
   episodeMetadataSource: "tmdb",
@@ -102,7 +97,8 @@ interface StoredDefaults {
   badgeGenre?: boolean
   badgeYear?: boolean
   badgeRating?: boolean
-  badgeQuality?: boolean
+  manualQuality?: string
+  ratingSources?: string[]
   networkLogo?: boolean
   gradientHeight?: number
   blurIntensity?: number
@@ -123,11 +119,8 @@ interface StoredDefaults {
   defaultBadgeGenre?: boolean
   defaultBadgeYear?: boolean
   defaultBadgeRating?: boolean
-  defaultBadgeQuality?: boolean
+  defaultManualQuality?: string
   defaultRatingSources?: string[]
-  ratingSources?: string[]
-  defaultStreamAddonUrls?: string[]
-  streamAddonUrls?: string[]
   defaultAutoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
   defaultNetworkLogo?: boolean
@@ -171,9 +164,8 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     defaultBadgeGenre: d.defaultBadgeGenre ?? d.badgeGenre ?? true,
     defaultBadgeYear: d.defaultBadgeYear ?? d.badgeYear ?? true,
     defaultBadgeRating: d.defaultBadgeRating ?? d.badgeRating ?? true,
-    defaultBadgeQuality: d.defaultBadgeQuality ?? d.badgeQuality ?? true,
-    defaultRatingSources: d.defaultRatingSources ?? d.ratingSources ?? ["imdb", "tmdb"],
-    defaultStreamAddonUrls: d.defaultStreamAddonUrls ?? d.streamAddonUrls ?? [],
+    defaultManualQuality: d.defaultManualQuality ?? d.manualQuality ?? "",
+    defaultRatingSources: d.defaultRatingSources ?? d.ratingSources ?? [],
     defaultAutoRotateClean: d.defaultAutoRotateClean ?? d.autoRotateClean ?? false,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled ?? true,
     defaultNetworkLogo: d.defaultNetworkLogo ?? d.networkLogo ?? true,
@@ -186,9 +178,8 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     badgeGenre: d.badgeGenre ?? d.defaultBadgeGenre ?? true,
     badgeYear: d.badgeYear ?? d.defaultBadgeYear ?? true,
     badgeRating: d.badgeRating ?? d.defaultBadgeRating ?? true,
-    badgeQuality: d.badgeQuality ?? d.defaultBadgeQuality ?? true,
-    ratingSources: d.ratingSources ?? d.defaultRatingSources ?? ["imdb", "tmdb"],
-    streamAddonUrls: d.streamAddonUrls ?? d.defaultStreamAddonUrls ?? [],
+    manualQuality: d.manualQuality ?? d.defaultManualQuality ?? "",
+    ratingSources: d.ratingSources ?? d.defaultRatingSources ?? [],
     networkLogo: d.networkLogo ?? d.defaultNetworkLogo ?? true,
     ribbonSide: d.ribbonSide ?? d.defaultRibbonSide ?? "left",
     episodeMetadataSource: d.episodeMetadataSource ?? d.defaultEpisodeMetadataSource ?? "tmdb",
@@ -222,9 +213,8 @@ function defaultsToPayload(d: DefaultsState): Record<string, unknown> {
     badgeGenre: d.defaultBadgeGenre,
     badgeYear: d.defaultBadgeYear,
     badgeRating: d.defaultBadgeRating,
-    badgeQuality: d.defaultBadgeQuality,
+    manualQuality: d.defaultManualQuality,
     ratingSources: d.defaultRatingSources,
-    streamAddonUrls: d.defaultStreamAddonUrls,
     autoRotateClean: d.defaultAutoRotateClean,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled,
     networkLogo: d.defaultNetworkLogo,

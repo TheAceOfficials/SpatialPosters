@@ -181,12 +181,31 @@ export function BadgeControls() {
             <Toggle value={ed.rankingBadges} onChange={(v) => ed.setRankingBadges(v)} label={t("ui.trendBadge")} />
           </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-zinc-300 font-medium flex items-center gap-1.5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-zinc-300 font-medium flex items-center gap-1.5 shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
               {t("ui.badgeQuality")}
             </span>
-            <Toggle value={ed.badgeQuality} onChange={(v) => ed.setBadgeQuality(v)} label={t("ui.badgeQuality")} />
+            <div className="relative shrink-0 w-32">
+              <select
+                value={ed.manualQuality || ""}
+                onChange={(e) => ed.setManualQuality(e.target.value)}
+                className="w-full appearance-none bg-surface3/50 hover:bg-surface3 border border-surface2 text-zinc-100 text-xs font-semibold py-1.5 pl-3 pr-7 rounded-lg transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-accent-purple"
+              >
+                <option value="">{t("ui.none") || "None"}</option>
+                <option value="4K DV">4K DV</option>
+                <option value="4K HDR">4K HDR</option>
+                <option value="4K">4K</option>
+                <option value="1080p DV">1080p DV</option>
+                <option value="1080p HDR">1080p HDR</option>
+                <option value="1080p">1080p</option>
+                <option value="720p">720p</option>
+                <option value="SD">SD</option>
+              </select>
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center justify-between">

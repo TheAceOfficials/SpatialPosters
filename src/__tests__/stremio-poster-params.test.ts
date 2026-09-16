@@ -68,14 +68,14 @@ describe("buildStremioPosterSearchParams", () => {
       badgeGenre: false,
       badgeYear: false,
       badgeRating: false,
-      badgeQuality: false,
+      manualQuality: "SD",
       ratingSources: ["tmdb", "imdb"],
     })
 
     expect(params.get("bg")).toBe("0")
     expect(params.get("by")).toBe("0")
     expect(params.get("br")).toBe("0")
-    expect(params.get("bq")).toBe("0")
+    expect(params.get("mq")).toBe("SD")
     expect(params.get("rsrc")).toBe("tmdb,imdb")
   })
 

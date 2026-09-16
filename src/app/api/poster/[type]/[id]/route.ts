@@ -61,7 +61,7 @@ import { decodeConfig } from "@/lib/config-token"
 import { createLogger } from "@/lib/logger"
 import { resolvePosterRenderConfig } from "@/lib/poster-config"
 import { selectBestLogo, logoBestLogoFallbackReason } from "@/lib/logo-selection"
-import { resolveStreamQuality } from "@/lib/stream-quality"
+
 
 // Vercel: limite massimo di esecuzione della funzione. Il render poster ha un
 // deadline interno di 30s (PICTORIUM_RENDER_TIMEOUT_MS) → 40s copre il caso
@@ -603,21 +603,19 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
     const hasQueryEarly = !!queryPoster || !!mapping || !!configToken
     const badgesEnabledEarly = hasQueryEarly ? (qBadgesEarly !== null ? qBadgesEarly !== "0" : showBadges) : true
     const rankingEnabledEarly = hasQueryEarly ? (qRankingEarly !== null ? qRankingEarly !== "0" : rankingBadges) : true
-    const badgeQualityEarly = qBqEarly !== null ? qBqEarly !== "0" : (mapping?.badgeQuality ?? configOverride?.badgeQuality ?? sd.badgeQuality ?? true)
+    const qMqEarly = req.nextUrl.searchParams.get("mq")
+    const manualQuality = qMqEarly !== null ? qMqEarly : (mapping?.manualQuality ?? configOverride?.manualQuality ?? sd.manualQuality ?? null)
+
     // Rank anime inviato dal client nella preview WYSIWYG (override del fetch).
     const qAnimeRankParam = req.nextUrl.searchParams.get("animerank")
     const qAnimeRank = qAnimeRankParam ? Number(qAnimeRankParam) : NaN
-    const qSaddonsEarly = req.nextUrl.searchParams.get("saddons")
-    const streamAddonUrlsEarly = qSaddonsEarly 
-      ? qSaddonsEarly.split(",").map((s) => s.trim()).filter(Boolean)
-      : (configOverride?.streamAddonUrls && configOverride.streamAddonUrls.length > 0 ? configOverride.streamAddonUrls : undefined)
 
     // 5. Fetch all data in parallel: images + rankings + quality + wikidata + keywords + imdbTop250
     //    All dependencies are available before this point — no Block B depends on Block A
     const emptyWikidata = { awards: [], nominations: [], studios: [], director: null }
     const WIKIDATA_TIMEOUT = Number(process.env.WIKIDATA_TIMEOUT) || 2500
     const [
-      [originalBuf, logoFetch, backdropFetch, rankingResult, animeRankResult, liveQualityResult],
+      [originalBuf, logoFetch, backdropFetch, rankingResult, animeRankResult],
       [wikidataResult, tmdbKeywords, imdbTop250],
     ] = await Promise.all([
       // Block A: images + ranking data + quality
@@ -667,24 +665,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
                   })
                   .catch(() => mapping?.animeRank ?? null))
           : Promise.resolve(null),
-        (badgesEnabledEarly && badgeQualityEarly)
-          ? (qQualityParam
-              ? Promise.resolve(qQualityParam)
-              : (() => {
-                  const sessionTitle = getTMDBSessionCache(mediaType, tmdbId)?.details?.title
-                    || getTMDBSessionCache(mediaType, tmdbId)?.details?.name
-                    || null
-                  const fallbackTitle = mapping?.title || req.nextUrl.searchParams.get("title") || sessionTitle || genreName || null
-                  return resolveStreamQuality(
-                    mediaType === "movie" ? "movie" : "series",
-                    imdbId,
-                    tmdbId,
-                    fallbackTitle,
-                    renderAbort.signal,
-                    streamAddonUrlsEarly
-                  ).catch(() => null)
-                })())
-          : Promise.resolve(null),
+
       ]),
       // Block B: badge data (independent of Block A — runs concurrently)
       Promise.all([
@@ -831,12 +812,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       badgeStyle, rankingBadgeStyle,
       blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
       badgesEnabled, rankingEnabled,
-      badgeGenre, badgeYear, badgeRating, badgeQuality,
+      badgeGenre, badgeYear, badgeRating, manualQuality,
       logoScale, logoOffsetX, logoOffsetY,
       queryExtra, qNetLogo, networkLogo, ribbonSide,
     } = renderConfig
 
-    const finalQuality = qQualityParam || liveQualityResult || null
+
 
     const locale = req.nextUrl.searchParams.get("lang") || mapping?.language || "it"
     const targetCenter = Math.round(30 * STD_H / 570)
@@ -872,7 +853,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         imdbTop250: !!imdbTop250,
       }
       const badgeComputed = computeTopBadge(badgeInput, t, locale)
-      log.info("Debug mode", { mediaType, tmdbId, imdbId, imdbTop250: !!imdbTop250, badge: badgeComputed.badge?.label ?? "null", vote: voteAverage, genre: genreName, quality: finalQuality })
+      log.info("Debug mode", { mediaType, tmdbId, imdbId, imdbTop250: !!imdbTop250, badge: badgeComputed.badge?.label ?? "null", vote: voteAverage, genre: genreName, quality: manualQuality })
       completePosterRender(null)
       return Response.json({
         meta: {
@@ -891,7 +872,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         },
         genre: { name: genreName, year: releaseDate?.slice(0, 4) },
         vote: { average: voteAverage },
-        quality: finalQuality,
+        quality: manualQuality,
         rankings: {
           justwatch: rankingResult,
           anime: animeRankResult,
@@ -923,7 +904,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
             badgeGenre,
             badgeYear,
             badgeRating,
-            badgeQuality,
+            manualQuality,
             customBadge: queryExtra,
           },
         },
@@ -961,8 +942,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       backdropScale, backdropOffsetX, backdropOffsetY,
       blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
       badgesEnabled, rankingEnabled, genreName, voteAverage, badgeStyle,
-      rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, badgeQuality,
-      quality: finalQuality,
+      rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality,
       topLight, targetCenter, ribbonSide,
       logoScale, logoOffsetX, logoOffsetY,
       mediaType: mediaType as "movie" | "tv",
