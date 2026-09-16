@@ -68,7 +68,6 @@
   "ui.badgeGenre": "Genre",
   "ui.badgeYear": "Year",
   "ui.badgeRating": "Rating",
-  "ui.badgeQuality": "Streaming Quality",
   "ui.ratingSources": "Poster Providers",
   "ui.ratingSourcesHint": "Calculates the average of all active rating providers selected below.",
   "ui.enableAll": "Enable All",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "אשר הסרה",
   "ui.pinSavedSuccess": "ה-PIN נשמר בהצלחה!",
   "ui.pinRemovedSuccess": "ה-PIN הוסר בהצלחה!",
-  "ui.pinSaveError": "שגיאה בעת השמירה"
+  "ui.pinSaveError": "שגיאה בעת השמירה",
+  "ui.badgeResolution": "Streaming Quality",
+  "ui.badgeFormat": "Format"
 }

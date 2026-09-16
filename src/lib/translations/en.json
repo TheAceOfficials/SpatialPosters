@@ -68,7 +68,6 @@
   "ui.badgeGenre": "Genre",
   "ui.badgeYear": "Year",
   "ui.badgeRating": "Rating",
-  "ui.badgeQuality": "Streaming Quality",
   "ui.ratingSources": "Poster Providers",
   "ui.ratingSourcesHint": "Calculates the average of all active rating providers selected below.",
   "ui.enableAll": "Enable All",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "Confirm Removal",
   "ui.pinSavedSuccess": "PIN saved successfully!",
   "ui.pinRemovedSuccess": "PIN removed successfully!",
-  "ui.pinSaveError": "Error while saving"
+  "ui.pinSaveError": "Error while saving",
+  "ui.badgeResolution": "Streaming Quality",
+  "ui.badgeFormat": "Format"
 }

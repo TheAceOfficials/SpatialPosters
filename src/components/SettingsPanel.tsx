@@ -417,7 +417,7 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
           <div className="flex items-center justify-between gap-3">
             <span className="text-zinc-300 font-medium flex items-center gap-1.5 shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              {t("ui.badgeQuality")}
+              {t("ui.badgeResolution") || "Resolution"}
             </span>
             <div className="relative shrink-0 w-32">
               <select
@@ -429,14 +429,39 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile 
                 className="w-full appearance-none bg-surface3/50 hover:bg-surface3 border border-surface2 text-zinc-100 text-xs font-semibold py-1.5 pl-3 pr-7 rounded-lg transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-accent-purple"
               >
                 <option value="">None</option>
-                <option value="4K DV">4K DV</option>
-                <option value="4K HDR">4K HDR</option>
-                <option value="4K">4K</option>
-                <option value="1080p DV">1080p DV</option>
-                <option value="1080p HDR">1080p HDR</option>
-                <option value="1080p">1080p</option>
-                <option value="720p">720p</option>
-                <option value="SD">SD</option>
+                <option value="4k-black">4K</option>
+                <option value="1440p-black">1440p</option>
+                <option value="1080p-black">1080p</option>
+                <option value="720p-black">720p</option>
+              </select>
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-zinc-300 font-medium flex items-center gap-1.5 shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              {t("ui.badgeFormat") || "Format"}
+            </span>
+            <div className="relative shrink-0 w-32">
+              <select
+                value={ed.defaultBadgeFormat || ""}
+                onChange={(e) => {
+                  ed.setDefaultBadgeFormat(e.target.value)
+                  ed.setBadgeFormat(e.target.value)
+                }}
+                className="w-full appearance-none bg-surface3/50 hover:bg-surface3 border border-surface2 text-zinc-100 text-xs font-semibold py-1.5 pl-3 pr-7 rounded-lg transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-accent-purple"
+              >
+                <option value="">None</option>
+                <option value="dolby-vision-black">Dolby Vision</option>
+                <option value="dolby-vision-hdr-black">Dolby Vision + HDR</option>
+                <option value="dolby-vision-hdr10-black">Dolby Vision + HDR10</option>
+                <option value="dolby-vision-hdr10-plus-black">Dolby Vision + HDR10+</option>
+                <option value="HDR">HDR</option>
+                <option value="imax-black">IMAX</option>
+                <option value="imax-enhanced-black">IMAX Enhanced</option>
               </select>
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
                 <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />

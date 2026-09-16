@@ -28,6 +28,8 @@ export interface PosterEditorCtx {
   setBadgeRating: (v: boolean | ((prev: boolean) => boolean)) => void
   manualQuality: string
   setManualQuality: (v: string | ((prev: string) => string)) => void
+  badgeFormat: string
+  setBadgeFormat: (v: string | ((prev: string) => string)) => void
   ratingSources: string[]
   setRatingSources: (v: string[] | ((prev: string[]) => string[])) => void
   badgeStyle: BadgeStyle
@@ -74,6 +76,8 @@ export interface PosterEditorCtx {
   setDefaultBadgeRating: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultManualQuality: string
   setDefaultManualQuality: (v: string | ((prev: string) => string)) => void
+  defaultBadgeFormat: string
+  setDefaultBadgeFormat: (v: string | ((prev: string) => string)) => void
   defaultRatingSources: string[]
   setDefaultRatingSources: (v: string[] | ((prev: string[]) => string[])) => void
   defaultAutoRotateClean: boolean
@@ -183,13 +187,13 @@ export function PosterEditorProvider({
 
   const {
     globalBadges, rankingBadges, networkLogo, ribbonSide,
-    badgeGenre, badgeYear, badgeRating, manualQuality, ratingSources,
+    badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat, ratingSources,
     gradientHeight, blurIntensity, blurFade, blurDarkness, blurEnabled,
     badgeStyle, rankingBadgeStyle,
     defaultBadgeStyle, defaultRankingBadgeStyle,
     defaultBlurEnabled, defaultBlurIntensity, defaultBlurFade, defaultBlurDarkness,
     defaultGradientHeight, defaultGlobalBadges, defaultRankingBadges,
-    defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultManualQuality, defaultRatingSources,
+    defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultManualQuality, defaultBadgeFormat, defaultRatingSources,
     defaultAutoRotateClean, defaultLogoFitEnabled, defaultNetworkLogo, defaultRibbonSide,
     episodeMetadataSource, defaultEpisodeMetadataSource,
     region, defaultRegion,
@@ -226,6 +230,11 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(manualQuality) : v
       update({ manualQuality: next })
     }, [manualQuality, update])
+  const setBadgeFormat = useCallback(
+    (v: string | ((prev: string) => string)) => {
+      const next = typeof v === "function" ? v(badgeFormat) : v
+      update({ badgeFormat: next })
+    }, [badgeFormat, update])
   const setRatingSources = useCallback(
     (v: string[] | ((prev: string[]) => string[])) => {
       const next = typeof v === "function" ? v(ratingSources) : v
@@ -345,6 +354,11 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(defaultManualQuality) : v
       update({ defaultManualQuality: next, manualQuality: next })
     }, [defaultManualQuality, update])
+  const setDefaultBadgeFormat = useCallback(
+    (v: string | ((prev: string) => string)) => {
+      const next = typeof v === "function" ? v(defaultBadgeFormat) : v
+      update({ defaultBadgeFormat: next, badgeFormat: next })
+    }, [defaultBadgeFormat, update])
   const setDefaultRatingSources = useCallback(
     (v: string[] | ((prev: string[]) => string[])) => {
       const next = typeof v === "function" ? v(defaultRatingSources) : v
@@ -407,6 +421,8 @@ export function PosterEditorProvider({
       setBadgeRating,
       manualQuality,
       setManualQuality,
+      badgeFormat,
+      setBadgeFormat,
       ratingSources,
       setRatingSources,
       badgeStyle,
@@ -453,6 +469,8 @@ export function PosterEditorProvider({
       setDefaultBadgeRating,
       defaultManualQuality,
       setDefaultManualQuality,
+      defaultBadgeFormat,
+      setDefaultBadgeFormat,
       defaultRatingSources,
       setDefaultRatingSources,
       defaultAutoRotateClean,
@@ -523,6 +541,7 @@ export function PosterEditorProvider({
       badgeYear, setBadgeYear,
       badgeRating, setBadgeRating,
       manualQuality, setManualQuality,
+      badgeFormat, setBadgeFormat,
       ratingSources, setRatingSources,
       badgeStyle, setBadgeStyle,
       rankingBadgeStyle, setRankingBadgeStyle,
@@ -548,6 +567,7 @@ export function PosterEditorProvider({
       defaultBadgeYear, setDefaultBadgeYear,
       defaultBadgeRating, setDefaultBadgeRating,
       defaultManualQuality, setDefaultManualQuality,
+      defaultBadgeFormat, setDefaultBadgeFormat,
       defaultRatingSources, setDefaultRatingSources,
 
       defaultAutoRotateClean, setDefaultAutoRotateClean,

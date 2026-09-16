@@ -22,6 +22,7 @@ export interface DefaultsState {
   defaultBadgeYear: boolean
   defaultBadgeRating: boolean
   defaultManualQuality: string
+  defaultBadgeFormat: string
   defaultRatingSources: string[]
   defaultAutoRotateClean: boolean
   defaultLogoFitEnabled: boolean
@@ -38,6 +39,7 @@ export interface DefaultsState {
   badgeYear: boolean
   badgeRating: boolean
   manualQuality: string
+  badgeFormat: string
   ratingSources: string[]
   networkLogo: boolean
   ribbonSide: RibbonSide
@@ -65,6 +67,7 @@ const DEFAULTS: DefaultsState = {
   defaultBadgeYear: true,
   defaultBadgeRating: true,
   defaultManualQuality: "",
+  defaultBadgeFormat: "",
   defaultRatingSources: [],
   defaultAutoRotateClean: false,
   defaultLogoFitEnabled: true,
@@ -79,6 +82,7 @@ const DEFAULTS: DefaultsState = {
   badgeYear: true,
   badgeRating: true,
   manualQuality: "",
+  badgeFormat: "",
   ratingSources: [],
   networkLogo: true,
   ribbonSide: "left",
@@ -99,6 +103,7 @@ interface StoredDefaults {
   badgeYear?: boolean
   badgeRating?: boolean
   manualQuality?: string
+  badgeFormat?: string
   ratingSources?: string[]
   networkLogo?: boolean
   gradientHeight?: number
@@ -121,6 +126,7 @@ interface StoredDefaults {
   defaultBadgeYear?: boolean
   defaultBadgeRating?: boolean
   defaultManualQuality?: string
+  defaultBadgeFormat?: string
   defaultRatingSources?: string[]
   defaultAutoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
@@ -166,6 +172,7 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     defaultBadgeYear: d.defaultBadgeYear ?? d.badgeYear ?? true,
     defaultBadgeRating: d.defaultBadgeRating ?? d.badgeRating ?? true,
     defaultManualQuality: d.defaultManualQuality ?? d.manualQuality ?? "",
+    defaultBadgeFormat: d.defaultBadgeFormat ?? d.badgeFormat ?? "",
     defaultRatingSources: d.defaultRatingSources ?? d.ratingSources ?? [],
     defaultAutoRotateClean: d.defaultAutoRotateClean ?? d.autoRotateClean ?? false,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled ?? true,
@@ -180,6 +187,7 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     badgeYear: d.badgeYear ?? d.defaultBadgeYear ?? true,
     badgeRating: d.badgeRating ?? d.defaultBadgeRating ?? true,
     manualQuality: d.manualQuality ?? d.defaultManualQuality ?? "",
+    badgeFormat: d.badgeFormat ?? d.defaultBadgeFormat ?? "",
     ratingSources: d.ratingSources ?? d.defaultRatingSources ?? [],
     networkLogo: d.networkLogo ?? d.defaultNetworkLogo ?? true,
     ribbonSide: d.ribbonSide ?? d.defaultRibbonSide ?? "left",
@@ -215,6 +223,7 @@ function defaultsToPayload(d: DefaultsState): Record<string, unknown> {
     badgeYear: d.defaultBadgeYear,
     badgeRating: d.defaultBadgeRating,
     manualQuality: d.defaultManualQuality,
+    badgeFormat: d.defaultBadgeFormat,
     ratingSources: d.defaultRatingSources,
     autoRotateClean: d.defaultAutoRotateClean,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled,

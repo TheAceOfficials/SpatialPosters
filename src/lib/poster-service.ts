@@ -424,7 +424,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     backdropScale, backdropOffsetX, backdropOffsetY,
     blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
     badgesEnabled, rankingEnabled, genreName, voteAverage, badgeStyle,
-    rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality,
+    rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat,
     topLight, targetCenter, ribbonSide,
     logoScale, logoOffsetX, logoOffsetY,
     mediaType, finalRank, animeRankResult,
@@ -597,6 +597,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   const isAnimeRank = topBadge?.type === "rank" && animeRankResult !== null && topBadge.rank === animeRankResult
 
   const hasQualityBadge = !!manualQuality
+  const hasFormatBadge = !!badgeFormat
   // Network: sempre visibile quando abilitato, subito sopra il logo film, quasi attaccato — SVG resta raw, TMDB fallback è A (ricolor + ombra) per non risultare scuro.
   const networkRawResult = networkLogoResult
     ? hasDetailed
@@ -607,14 +608,21 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   const genreBadgeKey = hasGenreBadge
     ? badgeCacheKey("genre", genreName, voteAverage, STD_W, year, badgeStyle, accentColorGenre, topLight, badgeGenre, badgeYear, badgeRating)
     : null
+
+  const forcePill = hasFormatBadge && hasQualityBadge
+  const effectiveRankingStyle = forcePill ? "pill" : rankingBadgeStyle
+
   const rankBadgeKey = topBadge
-    ? badgeCacheKey("rank", topBadge.type === "extra" ? topBadge.label : `${(topBadge as { rank: number }).rank}:${topBadge!.label}`, STD_W, topLight, rankingBadgeStyle, accentColorRank, ribbonSide, isAnimeRank)
+    ? badgeCacheKey("rank", topBadge.type === "extra" ? topBadge.label : `${(topBadge as { rank: number }).rank}:${topBadge!.label}`, STD_W, topLight, effectiveRankingStyle, accentColorRank, ribbonSide, isAnimeRank)
     : null
   const qualityBadgeKey = hasQualityBadge
     ? badgeCacheKey("quality", manualQuality, STD_W, topLight)
     : null
+  const formatBadgeKey = hasFormatBadge
+    ? badgeCacheKey("format", badgeFormat, STD_W, topLight)
+    : null
 
-  const [genreBadgeResult, rankBadgeResult, qualityBadgeResult] = await Promise.all([
+  const [genreBadgeResult, rankBadgeResult, qualityBadgeResult, formatBadgeResult] = await Promise.all([
     genreBadgeKey
       ? (cacheGet<{ png: Buffer; w: number; h: number }>(genreBadgeKey)
           || coalesceBadgeRender(genreBadgeKey, () =>
@@ -626,10 +634,10 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
       ? (cacheGet<{ png: Buffer; w: number; h: number; isRank?: boolean }>(rankBadgeKey)
           || coalesceBadgeRender(rankBadgeKey, () => {
               if (topBadge!.type === "extra") {
-                return renderExtraBadge(topBadge!.label, STD_W, topLight, rankingBadgeStyle, accentColorRank)
+                return renderExtraBadge(topBadge!.label, STD_W, topLight, effectiveRankingStyle, accentColorRank)
                   .then((r) => { const v = { ...r, isRank: false }; cacheSet(rankBadgeKey, v, ["badge"], BADGE_CACHE_TTL); return v })
               }
-              return renderRankingBadge((topBadge as { rank: number }).rank, STD_W, topBadge!.label, topLight, rankingBadgeStyle, accentColorRank, ribbonSide, isAnimeRank)
+              return renderRankingBadge((topBadge as { rank: number }).rank, STD_W, topBadge!.label, topLight, effectiveRankingStyle, accentColorRank, ribbonSide, isAnimeRank)
                 .then((r) => { const v = { ...r, isRank: true }; cacheSet(rankBadgeKey, v, ["badge"], BADGE_CACHE_TTL); return v })
             }))
       : Promise.resolve(null),
@@ -640,15 +648,23 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
                 .then((r) => { if (r) cacheSet(qualityBadgeKey, r, ["badge"], BADGE_CACHE_TTL); return r })
             ))
       : Promise.resolve(null),
+    formatBadgeKey
+      ? (cacheGet<{ png: Buffer; w: number; h: number }>(formatBadgeKey)
+          || coalesceBadgeRender(formatBadgeKey, () =>
+              renderQualityBadge(badgeFormat!, STD_W, topLight)
+                .then((r) => { if (r) cacheSet(formatBadgeKey, r, ["badge"], BADGE_CACHE_TTL); return r })
+            ))
+      : Promise.resolve(null),
   ])
 
   // -----------------------------------------------------------------------
   // 6. Position badges + network logo
   // -----------------------------------------------------------------------
-  const [safeGenreBadgeResult, safeRankBadgeResult, safeQualityBadgeResult] = await Promise.all([
+  const [safeGenreBadgeResult, safeRankBadgeResult, safeQualityBadgeResult, safeFormatBadgeResult] = await Promise.all([
     genreBadgeResult ? fitBadgeToCanvas(genreBadgeResult, STD_W, STD_H) : Promise.resolve(null),
     rankBadgeResult ? fitBadgeToCanvas(rankBadgeResult, STD_W, STD_H) : Promise.resolve(null),
     qualityBadgeResult ? fitBadgeToCanvas(qualityBadgeResult, STD_W, STD_H) : Promise.resolve(null),
+    formatBadgeResult ? fitBadgeToCanvas(formatBadgeResult, STD_W, STD_H) : Promise.resolve(null),
   ])
 
   if (safeGenreBadgeResult) {
@@ -664,12 +680,12 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   let finalRankLeft: number | null = null
   let finalRankTop = 0
   if (safeRankBadgeResult) {
-    const isBar = rankingBadgeStyle === "bar"
+    const isBar = effectiveRankingStyle === "bar"
     // Il nastro Netflix è ancorato a sinistra SOLO quando il badge è davvero un
     // ranking "netflix" (type rank). Un badge personalizzato/extra va SEMPRE
     // centrato, anche se lo stile selezionato è "netflix": altrimenti esce
     // decentrato a sinistra.
-    const isNetflixRibbon = rankingBadgeStyle === "netflix" && topBadge?.type === "rank"
+    const isNetflixRibbon = effectiveRankingStyle === "netflix" && topBadge?.type === "rank"
     let left: number
     if (isBar) {
       left = 0 // bar full-width: resta ancorata a sinistra
@@ -677,6 +693,9 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
       left = Math.round(STD_W - safeRankBadgeResult.w) // nastro Netflix a destra (Stremio)
     } else if (isNetflixRibbon) {
       left = 0 // nastro Netflix a sinistra (Nuvio, default)
+    } else if (forcePill) {
+      // Dual quality badges requested: force trend pill to the left side
+      left = Math.round(18 * STD_W / 380) // netPadX
     } else {
       // Badge grande al centro, dimensione invariata: in caso di sovrapposizione
       // si rimpiccioliscono i badge laterali (network top-left, qualità top-right).
@@ -706,7 +725,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     if (fittedRaw) {
       let top: number
       let left: number
-      const isNetflixRibbon = rankingBadgeStyle === "netflix" && topBadge?.type === "rank"
+      const isNetflixRibbon = effectiveRankingStyle === "netflix" && topBadge?.type === "rank"
       const netPadX = Math.round(18 * STD_W / 380)
       const netPadY = Math.round(18 * STD_H / 570)
 
@@ -716,7 +735,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
         left = netPadX
         // Il badge centrale resta invariato: se si sovrappone al network,
         // rimpicciolisce il network (fino a 0.55x).
-        if (finalRankBadge && finalRankLeft !== null && rankingBadgeStyle !== "bar") {
+        if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
           const rankL = finalRankLeft
           const rankR = finalRankLeft + finalRankBadge.w
           const rankB = finalRankBadge.h
@@ -778,7 +797,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   if (safeQualityBadgeResult) {
     const netBaseTop = Math.round(18 * STD_H / 570)
     const netPadX = Math.round(18 * STD_W / 380)
-    const isNetflixRight = rankingBadgeStyle === "netflix" && ribbonSide === "right" && topBadge?.type === "rank"
+    const isNetflixRight = effectiveRankingStyle === "netflix" && ribbonSide === "right" && topBadge?.type === "rank"
 
     let top = netBaseTop
     let left: number
@@ -793,7 +812,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     } else {
       // Standard: angolo in alto a destra
       left = Math.round(STD_W - finalQualityBadge.w - netPadX)
-      if (finalRankBadge && finalRankLeft !== null && rankingBadgeStyle !== "bar") {
+      if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
         const rankL = finalRankLeft
         const rankR = finalRankLeft + finalRankBadge.w
         const rankB = finalRankBadge.h
@@ -826,6 +845,68 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
 
     composites.push({
       input: finalQualityBadge.png,
+      top,
+      left,
+    })
+  }
+
+  // Handle format badge positioning
+  if (safeFormatBadgeResult) {
+    const netBaseTop = Math.round(18 * STD_H / 570)
+    const netPadX = Math.round(18 * STD_W / 380)
+    const isNetflixRight = effectiveRankingStyle === "netflix" && ribbonSide === "right" && topBadge?.type === "rank"
+
+    let top = netBaseTop
+    let left: number
+    let finalFormatBadge = safeFormatBadgeResult
+
+    if (hasQualityBadge) {
+      // If we have both, Format is CENTERED
+      left = Math.round((STD_W - finalFormatBadge.w) / 2)
+    } else {
+      // If we ONLY have Format, it acts as the primary quality badge (Top Right)
+      if (isNetflixRight && finalRankBadge) {
+        left = netPadX
+        if (netTopLeftBottom !== null) {
+          top = netTopLeftBottom + Math.round(6 * STD_H / 570)
+        }
+      } else {
+        left = Math.round(STD_W - finalFormatBadge.w - netPadX)
+        // Overlap logic with rank badge
+        if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
+          const rankL = finalRankLeft
+          const rankR = finalRankLeft + finalRankBadge.w
+          const rankB = finalRankBadge.h
+          let curW = finalFormatBadge.w
+          let curH = finalFormatBadge.h
+          let curPng = finalFormatBadge.png
+          let curLeft = left
+          const overlapsRank = () =>
+            curLeft < rankR + 6 && curLeft + curW > rankL - 6 && top < rankB + 4 && top + curH > netBaseTop - 4
+          if (overlapsRank()) {
+            let scale = 1
+            const minScale = 0.55
+            while (scale > minScale && overlapsRank()) {
+              scale -= 0.07
+              if (scale < minScale) scale = minScale
+              const newW = Math.max(1, Math.round(safeFormatBadgeResult.w * scale))
+              const newH = Math.max(1, Math.round(safeFormatBadgeResult.h * scale))
+              if (newW === curW && newH === curH) break
+              curW = newW
+              curH = newH
+              curPng = await sharp(safeFormatBadgeResult.png).resize(newW, newH).toBuffer()
+              curLeft = Math.round(STD_W - curW - netPadX)
+              if (scale <= minScale) break
+            }
+            finalFormatBadge = { ...finalFormatBadge, png: curPng, w: curW, h: curH }
+            left = curLeft
+          }
+        }
+      }
+    }
+
+    composites.push({
+      input: finalFormatBadge.png,
       top,
       left,
     })

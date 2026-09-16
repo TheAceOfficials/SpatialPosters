@@ -460,11 +460,11 @@ export async function renderQualityBadge(
   const fsCalc = Math.round(Math.max(16 * pw / 380, 11))
   const targetH = fsCalc + Math.round(fsCalc * 0.35) * 2
 
-  const qLower = quality.trim().toLowerCase()
+  const qLower = quality.trim()
   // Clean up string to avoid path traversal just in case
-  const safeQ = qLower.replace(/[^a-z0-9]/g, "")
+  const safeQ = qLower.replace(/[^a-zA-Z0-9+-]/g, "")
   if (safeQ) {
-    const imgPath = path.join(process.cwd(), "public", "icon", `${safeQ}.webp`)
+    const imgPath = path.join(process.cwd(), "public", "icon", "Quality Badges", `${safeQ}.webp`)
     if (fs.existsSync(imgPath)) {
       try {
         const sharp = (await import("sharp")).default
@@ -472,7 +472,15 @@ export async function renderQualityBadge(
         const metadata = await sharp(imgBuffer).metadata()
         const targetW = Math.round((metadata.width! / metadata.height!) * targetH)
         
-        const resizedPng = await sharp(imgBuffer)
+        let sharpInst = sharp(imgBuffer)
+        
+        // If poster is dark (!topLight) and icon is black, invert to white
+        // Invert RGB channels while keeping alpha intact
+        if (!topLight) {
+          sharpInst = sharpInst.negate({ alpha: false })
+        }
+
+        const resizedPng = await sharpInst
           .resize({ height: targetH })
           .png()
           .toBuffer()

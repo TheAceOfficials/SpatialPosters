@@ -68,7 +68,6 @@
   "ui.badgeGenre": "Genere",
   "ui.badgeYear": "Anno",
   "ui.badgeRating": "Voto",
-  "ui.badgeQuality": "Qualità streaming",
   "ui.ratingSources": "Provider del voto",
   "ui.ratingSourcesHint": "Calcola la media di tutti i provider attivi selezionati sotto.",
   "ui.enableAll": "Abilita tutti",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "Conferma Rimozione",
   "ui.pinSavedSuccess": "PIN salvato con successo!",
   "ui.pinRemovedSuccess": "PIN rimosso con successo!",
-  "ui.pinSaveError": "Errore durante il salvataggio"
+  "ui.pinSaveError": "Errore durante il salvataggio",
+  "ui.badgeResolution": "Risoluzione",
+  "ui.badgeFormat": "Formato"
 }

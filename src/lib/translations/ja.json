@@ -68,7 +68,6 @@
   "ui.badgeGenre": "ジャンル",
   "ui.badgeYear": "年",
   "ui.badgeRating": "評価",
-  "ui.badgeQuality": "ストリーミング画質",
   "ui.ratingSources": "評価プロバイダー",
   "ui.ratingSourcesHint": "以下で選択した有効な評価プロバイダーの平均を計算します。",
   "ui.enableAll": "すべて有効",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "削除を確認",
   "ui.pinSavedSuccess": "PINが正常に保存されました！",
   "ui.pinRemovedSuccess": "PINが正常に削除されました！",
-  "ui.pinSaveError": "保存中にエラーが発生しました"
+  "ui.pinSaveError": "保存中にエラーが発生しました",
+  "ui.badgeResolution": "ストリーミング画質",
+  "ui.badgeFormat": "Format"
 }

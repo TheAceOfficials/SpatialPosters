@@ -68,7 +68,6 @@
   "ui.badgeGenre": "Genre",
   "ui.badgeYear": "Jahr",
   "ui.badgeRating": "Bewertung",
-  "ui.badgeQuality": "Streaming-Qualität",
   "ui.ratingSources": "Bewertungs-Anbieter",
   "ui.ratingSourcesHint": "Berechnet den Durchschnitt aller unten ausgewählten aktiven Anbieter.",
   "ui.enableAll": "Alle aktivieren",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "Entfernung bestätigen",
   "ui.pinSavedSuccess": "PIN erfolgreich gespeichert!",
   "ui.pinRemovedSuccess": "PIN erfolgreich entfernt!",
-  "ui.pinSaveError": "Fehler beim Speichern"
+  "ui.pinSaveError": "Fehler beim Speichern",
+  "ui.badgeResolution": "Streaming-Qualität",
+  "ui.badgeFormat": "Format"
 }

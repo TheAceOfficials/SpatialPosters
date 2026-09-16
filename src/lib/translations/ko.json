@@ -68,7 +68,6 @@
   "ui.badgeGenre": "장르",
   "ui.badgeYear": "연도",
   "ui.badgeRating": "평점",
-  "ui.badgeQuality": "스트리밍 화질",
   "ui.ratingSources": "평점 제공자",
   "ui.ratingSourcesHint": "아래에서 선택한 활성 평점 제공자들의 평균을 계산합니다.",
   "ui.enableAll": "모두 켜기",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "제거 확인",
   "ui.pinSavedSuccess": "PIN이 성공적으로 저장되었습니다!",
   "ui.pinRemovedSuccess": "PIN이 성공적으로 제거되었습니다!",
-  "ui.pinSaveError": "저장 중 오류가 발생했습니다"
+  "ui.pinSaveError": "저장 중 오류가 발생했습니다",
+  "ui.badgeResolution": "스트리밍 화질",
+  "ui.badgeFormat": "Format"
 }

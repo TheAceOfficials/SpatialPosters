@@ -68,7 +68,6 @@
   "ui.badgeGenre": "Gênero",
   "ui.badgeYear": "Ano",
   "ui.badgeRating": "Nota",
-  "ui.badgeQuality": "Qualidade de streaming",
   "ui.ratingSources": "Provedores de nota",
   "ui.ratingSourcesHint": "Calcula a média de todos os provedores de nota ativos selecionados abaixo.",
   "ui.enableAll": "Ativar tudo",
@@ -606,5 +605,7 @@
   "ui.pinConfirmRemove": "Confirmar Remoção",
   "ui.pinSavedSuccess": "PIN guardado com sucesso!",
   "ui.pinRemovedSuccess": "PIN removido com sucesso!",
-  "ui.pinSaveError": "Erro ao guardar"
+  "ui.pinSaveError": "Erro ao guardar",
+  "ui.badgeResolution": "Qualidade de streaming",
+  "ui.badgeFormat": "Format"
 }
