@@ -607,6 +607,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
     // Rank anime inviato dal client nella preview WYSIWYG (override del fetch).
     const qAnimeRankParam = req.nextUrl.searchParams.get("animerank")
     const qAnimeRank = qAnimeRankParam ? Number(qAnimeRankParam) : NaN
+    const qSaddonsEarly = req.nextUrl.searchParams.get("saddons")
+    const streamAddonUrlsEarly = qSaddonsEarly 
+      ? qSaddonsEarly.split(",").map((s) => s.trim()).filter(Boolean)
+      : (configOverride?.streamAddonUrls && configOverride.streamAddonUrls.length > 0 ? configOverride.streamAddonUrls : undefined)
 
     // 5. Fetch all data in parallel: images + rankings + quality + wikidata + keywords + imdbTop250
     //    All dependencies are available before this point — no Block B depends on Block A
@@ -677,7 +681,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
                     tmdbId,
                     fallbackTitle,
                     renderAbort.signal,
-                    renderConfig.streamAddonUrls
+                    streamAddonUrlsEarly
                   ).catch(() => null)
                 })())
           : Promise.resolve(null),

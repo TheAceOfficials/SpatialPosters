@@ -40,6 +40,7 @@ export interface DefaultsState {
   badgeRating: boolean
   badgeQuality: boolean
   ratingSources: string[]
+  streamAddonUrls: string[]
   networkLogo: boolean
   ribbonSide: RibbonSide
   episodeMetadataSource: "tmdb" | "tvdb"
@@ -82,6 +83,7 @@ const DEFAULTS: DefaultsState = {
   badgeRating: true,
   badgeQuality: true,
   ratingSources: ["imdb", "tmdb"],
+  streamAddonUrls: [],
   networkLogo: true,
   ribbonSide: "left",
   episodeMetadataSource: "tmdb",
@@ -185,6 +187,7 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     badgeRating: d.badgeRating ?? d.defaultBadgeRating ?? true,
     badgeQuality: d.badgeQuality ?? d.defaultBadgeQuality ?? true,
     ratingSources: d.ratingSources ?? d.defaultRatingSources ?? ["imdb", "tmdb"],
+    streamAddonUrls: d.defaultStreamAddonUrls ?? [],
     networkLogo: d.networkLogo ?? d.defaultNetworkLogo ?? true,
     ribbonSide: d.ribbonSide ?? d.defaultRibbonSide ?? "left",
     episodeMetadataSource: d.episodeMetadataSource ?? d.defaultEpisodeMetadataSource ?? "tmdb",
