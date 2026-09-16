@@ -32,6 +32,7 @@ export const configTokenSchema = z.object({
   badgeYear: z.boolean().optional(),
   badgeRating: z.boolean().optional(),
   manualQuality: z.string().optional(),
+  badgeFormat: z.string().optional(),
   ratingSources: z.array(z.string().max(20)).optional(),
   badgeStyle: badgeStyleSchema,
   rankingBadgeStyle: rankingBadgeStyleSchema,

@@ -24,6 +24,7 @@ export interface ServerDefaults {
   badgeYear?: boolean
   badgeRating?: boolean
   manualQuality?: string
+  badgeFormat?: string
   ratingSources?: string[]
   autoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
