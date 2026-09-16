@@ -59,10 +59,9 @@ async function probeCustomAddon(): Promise<{ ok: boolean; status: number; time: 
   const url = customUrls[0]
   const start = Date.now()
   try {
-    const ext = url.endsWith("/") ? "" : "/"
-    // We just need to check if the manifest or a basic stream request succeeds.
-    // Testing with a known dummy IMDB ID or just checking manifest.
-    const testUrl = `${url}${ext}manifest.json`
+    const { normalizeAddonStreamBaseUrl } = await import("@/lib/stream-quality")
+    const testUrl = normalizeAddonStreamBaseUrl(url) + "/manifest.json"
+    
     await withTimeout(async () => {
       const res = await fetch(testUrl)
       if (!res.ok) throw new Error("HTTP " + res.status)
