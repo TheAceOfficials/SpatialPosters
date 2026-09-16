@@ -184,7 +184,7 @@ export async function buildExtraBadgeSVG(
   label: string,
   pw: number,
   topLight?: boolean,
-  badgeStyle?: ExtraBadgeStyle,
+  badgeStyle?: ExtraBadgeStyle | "colored-pill",
   accentColor?: string,
 ): Promise<{ png: Buffer; w: number; h: number } | null> {
   const s = badgeStyle || "default"
@@ -196,7 +196,7 @@ export async function buildExtraBadgeSVG(
   }
 
   const fs = Math.round(finalFs)
-  const isColored = s === "colored"
+  const isColored = s === "colored" || s === "colored-pill"
   const isGlass = s === "vetro"
   const coloredBg = isColored && accentColor && accentColor !== "#555555" ? accentColor : undefined
   const bg = coloredBg || (topLight ? "rgba(0,0,0,0.80)" : "rgba(255,255,255,0.80)")
@@ -209,7 +209,7 @@ export async function buildExtraBadgeSVG(
   let result: { svg: string; w: number; h: number }
   if (s === "bar") {
     result = buildExtraBarSvg(label, pw, fs, fg, bg)
-  } else if (s === "pill") {
+  } else if (s === "pill" || s === "colored-pill") {
     result = buildExtraPillSvg(label, fs, fg, bg)
   } else if (isGlass) {
     result = buildExtraGlassSvg(label, fs, fg, bg, !!topLight)
@@ -394,7 +394,7 @@ export async function buildRankingBadgeSVG(
   pw: number,
   label?: string,
   topLight?: boolean,
-  badgeStyle?: RankingBadgeStyle,
+  badgeStyle?: RankingBadgeStyle | "colored-pill",
   accentColor?: string,
   side?: "left" | "right",
   isAnime?: boolean,
@@ -410,7 +410,7 @@ export async function buildRankingBadgeSVG(
   }
 
   const fs = Math.round(finalFs)
-  const isColored = s === "colored"
+  const isColored = s === "colored" || s === "colored-pill"
   const isNetflix = s === "netflix"
   const coloredBg = isColored && accentColor && accentColor !== "#555555" ? accentColor : undefined
   const bg = coloredBg || (topLight ? "rgba(0,0,0,0.80)" : "rgba(255,255,255,0.80)")
@@ -425,7 +425,7 @@ export async function buildRankingBadgeSVG(
     result = buildNetflixRankBadgeSVG(rank, pw, !!topLight, side, isAnime, periodText)
   } else if (s === "bar") {
     result = buildRankingBarSvg(fullText, pw, fs, fg, bg)
-  } else if (s === "pill") {
+  } else if (s === "pill" || s === "colored-pill") {
     result = buildRankingPillSvg(fullText, fs, fg, bg)
   } else {
     result = buildRankingDefaultSvg(fullText, fs, fg, bg)
@@ -436,7 +436,7 @@ export async function buildRankingBadgeSVG(
 
 export async function renderRankingBadge(
   rank: number, pw: number, label?: string,
-  topLight?: boolean, badgeStyle?: RankingBadgeStyle, accentColor?: string, side?: "left" | "right", isAnime?: boolean,
+  topLight?: boolean, badgeStyle?: RankingBadgeStyle | "colored-pill", accentColor?: string, side?: "left" | "right", isAnime?: boolean,
 ): Promise<{ png: Buffer; w: number; h: number }> {
   const r = await buildRankingBadgeSVG(rank, pw, label, topLight, badgeStyle, accentColor, side, isAnime)
   if (r) return r
@@ -445,7 +445,7 @@ export async function renderRankingBadge(
 
 export async function renderExtraBadge(
   label: string, pw: number, topLight?: boolean,
-  badgeStyle?: ExtraBadgeStyle, accentColor?: string,
+  badgeStyle?: ExtraBadgeStyle | "colored-pill", accentColor?: string,
 ): Promise<{ png: Buffer; w: number; h: number }> {
   const r = await buildExtraBadgeSVG(label, pw, topLight, badgeStyle, accentColor)
   if (r) return r

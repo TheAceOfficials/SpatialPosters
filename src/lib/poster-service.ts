@@ -611,7 +611,9 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     : null
 
   const forcePill = hasFormatBadge && hasQualityBadge
-  const effectiveRankingStyle = forcePill ? "pill" : rankingBadgeStyle
+  const effectiveRankingStyle = forcePill 
+    ? (rankingBadgeStyle === "colored" ? "colored-pill" : "pill") as RankingBadgeStyle
+    : rankingBadgeStyle
 
   const rankBadgeKey = topBadge
     ? badgeCacheKey("rank", topBadge.type === "extra" ? topBadge.label : `${(topBadge as { rank: number }).rank}:${topBadge!.label}`, STD_W, topLight, effectiveRankingStyle, accentColorRank, ribbonSide, isAnimeRank)
@@ -697,6 +699,13 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     } else if (forcePill) {
       // Dual quality badges requested: force trend pill to the left side
       left = Math.round(18 * STD_W / 380) // netPadX
+      // Align vertically with Quality badges
+      const netBaseTop = Math.round(18 * STD_H / 570)
+      if (safeQualityBadgeResult) {
+         top = netBaseTop + Math.round((safeQualityBadgeResult.h - safeRankBadgeResult.h) / 2)
+      } else {
+         top = netBaseTop
+      }
     } else {
       // Badge grande al centro, dimensione invariata: in caso di sovrapposizione
       // si rimpiccioliscono i badge laterali (network top-left, qualità top-right).
@@ -704,7 +713,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     }
     finalRankBadge = safeRankBadgeResult
     finalRankLeft = left
-    finalRankTop = 0
+    finalRankTop = top
 
     // Il badge centrale resta invariato — la gestione overlap vive nei blocchi
     // network/qualità qui sotto (shrink dei laterali).
@@ -734,9 +743,11 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
         // Sempre in alto a sinistra quando non c'è il nastro stile Netflix
         top = netPadY
         left = netPadX
-        // Il badge centrale resta invariato: se si sovrappone al network,
-        // rimpicciolisce il network (fino a 0.55x).
-        if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
+        
+        if (forcePill && finalRankBadge) {
+          // The trend pill is occupying the top-left spot. Move network logo below it.
+          top = finalRankTop + finalRankBadge.h + Math.round(6 * STD_H / 570)
+        } else if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
           const rankL = finalRankLeft
           const rankR = finalRankLeft + finalRankBadge.w
           const rankB = finalRankBadge.h
