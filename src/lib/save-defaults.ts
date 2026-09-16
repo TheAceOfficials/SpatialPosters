@@ -27,6 +27,7 @@ export function saveDefaults(p: { selected: SpatialCtx["selected"]; mappingsMap:
     defaultRibbonSide: ed.defaultRibbonSide,
     defaultEpisodeMetadataSource: ed.defaultEpisodeMetadataSource,
     region: ed.defaultRegion,
+    streamAddonUrls: ed.defaultStreamAddonUrls,
     networkLogo: ed.defaultNetworkLogo,
     ribbonSide: ed.defaultRibbonSide,
     episodeMetadataSource: ed.defaultEpisodeMetadataSource,

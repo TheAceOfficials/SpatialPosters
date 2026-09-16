@@ -7,6 +7,7 @@ import { getAll, getStorageMode } from "@/lib/store"
 import { checkTmdbEndpoint } from "@/lib/tmdb"
 import { getJWRankings } from "@/lib/justwatch"
 import { getTop10 } from "@/lib/flixpatrol"
+import { getServerDefaults } from "@/lib/server-defaults"
 
 // Fix L15: i campi streaming devono testare DAVVERO JustWatch e FlixPatrol
 // (prima testavano due endpoint TMDB, fuorviante). I probe girano solo con
@@ -45,6 +46,31 @@ async function probeFlixPatrol(): Promise<{ ok: boolean; status: number; time: n
     return { ok: true, status: 200, time: Date.now() - start }
   } catch {
     return { ok: false, status: 0, time: Date.now() - start }
+  }
+}
+
+async function probeCustomAddon(): Promise<{ ok: boolean; status: number; time: number; url: string }> {
+  const defaults = getServerDefaults()
+  const customUrls = (defaults.streamAddonUrls || []).map((u) => u.trim()).filter(Boolean)
+  if (customUrls.length === 0) {
+    return { ok: true, status: 0, time: 0, url: "none" }
+  }
+  
+  const url = customUrls[0]
+  const start = Date.now()
+  try {
+    const ext = url.endsWith("/") ? "" : "/"
+    // We just need to check if the manifest or a basic stream request succeeds.
+    // Testing with a known dummy IMDB ID or just checking manifest.
+    const testUrl = `${url}${ext}manifest.json`
+    await withTimeout(async () => {
+      const res = await fetch(testUrl)
+      if (!res.ok) throw new Error("HTTP " + res.status)
+      await res.json()
+    })
+    return { ok: true, status: 200, time: Date.now() - start, url }
+  } catch {
+    return { ok: false, status: 0, time: Date.now() - start, url }
   }
 }
 
@@ -108,6 +134,7 @@ export async function GET(request: Request) {
   const flixpatrol = apiKey
     ? await probeFlixPatrol()
     : { ok: false, status: 401, time: 0 }
+  const addon = await probeCustomAddon()
 
   const mappingsFile = path.join(DATA_DIR, "mappings.json")
   const defaultsFile = path.join(DATA_DIR, "defaults.json")
@@ -147,7 +174,7 @@ export async function GET(request: Request) {
     // Nessun dettaglio di runtime (versioni, platform, NODE_ENV): rivelerli
     // aiuterebbe a bersagliare CVE note. L'endpoint dice solo se l'istanza
     // risponde e se le dipendenze esterne sono raggiungibili.
-    streaming: { justwatch, flixpatrol },
+    streaming: { justwatch, flixpatrol, addon },
     storage,
   }
 
