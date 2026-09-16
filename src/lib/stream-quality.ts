@@ -41,48 +41,81 @@ export function parseStreamQualityFromStreams(
   return null
 }
 
+export function normalizeAddonStreamBaseUrl(url: string): string {
+  let cleaned = url.trim()
+  cleaned = cleaned.replace(/\/manifest\.json$/i, "")
+  return cleaned.replace(/\/+$/, "")
+}
+
+const QUALITY_RANK: Record<StreamQuality, number> = {
+  "4K": 4,
+  "1080p": 3,
+  "720p": 2,
+  SD: 1,
+}
+
+function getHighestQuality(qualities: Array<StreamQuality | null>): StreamQuality | null {
+  let highest: StreamQuality | null = null
+  for (const q of qualities) {
+    if (!q) continue
+    if (!highest || QUALITY_RANK[q] > QUALITY_RANK[highest]) {
+      highest = q
+    }
+  }
+  return highest
+}
+
+export async function fetchAddonStreamQuality(
+  addonBaseUrl: string,
+  type: "movie" | "series",
+  imdbId: string,
+  signal?: AbortSignal
+): Promise<StreamQuality | null> {
+  const baseUrl = normalizeAddonStreamBaseUrl(addonBaseUrl)
+  const streamId = type === "movie" ? imdbId : `${imdbId}:1:1`
+  const url = `${baseUrl}/stream/${type}/${encodeURIComponent(streamId)}.json`
+  try {
+    const timeoutSignal = AbortSignal.timeout(6000)
+    let combinedSignal: AbortSignal = timeoutSignal
+    if (signal) {
+      if (typeof (AbortSignal as unknown as { any?: unknown }).any === "function") {
+        combinedSignal = (AbortSignal as unknown as { any: (signals: AbortSignal[]) => AbortSignal }).any([signal, timeoutSignal])
+      } else {
+        const ctrl = new AbortController()
+        const onAbort = () => ctrl.abort((signal as unknown as { reason?: unknown })?.reason ?? timeoutSignal.reason)
+        if (signal.aborted || timeoutSignal.aborted) ctrl.abort()
+        else {
+          signal.addEventListener("abort", onAbort, { once: true })
+          timeoutSignal.addEventListener("abort", onAbort, { once: true })
+        }
+        combinedSignal = ctrl.signal
+      }
+    }
+
+    const res = await fetch(url, {
+      headers: { "User-Agent": "SpatialPosters/1.0" },
+      signal: combinedSignal,
+    })
+    if (!res.ok) {
+      log.debug("Addon stream non-OK", { url, imdbId, status: res.status })
+      return null
+    }
+    const data = await res.json()
+    const q = parseStreamQualityFromStreams(data?.streams)
+    if (q) log.debug("Addon stream quality", { url, imdbId, quality: q })
+    return q
+  } catch (err) {
+    log.debug("Addon stream quality check failed", { url, imdbId, error: err instanceof Error ? err.message : String(err) })
+    return null
+  }
+}
+
 export async function fetchTorrentioQuality(
   type: "movie" | "series",
   imdbId: string,
   signal?: AbortSignal
 ): Promise<StreamQuality | null> {
-  const streamId = type === "movie" ? imdbId : `${imdbId}:1:1`
-  const url = `${TORRENTIO_BASE_URL}/stream/${type}/${encodeURIComponent(streamId)}.json`
-  try {
-    const timeoutSignal = AbortSignal.timeout(6000)
-      let combinedSignal: AbortSignal = timeoutSignal
-      if (signal) {
-        if (typeof (AbortSignal as unknown as { any?: unknown }).any === "function") {
-          combinedSignal = (AbortSignal as unknown as { any: (signals: AbortSignal[]) => AbortSignal }).any([signal, timeoutSignal])
-        } else {
-          // Fallback Node <19: combina manualmente i signal
-          const ctrl = new AbortController()
-          const onAbort = () => ctrl.abort((signal as unknown as { reason?: unknown })?.reason ?? timeoutSignal.reason)
-          if (signal.aborted || timeoutSignal.aborted) ctrl.abort()
-          else {
-            signal.addEventListener("abort", onAbort, { once: true })
-            timeoutSignal.addEventListener("abort", onAbort, { once: true })
-          }
-          combinedSignal = ctrl.signal
-        }
-      }
-
-      const res = await fetch(url, {
-        headers: { "User-Agent": "SpatialPosters/1.0" },
-        signal: combinedSignal,
-      })
-      if (!res.ok) {
-        log.debug("Torrentio non-OK", { imdbId, status: res.status })
-        return null
-      }
-      const data = await res.json()
-      const q = parseStreamQualityFromStreams(data?.streams)
-      if (q) log.debug("Torrentio quality", { imdbId, quality: q })
-      return q
-    } catch (err) {
-      log.debug("Torrentio stream quality check failed or timed out", { imdbId, error: err instanceof Error ? err.message : String(err) })
-      return null
-    }
+  return fetchAddonStreamQuality(TORRENTIO_BASE_URL, type, imdbId, signal)
 }
 
 export async function resolveStreamQuality(
@@ -90,9 +123,11 @@ export async function resolveStreamQuality(
   imdbId?: string | null,
   tmdbId?: number | null,
   searchTitle?: string | null,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  streamAddonUrls?: string[] | null
 ): Promise<StreamQuality | null> {
-  const cacheKey = `${type}:${imdbId || tmdbId || searchTitle}`
+  const customUrls = (streamAddonUrls || []).map((u) => u.trim()).filter(Boolean)
+  const cacheKey = `${type}:${imdbId || tmdbId || searchTitle}:${customUrls.join("|")}`
   const cached = qualityCache.get(cacheKey)
   if (cached) {
     const ttl = cached.quality === null ? STREAM_CACHE_TTL_NULL : STREAM_CACHE_TTL
@@ -101,7 +136,6 @@ export async function resolveStreamQuality(
 
   let quality: StreamQuality | null = null
 
-  // 1. Try Torrentio via IMDb ID
   let targetImdbId = imdbId
   if (!targetImdbId && tmdbId) {
     try {
@@ -110,21 +144,32 @@ export async function resolveStreamQuality(
     } catch {}
   }
 
-  if (targetImdbId && targetImdbId.startsWith("tt")) {
-    quality = await fetchTorrentioQuality(type, targetImdbId, signal)
-  }
-
-  // 2. Fallback to JustWatch GraphQL if Torrentio returned nothing and tmdbId is present
-  if (!quality && tmdbId) {
-    try {
-      quality = await getJWTitleQuality(
-        tmdbId,
-        type === "movie" ? "MOVIE" : "SHOW",
-        searchTitle,
-        "IT",
-        signal
+  if (customUrls.length > 0) {
+    // Mode A: User has configured custom Stremio stream addons.
+    // Query ONLY user's configured stream addons. If no streams are found, return null.
+    if (targetImdbId && targetImdbId.startsWith("tt")) {
+      const results = await Promise.all(
+        customUrls.map((addonUrl) => fetchAddonStreamQuality(addonUrl, type, targetImdbId!, signal))
       )
-    } catch {}
+      quality = getHighestQuality(results)
+    }
+  } else {
+    // Mode B: Default public resolution (Torrentio -> JustWatch fallback)
+    if (targetImdbId && targetImdbId.startsWith("tt")) {
+      quality = await fetchTorrentioQuality(type, targetImdbId, signal)
+    }
+
+    if (!quality && tmdbId) {
+      try {
+        quality = await getJWTitleQuality(
+          tmdbId,
+          type === "movie" ? "MOVIE" : "SHOW",
+          searchTitle,
+          "IT",
+          signal
+        )
+      } catch {}
+    }
   }
 
   qualityCache.set(cacheKey, { quality, timestamp: Date.now() })

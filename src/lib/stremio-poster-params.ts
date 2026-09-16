@@ -28,6 +28,7 @@ export interface StremioPosterParamsInput {
   readonly config?: string | null
   readonly user?: string | null
   readonly region?: string | null
+  readonly streamAddonUrls?: string[]
 }
 
 const DEFAULT_STREMIO_POSTER_PARAMS = {
@@ -71,6 +72,9 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   if (!networkLogo) params.set("netLogo", "0")
   if (input.ribbonSide === "right") params.set("side", "right")
   else if (input.ribbonSide === "left") params.set("side", "left")
+  if (input.streamAddonUrls && input.streamAddonUrls.length > 0) {
+    params.set("saddons", input.streamAddonUrls.join(","))
+  }
   params.set("lang", input.lang || "it")
   if (!blurEnabled) params.set("be", "0")
   params.set("gradHeight", String(input.gradientHeight ?? DEFAULT_STREMIO_POSTER_PARAMS.gradientHeight))

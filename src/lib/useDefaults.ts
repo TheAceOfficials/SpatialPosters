@@ -23,6 +23,7 @@ export interface DefaultsState {
   defaultBadgeRating: boolean
   defaultBadgeQuality: boolean
   defaultRatingSources: string[]
+  defaultStreamAddonUrls: string[]
   defaultAutoRotateClean: boolean
   defaultLogoFitEnabled: boolean
   defaultNetworkLogo: boolean
@@ -66,6 +67,7 @@ const DEFAULTS: DefaultsState = {
   defaultBadgeRating: true,
   defaultBadgeQuality: true,
   defaultRatingSources: ["imdb", "tmdb"],
+  defaultStreamAddonUrls: [],
   defaultAutoRotateClean: false,
   defaultLogoFitEnabled: true,
   defaultNetworkLogo: true,
@@ -122,6 +124,7 @@ interface StoredDefaults {
   defaultBadgeQuality?: boolean
   defaultRatingSources?: string[]
   ratingSources?: string[]
+  defaultStreamAddonUrls?: string[]
   defaultAutoRotateClean?: boolean
   defaultLogoFitEnabled?: boolean
   defaultNetworkLogo?: boolean
@@ -167,6 +170,7 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     defaultBadgeRating: d.defaultBadgeRating ?? d.badgeRating ?? true,
     defaultBadgeQuality: d.defaultBadgeQuality ?? d.badgeQuality ?? true,
     defaultRatingSources: d.defaultRatingSources ?? d.ratingSources ?? ["imdb", "tmdb"],
+    defaultStreamAddonUrls: d.defaultStreamAddonUrls ?? [],
     defaultAutoRotateClean: d.defaultAutoRotateClean ?? d.autoRotateClean ?? false,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled ?? true,
     defaultNetworkLogo: d.defaultNetworkLogo ?? d.networkLogo ?? true,
@@ -216,6 +220,7 @@ function defaultsToPayload(d: DefaultsState): Record<string, unknown> {
     badgeRating: d.defaultBadgeRating,
     badgeQuality: d.defaultBadgeQuality,
     ratingSources: d.defaultRatingSources,
+    streamAddonUrls: d.defaultStreamAddonUrls,
     autoRotateClean: d.defaultAutoRotateClean,
     defaultLogoFitEnabled: d.defaultLogoFitEnabled,
     networkLogo: d.defaultNetworkLogo,

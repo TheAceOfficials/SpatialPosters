@@ -63,6 +63,7 @@ export interface PosterRenderConfig {
   qNetLogo: string | null
   networkLogo: boolean
   ribbonSide: "left" | "right"
+  streamAddonUrls?: string[]
 }
 
 export function resolvePosterRenderConfig(input: PosterRenderConfigInput): PosterRenderConfig {
@@ -176,7 +177,10 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? "right"
     : qSide === "left"
       ? "left"
-      : (mapping?.ribbonSide === "right" || configOverride?.ribbonSide === "right" ? "right" : "left")
+  const qSaddons = q.get("saddons")
+  const streamAddonUrls: string[] | undefined = qSaddons
+    ? qSaddons.split(",").map((s) => s.trim()).filter(Boolean)
+    : (configOverride?.streamAddonUrls && configOverride.streamAddonUrls.length > 0 ? configOverride.streamAddonUrls : undefined)
 
   return {
     badgeStyle,
@@ -200,6 +204,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     qNetLogo,
     networkLogo,
     ribbonSide,
+    streamAddonUrls,
   }
 }
 

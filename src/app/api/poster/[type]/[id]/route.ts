@@ -677,6 +677,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
                     tmdbId,
                     fallbackTitle,
                     renderAbort.signal,
+                    renderConfig.streamAddonUrls
                   ).catch(() => null)
                 })())
           : Promise.resolve(null),
