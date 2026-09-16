@@ -457,10 +457,36 @@ export async function renderQualityBadge(
   pw: number,
   topLight?: boolean,
 ): Promise<{ png: Buffer; w: number; h: number }> {
-  const fs = Math.round(Math.max(16 * pw / 380, 11))
+  const fsCalc = Math.round(Math.max(16 * pw / 380, 11))
+  const targetH = fsCalc + Math.round(fsCalc * 0.35) * 2
+
+  const qLower = quality.trim().toLowerCase()
+  // Clean up string to avoid path traversal just in case
+  const safeQ = qLower.replace(/[^a-z0-9]/g, "")
+  if (safeQ) {
+    const imgPath = path.join(process.cwd(), "public", "icon", `${safeQ}.webp`)
+    if (fs.existsSync(imgPath)) {
+      try {
+        const sharp = (await import("sharp")).default
+        const imgBuffer = fs.readFileSync(imgPath)
+        const metadata = await sharp(imgBuffer).metadata()
+        const targetW = Math.round((metadata.width! / metadata.height!) * targetH)
+        
+        const resizedPng = await sharp(imgBuffer)
+          .resize({ height: targetH })
+          .png()
+          .toBuffer()
+          
+        return { png: resizedPng, w: targetW, h: targetH }
+      } catch (err) {
+        console.error(`Failed to load custom quality badge ${safeQ}:`, err)
+      }
+    }
+  }
+
   const bg = topLight ? "rgba(0,0,0,0.80)" : "rgba(255,255,255,0.80)"
   const fg = topLight ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.80)"
-  const result = buildQualityBadgeSvg(quality, fs, fg, bg, !!topLight)
+  const result = buildQualityBadgeSvg(quality, fsCalc, fg, bg, !!topLight)
   const png = await renderSVG(wrapSvg(result.svg), result.w)
   return { png, w: result.w, h: result.h }
 }

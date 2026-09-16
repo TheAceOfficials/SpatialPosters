@@ -54,6 +54,6 @@ describe("usePSelector", () => {
       usePSelector((v) => v.lang)
       return null
     }
-    expect(() => render(<Probe />)).toThrow("usePSelector must be inside PictoriumProvider")
+    expect(() => render(<Probe />)).toThrow("usePSelector must be inside SpatialProvider")
   })
 })

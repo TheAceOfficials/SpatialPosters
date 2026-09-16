@@ -58,8 +58,6 @@
   "ui.unsavedChanges": "Unsaved changes",
   "ui.remove": "Remove",
   "ui.transform": "Transform",
-  "ui.streamAddons": "Custom Stream Addons",
-  "ui.streamAddonsPlaceholder": "https://torrentio.strem.fun, ...",
   "ui.reset": "Reset",
   "ui.scale": "Scale",
   "ui.logoSection": "Logos",
