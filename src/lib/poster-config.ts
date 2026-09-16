@@ -177,6 +177,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? "right"
     : qSide === "left"
       ? "left"
+      : (mapping?.ribbonSide === "right" || configOverride?.ribbonSide === "right" ? "right" : "left")
   const qSaddons = q.get("saddons")
   const streamAddonUrls: string[] | undefined = qSaddons
     ? qSaddons.split(",").map((s) => s.trim()).filter(Boolean)
