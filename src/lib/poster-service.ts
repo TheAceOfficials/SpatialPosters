@@ -795,34 +795,36 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   // altrimenti impilata sotto di esso. Top allineato al logo network.
   // Il badge centrale resta invariato: se si sovrappone alla qualità,
   // rimpicciolisce la qualità (fino a 0.55x).
-  if (safeQualityBadgeResult) {
-    const netBaseTop = Math.round(18 * STD_H / 570)
-    const netPadX = Math.round(18 * STD_W / 380)
-    const isNetflixRight = effectiveRankingStyle === "netflix" && ribbonSide === "right" && topBadge?.type === "rank"
+  // Dual badge layout: quando entrambi Quality + Format sono presenti,
+  // Format va a sinistra di Quality, stesso row, top-right corner — come Moana reference.
+  const netBaseTopQ = Math.round(18 * STD_H / 570)
+  const netPadXQ = Math.round(18 * STD_W / 380)
+  const badgeGapDual = Math.round(8 * STD_W / 380)
+  const isNetflixRightQ = effectiveRankingStyle === "netflix" && ribbonSide === "right" && topBadge?.type === "rank"
 
-    let top = netBaseTop
-    let left: number
-    let finalQualityBadge = safeQualityBadgeResult
-    if (isNetflixRight && finalRankBadge) {
-      // Nastro Netflix a destra (Stremio): qualità a sinistra, speculare
-      // all'angolo destro standard.
-      left = netPadX
+  // Compute final quality position first (needed for format placement)
+  let qualityTop = netBaseTopQ
+  let qualityLeft = 0
+  let finalQualityBadge = safeQualityBadgeResult
+
+  if (safeQualityBadgeResult) {
+    if (isNetflixRightQ && finalRankBadge) {
+      qualityLeft = netPadXQ
       if (netTopLeftBottom !== null) {
-        top = netTopLeftBottom + Math.round(6 * STD_H / 570)
+        qualityTop = netTopLeftBottom + Math.round(6 * STD_H / 570)
       }
     } else {
-      // Standard: angolo in alto a destra
-      left = Math.round(STD_W - finalQualityBadge.w - netPadX)
+      qualityLeft = Math.round(STD_W - safeQualityBadgeResult.w - netPadXQ)
       if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
         const rankL = finalRankLeft
         const rankR = finalRankLeft + finalRankBadge.w
         const rankB = finalRankBadge.h
-        let curW = finalQualityBadge.w
-        let curH = finalQualityBadge.h
-        let curPng = finalQualityBadge.png
-        let curLeft = left
+        let curW = safeQualityBadgeResult.w
+        let curH = safeQualityBadgeResult.h
+        let curPng = safeQualityBadgeResult.png
+        let curLeft = qualityLeft
         const overlapsRank = () =>
-          curLeft < rankR + 6 && curLeft + curW > rankL - 6 && top < rankB + 4 && top + curH > netBaseTop - 4
+          curLeft < rankR + 6 && curLeft + curW > rankL - 6 && qualityTop < rankB + 4 && qualityTop + curH > netBaseTopQ - 4
         if (overlapsRank()) {
           let scale = 1
           const minScale = 0.55
@@ -835,45 +837,39 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
             curW = newW
             curH = newH
             curPng = await sharp(safeQualityBadgeResult.png).resize(newW, newH).toBuffer()
-            curLeft = Math.round(STD_W - curW - netPadX)
+            curLeft = Math.round(STD_W - curW - netPadXQ)
             if (scale <= minScale) break
           }
-          finalQualityBadge = { ...finalQualityBadge, png: curPng, w: curW, h: curH }
-          left = curLeft
+          finalQualityBadge = { ...safeQualityBadgeResult, png: curPng, w: curW, h: curH }
+          qualityLeft = curLeft
         }
       }
     }
-
-    composites.push({
-      input: finalQualityBadge.png,
-      top,
-      left,
-    })
+    composites.push({ input: finalQualityBadge!.png, top: qualityTop, left: qualityLeft })
   }
 
-  // Handle format badge positioning
+  // Format badge positioning
   if (safeFormatBadgeResult) {
-    const netBaseTop = Math.round(18 * STD_H / 570)
-    const netPadX = Math.round(18 * STD_W / 380)
-    const isNetflixRight = effectiveRankingStyle === "netflix" && ribbonSide === "right" && topBadge?.type === "rank"
-
-    let top = netBaseTop
-    let left: number
+    let formatTop = netBaseTopQ
+    let formatLeft: number
     let finalFormatBadge = safeFormatBadgeResult
 
-    if (hasQualityBadge) {
-      // If we have both, Format is CENTERED
-      left = Math.round((STD_W - finalFormatBadge.w) / 2)
+    if (hasQualityBadge && safeQualityBadgeResult && finalQualityBadge) {
+      // Both badges: Format to the LEFT of Quality on the same row (Moana-style top-right)
+      const qH = finalQualityBadge.h
+      const fH = finalFormatBadge.h
+      formatTop = qualityTop + Math.round((qH - fH) / 2)
+      formatLeft = qualityLeft - finalFormatBadge.w - badgeGapDual
+      if (formatLeft < netPadXQ) formatLeft = netPadXQ
     } else {
-      // If we ONLY have Format, it acts as the primary quality badge (Top Right)
-      if (isNetflixRight && finalRankBadge) {
-        left = netPadX
+      // Only Format badge: top-right like Quality
+      if (isNetflixRightQ && finalRankBadge) {
+        formatLeft = netPadXQ
         if (netTopLeftBottom !== null) {
-          top = netTopLeftBottom + Math.round(6 * STD_H / 570)
+          formatTop = netTopLeftBottom + Math.round(6 * STD_H / 570)
         }
       } else {
-        left = Math.round(STD_W - finalFormatBadge.w - netPadX)
-        // Overlap logic with rank badge
+        formatLeft = Math.round(STD_W - finalFormatBadge.w - netPadXQ)
         if (finalRankBadge && finalRankLeft !== null && effectiveRankingStyle !== "bar") {
           const rankL = finalRankLeft
           const rankR = finalRankLeft + finalRankBadge.w
@@ -881,9 +877,9 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
           let curW = finalFormatBadge.w
           let curH = finalFormatBadge.h
           let curPng = finalFormatBadge.png
-          let curLeft = left
+          let curLeft = formatLeft
           const overlapsRank = () =>
-            curLeft < rankR + 6 && curLeft + curW > rankL - 6 && top < rankB + 4 && top + curH > netBaseTop - 4
+            curLeft < rankR + 6 && curLeft + curW > rankL - 6 && formatTop < rankB + 4 && formatTop + curH > netBaseTopQ - 4
           if (overlapsRank()) {
             let scale = 1
             const minScale = 0.55
@@ -896,21 +892,17 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
               curW = newW
               curH = newH
               curPng = await sharp(safeFormatBadgeResult.png).resize(newW, newH).toBuffer()
-              curLeft = Math.round(STD_W - curW - netPadX)
+              curLeft = Math.round(STD_W - curW - netPadXQ)
               if (scale <= minScale) break
             }
             finalFormatBadge = { ...finalFormatBadge, png: curPng, w: curW, h: curH }
-            left = curLeft
+            formatLeft = curLeft
           }
         }
       }
     }
 
-    composites.push({
-      input: finalFormatBadge.png,
-      top,
-      left,
-    })
+    composites.push({ input: finalFormatBadge.png, top: formatTop, left: formatLeft })
   }
 
 
