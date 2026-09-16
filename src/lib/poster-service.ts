@@ -702,9 +702,9 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
       // Align vertically with Quality badges
       const netBaseTop = Math.round(18 * STD_H / 570)
       if (safeQualityBadgeResult) {
-         top = netBaseTop + Math.round((safeQualityBadgeResult.h - safeRankBadgeResult.h) / 2)
+         finalRankTop = netBaseTop + Math.round((safeQualityBadgeResult.h - safeRankBadgeResult.h) / 2)
       } else {
-         top = netBaseTop
+         finalRankTop = netBaseTop
       }
     } else {
       // Badge grande al centro, dimensione invariata: in caso di sovrapposizione
@@ -713,7 +713,6 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     }
     finalRankBadge = safeRankBadgeResult
     finalRankLeft = left
-    finalRankTop = top
 
     // Il badge centrale resta invariato — la gestione overlap vive nei blocchi
     // network/qualità qui sotto (shrink dei laterali).
