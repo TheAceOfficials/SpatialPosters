@@ -1,0 +1,39 @@
+name: Build Jellyfin Plugin ZIP
+
+on:
+  push:
+    branches: [beta, master, main]
+    paths:
+      - 'jellyfin-plugin/**'
+      - '.github/workflows/jellyfin-release.yml'
+  workflow_dispatch:
+
+jobs:
+  build-plugin:
+    name: Build & Package Jellyfin Plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build C# Jellyfin Plugin
+        run: |
+          dotnet publish jellyfin-plugin/SpatialPosters/SpatialPosters.csproj -c Release -o ./build-output
+
+      - name: Package Plugin into ZIP
+        run: |
+          mkdir -p public/jellyfin
+          cd ./build-output
+          zip -r ../public/jellyfin/jellyfin-plugin-spatialposters.zip .
+
+      - name: Upload Plugin ZIP Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jellyfin-plugin-spatialposters
+          path: public/jellyfin/jellyfin-plugin-spatialposters.zip
+          retention-days: 14
