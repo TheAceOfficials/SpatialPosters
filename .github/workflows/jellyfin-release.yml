@@ -16,24 +16,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8 SDK
+      - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
+
+      - name: Restore NuGet packages
+        run: dotnet restore jellyfin-plugin/SpatialPosters/SpatialPosters.csproj
 
       - name: Build C# Jellyfin Plugin
         run: |
-          dotnet publish jellyfin-plugin/SpatialPosters/SpatialPosters.csproj -c Release -o ./build-output
+          dotnet publish jellyfin-plugin/SpatialPosters/SpatialPosters.csproj \
+            -c Release \
+            -o ./build-output \
+            --no-restore
 
       - name: Package Plugin into ZIP
         run: |
-          mkdir -p public/jellyfin
+          mkdir -p dist/jellyfin
           cd ./build-output
-          zip -r ../public/jellyfin/jellyfin-plugin-spatialposters.zip .
+          zip -r ../dist/jellyfin/jellyfin-plugin-spatialposters.zip SpatialPosters.dll
 
       - name: Upload Plugin ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
           name: jellyfin-plugin-spatialposters
-          path: public/jellyfin/jellyfin-plugin-spatialposters.zip
-          retention-days: 14
+          path: dist/jellyfin/jellyfin-plugin-spatialposters.zip
+          retention-days: 30
