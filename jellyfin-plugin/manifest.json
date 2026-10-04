@@ -10,9 +10,9 @@
       {
         "version": "1.0.0.0",
         "changelog": "Initial Beta Release",
-        "targetAbi": "10.11.0.0",
+        "targetAbi": "10.9.0.0",
         "sourceUrl": "https://github.com/TheAceOfficials/SpatialPosters/releases/download/v1.0.0-beta/jellyfin-plugin-spatialposters.zip",
-        "checksum": "8127b987f34a6c954c06739d4af564cb",
+        "checksum": "2f01659b355559a4fbbfbfb095e7305a",
         "timestamp": "2026-10-04T00:00:00Z"
       }
     ]
