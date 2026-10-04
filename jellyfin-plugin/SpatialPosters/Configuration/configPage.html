@@ -66,7 +66,7 @@
 
         <script type="text/javascript">
             var SpatialPostersConfig = {
-                pluginUniqueId: 'b7812903-8821-4d1a-8219-spatialposters01'
+                pluginUniqueId: 'b7812903-8821-4d1a-8219-c841a7510001'
             };
 
             $('#SpatialPostersConfigPage').on('pageshow', function () {
@@ -77,6 +77,8 @@
                     $('#ConfigToken').val(config.ConfigToken || '');
                     $('#ForceOverwriteExisting').prop('checked', config.ForceOverwriteExisting || false);
                     $('#AutoSyncOnLibraryUpdate').prop('checked', config.AutoSyncOnLibraryUpdate !== false);
+                    Dashboard.hideLoadingMsg();
+                }).catch(function () {
                     Dashboard.hideLoadingMsg();
                 });
             });
@@ -93,6 +95,8 @@
                     ApiClient.updatePluginConfiguration(SpatialPostersConfig.pluginUniqueId, config).then(function (result) {
                         Dashboard.processPluginConfigurationUpdateResult(result);
                     });
+                }).catch(function () {
+                    Dashboard.hideLoadingMsg();
                 });
                 return false;
             });

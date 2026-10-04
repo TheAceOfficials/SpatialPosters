@@ -6,7 +6,7 @@
     "overview": "High-definition dynamic artwork engine & poster provider for Jellyfin.",
     "owner": "TheAceOfficials",
     "category": "General",
-    "imageUrl": "https://raw.githubusercontent.com/TheAceOfficials/SpatialPosters/beta/public/Screen/banner.jpg",
+    "imageUrl": "https://raw.githubusercontent.com/TheAceOfficials/SpatialPosters/beta/public/SpatialPosters.png",
     "versions": [
       {
         "version": "1.0.0.0",

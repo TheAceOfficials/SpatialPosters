@@ -98,3 +98,11 @@ skills-lock.json
 .probe-*
 .od-probe-*
 
+# dotnet
+[Bb]in/
+[Oo]bj/
+build-output*/
+dotnet-install.sh
+Dockerfile.test
+
+
