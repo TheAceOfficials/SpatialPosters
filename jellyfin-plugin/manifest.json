@@ -1,11 +1,12 @@
 [
   {
-    "guid": "c4d53a21-995b-4e89-8d18-971c26b801a2",
+    "guid": "b7812903-8821-4d1a-8219-c841a7510001",
     "name": "SpatialPosters",
-    "description": "Automatically sync dynamic SpatialPosters artwork to Jellyfin media items.",
-    "overview": "Automated dynamic artwork synchronizer for Jellyfin.",
+    "description": "High-definition dynamic artwork engine & poster provider for Jellyfin.",
+    "overview": "High-definition dynamic artwork engine & poster provider for Jellyfin.",
     "owner": "TheAceOfficials",
     "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/TheAceOfficials/SpatialPosters/beta/public/SpatialPosters.png",
     "versions": [
       {
         "version": "1.0.0.0",
