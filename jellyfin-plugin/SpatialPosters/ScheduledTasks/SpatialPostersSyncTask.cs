@@ -7,6 +7,7 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Tasks;
 
 namespace Jellyfin.Plugin.SpatialPosters.ScheduledTasks;
@@ -15,11 +16,16 @@ public class SpatialPostersSyncTask : IScheduledTask
 {
     private readonly ILibraryManager _libraryManager;
     private readonly IProviderManager _providerManager;
+    private readonly IFileSystem _fileSystem;
 
-    public SpatialPostersSyncTask(ILibraryManager libraryManager, IProviderManager providerManager)
+    public SpatialPostersSyncTask(
+        ILibraryManager libraryManager,
+        IProviderManager providerManager,
+        IFileSystem fileSystem)
     {
         _libraryManager = libraryManager;
         _providerManager = providerManager;
+        _fileSystem = fileSystem;
     }
 
     public string Name => "Sync SpatialPosters Artwork";
@@ -55,7 +61,7 @@ public class SpatialPostersSyncTask : IScheduledTask
             return;
         }
 
-        var refreshOptions = new MetadataRefreshOptions(new DirectoryService())
+        var refreshOptions = new MetadataRefreshOptions(new DirectoryService(_fileSystem))
         {
             ImageRefreshMode = MetadataRefreshMode.FullRefresh,
             MetadataRefreshMode = MetadataRefreshMode.None,
@@ -73,7 +79,7 @@ public class SpatialPostersSyncTask : IScheduledTask
                 continue;
             }
 
-            await _providerManager.RefreshSingleItem(item, refreshOptions, cancellationToken).ConfigureAwait(false);
+            await _providerManager.RefreshFullItem(item, refreshOptions, cancellationToken).ConfigureAwait(false);
 
             progress.Report((double)(i + 1) / items.Count * 100);
         }
