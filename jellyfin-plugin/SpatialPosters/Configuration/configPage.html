@@ -86,7 +86,15 @@
             $('#SpatialPostersConfigForm').on('submit', function () {
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(SpatialPostersConfig.pluginUniqueId).then(function (config) {
-                    config.ServerUrl = $('#ServerUrl').val().replace(/\/$/, "");
+                    var rawUrl = $('#ServerUrl').val().trim();
+                    try {
+                        var parsed = new URL(rawUrl);
+                        rawUrl = parsed.origin;
+                    } catch (e) {
+                        rawUrl = rawUrl.replace(/\/api\/poster.*$/i, '').replace(/\/$/, "");
+                    }
+
+                    config.ServerUrl = rawUrl;
                     config.Language = $('#Language').val();
                     config.ConfigToken = $('#ConfigToken').val();
                     config.ForceOverwriteExisting = $('#ForceOverwriteExisting').prop('checked');
@@ -94,6 +102,9 @@
 
                     ApiClient.updatePluginConfiguration(SpatialPostersConfig.pluginUniqueId, config).then(function (result) {
                         Dashboard.processPluginConfigurationUpdateResult(result);
+                        Dashboard.hideLoadingMsg();
+                    }).catch(function () {
+                        Dashboard.hideLoadingMsg();
                     });
                 }).catch(function () {
                     Dashboard.hideLoadingMsg();
