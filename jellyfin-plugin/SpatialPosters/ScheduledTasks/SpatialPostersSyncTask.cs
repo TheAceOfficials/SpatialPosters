@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.SpatialPosters.Configuration;
 using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Entities.Movies;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.Entities;
@@ -39,7 +42,7 @@ public class SpatialPostersSyncTask : IScheduledTask
         {
             new TaskTriggerInfo
             {
-                Type = TaskTriggerInfo.TriggerDaily,
+                Type = TaskTriggerInfoType.DailyTrigger,
                 TimeOfDayTicks = TimeSpan.FromHours(3).Ticks
             }
         };
@@ -49,11 +52,9 @@ public class SpatialPostersSyncTask : IScheduledTask
     {
         var config = Plugin.Instance?.Configuration ?? new PluginConfiguration();
 
-        var items = _libraryManager.GetItemList(new InternalItemsQuery
-        {
-            IncludeItemTypes = new[] { BaseItemKind.Movie, BaseItemKind.Series },
-            IsVirtualItem = false
-        });
+        var items = _libraryManager.RootFolder
+            .GetRecursiveChildren(i => i is Movie || i is Series)
+            .ToList();
 
         if (items.Count == 0)
         {
