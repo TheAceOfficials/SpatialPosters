@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SpatialPosters Configuration</title>
+</head>
+<body>
+    <div id="SpatialPostersConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="SpatialPostersConfigForm">
+                    <div class="sectionTitleContainer flex align-items-center">
+                        <h2 class="sectionTitle">SpatialPosters Integration</h2>
+                    </div>
+                    <p>Configure your SpatialPosters instance URL and artwork generation settings for Jellyfin libraries.</p>
+
+                    <div class="inputContainer">
+                        <label class="inputLabelLabel" for="ServerUrl">SpatialPosters Server URL:</label>
+                        <input id="ServerUrl" name="ServerUrl" type="url" is="emby-input" required placeholder="https://spatialposters.vercel.app" />
+                        <div class="fieldDescription">Base URL of your self-hosted SpatialPosters instance or Vercel deployment.</div>
+                    </div>
+
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="Language">Default Artwork Language:</label>
+                        <select id="Language" name="Language" is="emby-select">
+                            <option value="en">English (en)</option>
+                            <option value="it">Italian (it)</option>
+                            <option value="fr">French (fr)</option>
+                            <option value="de">German (de)</option>
+                            <option value="es">Spanish (es)</option>
+                            <option value="hi">Hindi (hi)</option>
+                        </select>
+                        <div class="fieldDescription">Primary language for dynamic localized poster artwork.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabelLabel" for="ConfigToken">Config Profile Token (Optional):</label>
+                        <input id="ConfigToken" name="ConfigToken" type="text" is="emby-input" placeholder="e.g. u=user_token or config_token" />
+                        <div class="fieldDescription">Optional user profile config token to apply custom studio badges/styles.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="ForceOverwriteExisting" name="ForceOverwriteExisting" type="checkbox" is="emby-checkbox" />
+                            <span>Force Overwrite Existing Primary Images</span>
+                        </label>
+                        <div class="fieldDescription">When running scheduled sync tasks, overwrite existing poster images with SpatialPosters.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="AutoSyncOnLibraryUpdate" name="AutoSyncOnLibraryUpdate" type="checkbox" is="emby-checkbox" />
+                            <span>Automatically Fetch SpatialPosters on New Items</span>
+                        </label>
+                        <div class="fieldDescription">Automatically fetch SpatialPosters artwork whenever new movies or shows are added to Jellyfin.</div>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block">
+                            <span>Save Settings</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var SpatialPostersConfig = {
+                pluginUniqueId: 'b7812903-8821-4d1a-8219-spatialposters01'
+            };
+
+            $('#SpatialPostersConfigPage').on('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(SpatialPostersConfig.pluginUniqueId).then(function (config) {
+                    $('#ServerUrl').val(config.ServerUrl || 'https://spatialposters.vercel.app');
+                    $('#Language').val(config.Language || 'en');
+                    $('#ConfigToken').val(config.ConfigToken || '');
+                    $('#ForceOverwriteExisting').prop('checked', config.ForceOverwriteExisting || false);
+                    $('#AutoSyncOnLibraryUpdate').prop('checked', config.AutoSyncOnLibraryUpdate !== false);
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            $('#SpatialPostersConfigForm').on('submit', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(SpatialPostersConfig.pluginUniqueId).then(function (config) {
+                    config.ServerUrl = $('#ServerUrl').val().replace(/\/$/, "");
+                    config.Language = $('#Language').val();
+                    config.ConfigToken = $('#ConfigToken').val();
+                    config.ForceOverwriteExisting = $('#ForceOverwriteExisting').prop('checked');
+                    config.AutoSyncOnLibraryUpdate = $('#AutoSyncOnLibraryUpdate').prop('checked');
+
+                    ApiClient.updatePluginConfiguration(SpatialPostersConfig.pluginUniqueId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                });
+                return false;
+            });
+        </script>
+    </div>
+</body>
+</html>
