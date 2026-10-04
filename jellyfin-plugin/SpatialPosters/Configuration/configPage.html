@@ -16,7 +16,7 @@
 
                     <div class="inputContainer">
                         <label class="inputLabelLabel" for="ServerUrl">SpatialPosters Server URL:</label>
-                        <input id="ServerUrl" name="ServerUrl" type="url" is="emby-input" required placeholder="https://spatialposters.vercel.app" />
+                        <input id="ServerUrl" name="ServerUrl" type="text" is="emby-input" required placeholder="https://spatialposters.vercel.app" />
                         <div class="fieldDescription">Base URL of your self-hosted SpatialPosters instance or Vercel deployment.</div>
                     </div>
 
@@ -83,14 +83,15 @@
                 });
             });
 
-            $('#SpatialPostersConfigForm').on('submit', function () {
+            $('#SpatialPostersConfigForm').on('submit', function (e) {
+                e.preventDefault();
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(SpatialPostersConfig.pluginUniqueId).then(function (config) {
                     var rawUrl = $('#ServerUrl').val().trim();
                     try {
                         var parsed = new URL(rawUrl);
                         rawUrl = parsed.origin;
-                    } catch (e) {
+                    } catch (err) {
                         rawUrl = rawUrl.replace(/\/api\/poster.*$/i, '').replace(/\/$/, "");
                     }
 
