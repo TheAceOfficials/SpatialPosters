@@ -11,7 +11,7 @@ namespace Jellyfin.Plugin.SpatialPosters;
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
     public override string Name => "SpatialPosters";
-    public override Guid Id => Guid.Parse("b7812903-8821-4d1a-8219-spatialposters01");
+    public override Guid Id => Guid.Parse("b7812903-8821-4d1a-8219-c841a7510001");
     public override string Description => "High-definition dynamic artwork engine & poster provider for Jellyfin.";
 
     public static Plugin? Instance { get; private set; }
