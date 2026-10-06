@@ -127,7 +127,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   const mediaType = (["series", "tv", "show", "tvshow"].includes(type?.toLowerCase() || "")) ? "tv" : "movie"
 
   // Decode optional stateless config token (stile AIOMetadata / RPDB)
-  const configToken = req.nextUrl.searchParams.get("config") || req.nextUrl.searchParams.get("c")
+  const configToken = req.nextUrl.searchParams.get("config") || req.nextUrl.searchParams.get("c") || req.nextUrl.searchParams.get("u") || req.nextUrl.searchParams.get("user")
   const configOverride = configToken ? decodeConfig(configToken) : null
 
   let tmdbId = Number(id)

@@ -49,12 +49,17 @@ public class SpatialPostersImageProvider : IRemoteImageProvider
             return Array.Empty<RemoteImageInfo>();
         }
 
-        var lang = string.IsNullOrWhiteSpace(config.Language) ? "en" : config.Language;
+        var lang = !string.IsNullOrWhiteSpace(item.PreferredMetadataLanguage) ? item.PreferredMetadataLanguage : "en";
         var imageUrl = $"{serverUrl}/api/poster/{mediaType}/{tmdbId}?lang={lang}";
 
         if (!string.IsNullOrWhiteSpace(config.ConfigToken))
         {
-            imageUrl += $"&u={Uri.EscapeDataString(config.ConfigToken)}";
+            var rawToken = config.ConfigToken.Trim();
+            if (rawToken.StartsWith("u=", StringComparison.OrdinalIgnoreCase)) rawToken = rawToken.Substring(2);
+            else if (rawToken.StartsWith("c=", StringComparison.OrdinalIgnoreCase)) rawToken = rawToken.Substring(2);
+            else if (rawToken.StartsWith("config=", StringComparison.OrdinalIgnoreCase)) rawToken = rawToken.Substring(7);
+
+            imageUrl += $"&u={Uri.EscapeDataString(rawToken)}";
         }
 
         var images = new List<RemoteImageInfo>

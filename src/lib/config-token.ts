@@ -113,6 +113,7 @@ export function encodeConfig(config: SpatialUserConfig): string {
  */
 export function decodeConfig(token: string): SpatialUserConfig | null {
   try {
+    const cleanToken = token.trim().replace(/^(u|c|config)=/i, "")
     // Batch E (fail-closed): in produzione senza HMAC_SECRET rifiuta QUALSIASI
     // token — anche in formato firmato `b64.sig`. Senza secret non possiamo
     // verificare la firma, quindi un token firmato sarebbe indistinguibile da
@@ -121,12 +122,12 @@ export function decodeConfig(token: string): SpatialUserConfig | null {
     if (!HMAC_SECRET && process.env.NODE_ENV === "production") return null
 
     let json: string
-    const dotIdx = token.lastIndexOf(".")
+    const dotIdx = cleanToken.lastIndexOf(".")
 
     if (dotIdx > 0) {
       // Formato firmato: base64url.hmacsig
-      const b64 = token.slice(0, dotIdx)
-      const sig = token.slice(dotIdx + 1)
+      const b64 = cleanToken.slice(0, dotIdx)
+      const sig = cleanToken.slice(dotIdx + 1)
       json = Buffer.from(b64, "base64url").toString("utf-8")
       if (HMAC_SECRET) {
         const expected = crypto.createHmac("sha256", HMAC_SECRET).update(json).digest("base64url")
@@ -140,7 +141,7 @@ export function decodeConfig(token: string): SpatialUserConfig | null {
       // abbia accesso a localStorage (XSS, estensione, macchina condivisa).
       if (HMAC_SECRET) return null
       if (process.env.NODE_ENV === "production") return null
-      const normalized = token.replace(/-/g, "+").replace(/_/g, "/")
+      const normalized = cleanToken.replace(/-/g, "+").replace(/_/g, "/")
       const remainder = normalized.length % 4
       const padded = remainder !== 0
         ? normalized + "=".repeat(4 - remainder)

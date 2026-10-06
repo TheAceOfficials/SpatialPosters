@@ -92,6 +92,14 @@ describe("encodeConfig / decodeConfig round-trip", () => {
     const token = encodeConfig(config)
     expect(decodeConfig(token)).toEqual(config)
   })
+
+  it("decodes tokens with u=, c=, or config= prefixes", async () => {
+    const { encodeConfig, decodeConfig } = await importConfigToken()
+    const token = encodeConfig(SAMPLE_CONFIG)
+    expect(decodeConfig(`u=${token}`)).toEqual(SAMPLE_CONFIG)
+    expect(decodeConfig(`c=${token}`)).toEqual(SAMPLE_CONFIG)
+    expect(decodeConfig(`config=${token}`)).toEqual(SAMPLE_CONFIG)
+  })
 })
 
 describe("decodeConfig invalid tokens", () => {
