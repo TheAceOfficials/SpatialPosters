@@ -24,6 +24,7 @@ import { PosterEditorProvider, usePosterEditor, type PosterEditorCtx } from "@/l
 const USER_SAVED = {
   badgeStyle: "shadow",
   rankingBadgeStyle: "default",
+  blurMode: "smart",
   blurEnabled: true,
   blurIntensity: 9,
   blurFade: 60,
@@ -35,13 +36,14 @@ const USER_SAVED = {
   badgeYear: false,
   badgeRating: true,
   manualQuality: "4K",
+  badgeFormat: "",
   ratingSources: ["imdb", "tmdb"],
   autoRotateClean: false,
+  disableCleanPosters: false,
   defaultLogoFitEnabled: true,
   networkLogo: true,
   ribbonSide: "left",
   episodeMetadataSource: "tvdb",
-  badgeFormat: "",
   region: "IT",
 }
 

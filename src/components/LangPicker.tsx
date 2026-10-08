@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PICKER_LANGS } from "@/lib/utils"
 import { REGIONS } from "@/lib/regions"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { AnimatedSpatialWord } from "@/components/AnimatedSpatialWord"
-import { ChevronLeft, ArrowRight, Sparkles, Languages, MapPin, Check } from "lucide-react"
+import { ChevronLeft, ArrowRight, Sparkles, Languages, MapPin, Check, X } from "lucide-react"
 
 interface SetupWizardProps {
   /** Applica la lingua (codice 2 lettere) senza chiudere il wizard. */
@@ -24,11 +24,19 @@ interface SetupWizardProps {
 export function LangPicker({ onPickLang, onPickRegion, onDone }: SetupWizardProps) {
   const { t } = useT()
   const [step, setStep] = useState<"lang" | "region">("lang")
-  const [selectedLang, setSelectedLang] = useState<string | null>(null)
+  const [selectedLangKey, setSelectedLangKey] = useState<string | null>(null)
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
 
-  const pickLang = (code: string) => {
-    setSelectedLang(code)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onDone()
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [onDone])
+
+  const pickLang = (key: string, code: string) => {
+    setSelectedLangKey(key)
     onPickLang(code)
     setTimeout(() => {
       setStep("region")
@@ -54,17 +62,28 @@ export function LangPicker({ onPickLang, onPickRegion, onDone }: SetupWizardProp
   }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 animate-fade-in overflow-y-auto select-none">
-      {/* Ambient background glows */}
-      <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent-orange/15 rounded-full blur-[130px] opacity-70" />
-      <div className="pointer-events-none absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-purple-600/10 rounded-full blur-[110px] opacity-60" />
-
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onDone()
+      }}
+      className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in overflow-y-auto select-none"
+    >
       <div className="relative z-10 w-full max-w-xl my-auto">
         {/* Main Glass Card Container */}
         <div className="glass-card p-6 sm:p-8 rounded-3xl border border-white/12 shadow-[0_20px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl relative overflow-hidden">
           
           {/* Top Decorative Highlight Bar */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-accent-orange to-purple-500" />
+
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={onDone}
+            aria-label="Close"
+            className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer z-20"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
           {/* Rebranded Header */}
           <div className="text-center mb-7 relative">
@@ -116,12 +135,12 @@ export function LangPicker({ onPickLang, onPickRegion, onDone }: SetupWizardProp
           {step === "lang" && (
             <div key="lang" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[48vh] overflow-y-auto pr-1 scrollbar-none animate-step-enter">
               {PICKER_LANGS.map((l) => {
-                const isSelected = selectedLang === l.code
+                const isSelected = selectedLangKey === l.key
                 return (
                   <button
                     type="button"
                     key={l.key}
-                    onClick={() => pickLang(l.code)}
+                    onClick={() => pickLang(l.key, l.code)}
                     className={`group relative flex items-center gap-3.5 px-4 py-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer overflow-hidden ${
                       isSelected
                         ? "bg-accent-orange/20 border-accent-orange/60 shadow-[0_0_20px_rgba(249,115,22,0.25)] scale-[0.98]"

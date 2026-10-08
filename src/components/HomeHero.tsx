@@ -139,21 +139,31 @@ export function HomeHero() {
     return hoverOkRef.current
   }
 
+  const moveRafRef = useRef<number | null>(null)
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!hoverOk()) return
     const el = podiumRef.current
     if (!el) return
-    const r = el.getBoundingClientRect()
-    const dx = (e.clientX - r.left) / r.width - 0.5
-    const dy = (e.clientY - r.top) / r.height - 0.5
-    if (innerRef.current) innerRef.current.style.transform = `rotateY(${dx * 8}deg) rotateX(${-dy * 6}deg)`
-    // Profondità fissa (14px in scala 0.6) come nel prototipo: i frame laterali
-    // si staccano dal piano centrale quando il podio ruota.
-    if (leftRef.current) leftRef.current.style.transform = "rotateY(18deg) rotateZ(2.5deg) translateX(14px) translateZ(8.4px)"
-    if (rightRef.current) rightRef.current.style.transform = "rotateY(-18deg) rotateZ(-2.5deg) translateX(-14px) translateZ(-8.4px)"
+    if (moveRafRef.current) return
+    const clientX = e.clientX
+    const clientY = e.clientY
+    moveRafRef.current = requestAnimationFrame(() => {
+      moveRafRef.current = null
+      if (!podiumRef.current) return
+      const r = podiumRef.current.getBoundingClientRect()
+      const dx = (clientX - r.left) / r.width - 0.5
+      const dy = (clientY - r.top) / r.height - 0.5
+      if (innerRef.current) innerRef.current.style.transform = `rotateY(${dx * 8}deg) rotateX(${-dy * 6}deg)`
+      if (leftRef.current) leftRef.current.style.transform = "rotateY(18deg) rotateZ(2.5deg) translateX(14px) translateZ(8.4px)"
+      if (rightRef.current) rightRef.current.style.transform = "rotateY(-18deg) rotateZ(-2.5deg) translateX(-14px) translateZ(-8.4px)"
+    })
   }
 
   const onLeave = () => {
+    if (moveRafRef.current) {
+      cancelAnimationFrame(moveRafRef.current)
+      moveRafRef.current = null
+    }
     if (innerRef.current) innerRef.current.style.transform = ""
     if (leftRef.current) leftRef.current.style.transform = ""
     if (rightRef.current) rightRef.current.style.transform = ""

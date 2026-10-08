@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
@@ -63,12 +63,12 @@ const SCROLL_SPEED = 0.5 // px per frame
 
 /** M21: `<img>` che porta la chiave nell'header x-api-key (object URL) invece
  *  di esporla nel query string del DOM pubblico. */
-function SecureCarouselImg({ url, alt, className }: { url: string; alt: string; className: string }) {
+const SecureCarouselImg = memo(function SecureCarouselImg({ url, alt, className }: { url: string; alt: string; className: string }) {
   const tmdbKey = usePSelector((v) => v.tmdbKey)
   const src = useSecurePosterUrl(url, tmdbKey)
   // eslint-disable-next-line @next/next/no-img-element -- poster dinamico /api/poster
   return <img src={src ?? undefined} alt={alt} className={className} loading="lazy" />
-}
+})
 
 export function PosterCarousel() {
   const navigateToPoster = usePSelector((v) => v.navigateToPoster)
@@ -100,7 +100,7 @@ export function PosterCarousel() {
   // D4: il transform della pista è scritto DIRETTAMENTE sul DOM via ref.
   // Prima setOffset() a ogni frame (60fps) ri-renderizzava tutte le card del
   // carousel via React; ora solo activeIndex/showLeft/showRight restano state
-  // (aggiornati ogni 12 frame) e il movimento è puro CSS senza re-render.
+  // (aggiornati solo su cambio effettivo) e il movimento è puro CSS senza re-render.
   const trackRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef<number>(0)
   const posRef = useRef(0)
@@ -146,11 +146,11 @@ export function PosterCarousel() {
         }
         applyTransform(-posRef.current)
         frameCount++
-        if (frameCount % 12 === 0) {
+        if (frameCount % 15 === 0) {
           const idx = Math.floor(posRef.current / step) % totalItems
-          setActiveIndex(idx)
-          setShowLeft(posRef.current > 0)
-          setShowRight(true)
+          setActiveIndex((prev) => (prev !== idx ? idx : prev))
+          const canLeft = posRef.current > 0
+          setShowLeft((prev) => (prev !== canLeft ? canLeft : prev))
         }
       }
       rafRef.current = requestAnimationFrame(tick)

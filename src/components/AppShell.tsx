@@ -209,6 +209,16 @@ export function AppShell() {
     </div>
   )
 
+  const handleDoneLangPicker = () => {
+    setShowLangPicker(false)
+    try {
+      localStorage.setItem("spatial_setup_completed", "true")
+      if (!localStorage.getItem("preferred_lang")) {
+        localStorage.setItem("preferred_lang", lang || "en")
+      }
+    } catch {}
+  }
+
   return (
     <>
     <ToastProvider>
@@ -223,7 +233,7 @@ export function AppShell() {
         <LangPicker
           onPickLang={pickLang}
           onPickRegion={(regionCode) => { ed.setDefaultRegion(regionCode); ed.setRegion(regionCode) }}
-          onDone={() => setShowLangPicker(false)}
+          onDone={handleDoneLangPicker}
         />
       )}
 

@@ -26,6 +26,7 @@ const customCatalogSchema = z.object({
 const defaultsSchema = z.object({
   badgeStyle: z.enum(BADGE_STYLES).optional(),
   rankingBadgeStyle: z.enum(RANKING_BADGE_STYLES).optional(),
+  blurMode: z.enum(["off", "smart", "always"]).optional(),
   blurEnabled: z.boolean().optional(),
   blurIntensity: z.number().optional(),
   blurFade: z.number().optional(),
@@ -37,6 +38,7 @@ const defaultsSchema = z.object({
   badgeYear: z.boolean().optional(),
   badgeRating: z.boolean().optional(),
   manualQuality: z.string().optional(),
+  badgeFormat: z.string().optional(),
   ratingSources: z.array(z.string()).optional(),
   autoRotateClean: z.boolean().optional(),
   disableCleanPosters: z.boolean().optional(),

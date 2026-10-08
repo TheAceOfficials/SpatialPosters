@@ -552,11 +552,14 @@ export function usePictorium(): PictoriumCtx {
     if (langInit.current) return
     langInit.current = true
     const saved = safeGetItem("preferred_lang")
+    const setupDone = safeGetItem("spatial_setup_completed") === "true"
     // Solo le lingue delle 12 nazionalità supportate; un valore legacy
-    // (zh/ru/ar/nl del vecchio picker) rimostra la scelta.
+    // (zh/ru/ar/nl del vecchio picker) rimostra la scelta solo se il setup non è stato mai completato.
     if (saved && isSupportedUiLang(saved)) {
       setLang(saved.toLowerCase())
       setI18nLang(saved.toLowerCase())
+    } else if (setupDone) {
+      // Setup already completed / dismissed previously; preserve active language
     } else {
       setShowLangPicker(true)
     }
@@ -568,6 +571,7 @@ export function usePictorium(): PictoriumCtx {
     setLang(code)
     setI18nLang(code)
     safeSetItem("preferred_lang", code)
+    safeSetItem("spatial_setup_completed", "true")
     const matchingRegion = defaultRegionForLang(code, editorCtx.defaultRegion)
     if (matchingRegion) {
       editorCtx.setDefaultRegion(matchingRegion)
