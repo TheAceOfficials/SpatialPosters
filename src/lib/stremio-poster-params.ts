@@ -52,8 +52,8 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   const params = new URLSearchParams()
   const globalBadges = input.globalBadges ?? DEFAULT_STREMIO_POSTER_PARAMS.globalBadges
   const rankingBadges = input.rankingBadges ?? DEFAULT_STREMIO_POSTER_PARAMS.rankingBadges
-  const blurMode = input.blurMode ?? (input.blurEnabled === false ? "off" : DEFAULT_STREMIO_POSTER_PARAMS.blurMode)
-  const blurEnabled = blurMode !== "off" && (input.blurEnabled ?? true)
+  const blurMode: BlurMode = input.blurMode ?? (input.blurEnabled === false ? "off" : DEFAULT_STREMIO_POSTER_PARAMS.blurMode)
+  const isBlurActive = blurMode !== "off" && (input.blurEnabled !== false)
   const networkLogo = input.networkLogo ?? DEFAULT_STREMIO_POSTER_PARAMS.networkLogo
 
   if (input.config) params.set("config", input.config)
@@ -80,7 +80,7 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   else if (input.ribbonSide === "left") params.set("side", "left")
 
   params.set("lang", input.lang || "it")
-  if (!blurEnabled || blurMode === "off") {
+  if (!isBlurActive) {
     params.set("be", "0")
   } else if (blurMode === "always") {
     params.set("be", "always")
