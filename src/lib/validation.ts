@@ -45,6 +45,7 @@ export const mappingSchema = z.object({
   backdropScale: z.number().int().min(5).max(500).nullable().optional(),
   backdropOffsetX: z.number().int().nullable().optional(),
   backdropOffsetY: z.number().int().nullable().optional(),
+  blurMode: z.enum(["off", "smart", "always"]).nullable().optional(),
   blurEnabled: z.boolean().nullable().optional(),
   blurIntensity: z.number().nullable().optional(),
   blurFade: z.number().nullable().optional(),

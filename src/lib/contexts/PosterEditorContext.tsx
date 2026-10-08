@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useMemo, useCallback } from "react"
-import type { TMDBImage } from "@/lib/types"
+import type { TMDBImage, BlurMode } from "@/lib/types"
 import { useDefaults } from "@/lib/useDefaults"
 import type { BadgeStyle, RankingBadgeStyle } from "@/lib/badge-styles"
 
@@ -54,6 +54,8 @@ export interface PosterEditorCtx {
   setDefaultRankingBadgeStyle: (v: RankingBadgeStyle | ((prev: RankingBadgeStyle) => RankingBadgeStyle)) => void
   defaultEpisodeMetadataSource: "tmdb" | "tvdb"
   setDefaultEpisodeMetadataSource: (v: "tmdb" | "tvdb" | ((prev: "tmdb" | "tvdb") => "tmdb" | "tvdb")) => void
+  defaultBlurMode: BlurMode
+  setDefaultBlurMode: (v: BlurMode | ((prev: BlurMode) => BlurMode)) => void
   defaultBlurEnabled: boolean
   setDefaultBlurEnabled: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultBlurIntensity: number
@@ -95,6 +97,8 @@ export interface PosterEditorCtx {
   loadDefaultsToState: () => void
 
   // ---- Blur ----
+  blurMode: BlurMode
+  setBlurMode: (v: BlurMode | ((prev: BlurMode) => BlurMode)) => void
   blurEnabled: boolean
   setBlurEnabled: (v: boolean | ((prev: boolean) => boolean)) => void
   blurIntensity: number
@@ -190,10 +194,10 @@ export function PosterEditorProvider({
   const {
     globalBadges, rankingBadges, networkLogo, ribbonSide,
     badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat, ratingSources,
-    gradientHeight, blurIntensity, blurFade, blurDarkness, blurEnabled,
+    gradientHeight, blurIntensity, blurFade, blurDarkness, blurMode, blurEnabled,
     badgeStyle, rankingBadgeStyle,
     defaultBadgeStyle, defaultRankingBadgeStyle,
-    defaultBlurEnabled, defaultBlurIntensity, defaultBlurFade, defaultBlurDarkness,
+    defaultBlurMode, defaultBlurEnabled, defaultBlurIntensity, defaultBlurFade, defaultBlurDarkness,
     defaultGradientHeight, defaultGlobalBadges, defaultRankingBadges,
     defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultManualQuality, defaultBadgeFormat, defaultRatingSources,
     defaultAutoRotateClean, defaultDisableCleanPosters, defaultLogoFitEnabled, defaultNetworkLogo, defaultRibbonSide,
@@ -276,10 +280,16 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(blurDarkness) : v
       update({ blurDarkness: next, defaultBlurDarkness: next })
     }, [blurDarkness, update])
+  const setBlurMode = useCallback(
+    (v: BlurMode | ((prev: BlurMode) => BlurMode)) => {
+      const next = typeof v === "function" ? v(blurMode) : v
+      update({ blurMode: next, blurEnabled: next !== "off", defaultBlurMode: next, defaultBlurEnabled: next !== "off" })
+    }, [blurMode, update])
   const setBlurEnabled = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       const next = typeof v === "function" ? v(blurEnabled) : v
-      update({ blurEnabled: next, defaultBlurEnabled: next })
+      const nextMode: BlurMode = next ? "smart" : "off"
+      update({ blurEnabled: next, defaultBlurEnabled: next, blurMode: nextMode, defaultBlurMode: nextMode })
     }, [blurEnabled, update])
   const setBadgeStyle = useCallback(
     (v: BadgeStyle | ((prev: BadgeStyle) => BadgeStyle)) => {
@@ -301,10 +311,16 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(defaultRankingBadgeStyle) : v
       update({ defaultRankingBadgeStyle: next, rankingBadgeStyle: next })
     }, [defaultRankingBadgeStyle, update])
+  const setDefaultBlurMode = useCallback(
+    (v: BlurMode | ((prev: BlurMode) => BlurMode)) => {
+      const next = typeof v === "function" ? v(defaultBlurMode) : v
+      update({ defaultBlurMode: next, blurMode: next, defaultBlurEnabled: next !== "off", blurEnabled: next !== "off" })
+    }, [defaultBlurMode, update])
   const setDefaultBlurEnabled = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       const next = typeof v === "function" ? v(defaultBlurEnabled) : v
-      update({ defaultBlurEnabled: next, blurEnabled: next })
+      const nextMode: BlurMode = next ? "smart" : "off"
+      update({ defaultBlurEnabled: next, blurEnabled: next, defaultBlurMode: nextMode, blurMode: nextMode })
     }, [defaultBlurEnabled, update])
   const setDefaultBlurIntensity = useCallback(
     (v: number | ((prev: number) => number)) => {
@@ -454,6 +470,8 @@ export function PosterEditorProvider({
       setDefaultRankingBadgeStyle,
       defaultEpisodeMetadataSource,
       setDefaultEpisodeMetadataSource,
+      defaultBlurMode,
+      setDefaultBlurMode,
       defaultBlurEnabled,
       setDefaultBlurEnabled,
       defaultBlurIntensity,
@@ -495,6 +513,8 @@ export function PosterEditorProvider({
       loadDefaultsToState,
 
       // Blur
+      blurMode,
+      setBlurMode,
       blurEnabled,
       setBlurEnabled,
       blurIntensity,
@@ -565,6 +585,7 @@ export function PosterEditorProvider({
       defaultBadgeStyle, setDefaultBadgeStyle,
       defaultRankingBadgeStyle, setDefaultRankingBadgeStyle,
       defaultEpisodeMetadataSource, setDefaultEpisodeMetadataSource,
+      defaultBlurMode, setDefaultBlurMode,
       defaultBlurEnabled, setDefaultBlurEnabled,
       defaultBlurIntensity, setDefaultBlurIntensity,
       defaultBlurFade, setDefaultBlurFade,
@@ -586,6 +607,7 @@ export function PosterEditorProvider({
       loadDefaultsToState,
 
       // Blur
+      blurMode, setBlurMode,
       blurEnabled, setBlurEnabled,
       blurIntensity, setBlurIntensity,
       blurFade, setBlurFade,

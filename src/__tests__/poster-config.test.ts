@@ -276,4 +276,40 @@ describe("resolvePosterRenderConfig", () => {
     }))
     expect(rConfig.ratingSources).toEqual(["letterboxd", "trakt"])
   })
+
+  it("resolves blurMode from query, mapping, config, and defaults", () => {
+    // Default is smart
+    const rDefault = resolvePosterRenderConfig(baseInput())
+    expect(rDefault.blurMode).toBe("smart")
+    expect(rDefault.blurEnabled).toBe(true)
+
+    // be=0 disables blur
+    const rOff = resolvePosterRenderConfig(baseInput({
+      searchParams: new URLSearchParams({ be: "0" }),
+    }))
+    expect(rOff.blurMode).toBe("off")
+    expect(rOff.blurEnabled).toBe(false)
+
+    // be=always enables blur unconditionally
+    const rAlways = resolvePosterRenderConfig(baseInput({
+      searchParams: new URLSearchParams({ be: "always" }),
+    }))
+    expect(rAlways.blurMode).toBe("always")
+    expect(rAlways.blurEnabled).toBe(true)
+
+    // be=smart explicitly sets smart blur
+    const rSmart = resolvePosterRenderConfig(baseInput({
+      searchParams: new URLSearchParams({ be: "smart" }),
+    }))
+    expect(rSmart.blurMode).toBe("smart")
+    expect(rSmart.blurEnabled).toBe(true)
+
+    // Mapping blurMode overrides config & server default
+    const rMapping = resolvePosterRenderConfig(baseInput({
+      mapping: mapping({ blurMode: "always" }),
+      configOverride: config({ blurMode: "off" }),
+    }))
+    expect(rMapping.blurMode).toBe("always")
+    expect(rMapping.blurEnabled).toBe(true)
+  })
 })

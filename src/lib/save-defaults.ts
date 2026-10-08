@@ -16,6 +16,7 @@ export function saveDefaults(p: { selected: SpatialCtx["selected"]; mappingsMap:
     ratingSources: ed.defaultRatingSources,
     badgeStyle: ed.defaultBadgeStyle,
     rankingBadgeStyle: ed.defaultRankingBadgeStyle,
+    blurMode: ed.defaultBlurMode,
     blurEnabled: ed.defaultBlurEnabled,
     blurIntensity: ed.defaultBlurIntensity,
     blurFade: ed.defaultBlurFade,
@@ -58,6 +59,7 @@ export function saveDefaults(p: { selected: SpatialCtx["selected"]; mappingsMap:
   ed.setManualQuality(d.manualQuality)
   ed.setNetworkLogo(d.networkLogo)
   ed.setRibbonSide(d.ribbonSide)
+  ed.setBlurMode(d.blurMode ?? (d.blurEnabled ? "smart" : "off"))
   ed.setBlurEnabled(d.blurEnabled)
   ed.setBlurIntensity(d.blurIntensity)
   ed.setBlurFade(d.blurFade)

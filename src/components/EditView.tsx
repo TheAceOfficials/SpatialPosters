@@ -124,6 +124,7 @@ export default function EditView() {
       blurIntensity: ed.blurIntensity,
       blurFade: ed.blurFade,
       blurDarkness: ed.blurDarkness,
+      blurMode: ed.blurMode,
       blurEnabled: ed.blurEnabled,
       networkLogo: ed.networkLogo,
       ribbonSide: ed.ribbonSide,

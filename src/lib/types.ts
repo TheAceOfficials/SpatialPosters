@@ -50,6 +50,8 @@ export interface FlixPatrolChart {
   tv: FlixPatrolItem[]
 }
 
+export type BlurMode = "off" | "smart" | "always"
+
 export interface Mapping {
   tmdbId: number
   mediaType: "movie" | "tv"
@@ -89,6 +91,7 @@ export interface Mapping {
   badgeFormat?: string | null
   badgeStyle?: BadgeStyle | null
   rankingBadgeStyle?: RankingBadgeStyle | null
+  blurMode?: BlurMode | null
   blurEnabled?: boolean | null
   blurIntensity?: number | null
   blurFade?: number | null

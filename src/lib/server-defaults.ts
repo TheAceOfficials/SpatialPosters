@@ -8,12 +8,16 @@ import { isBadgeStyle, isRankingBadgeStyle } from "@/lib/badge-styles"
 import { normalizeRegion } from "@/lib/regions"
 import { envWithFallback } from "@/lib/env-compat"
 
+import type { BlurMode } from "@/lib/types"
+
 const log = createLogger("server-defaults")
 
 export interface ServerDefaults {
   badgeStyle?: BadgeStyle
   rankingBadgeStyle?: RankingBadgeStyle
+  blurMode?: BlurMode
   blurEnabled?: boolean
+  defaultBlurMode?: BlurMode
   blurIntensity?: number
   blurFade?: number
   blurDarkness?: number
@@ -76,7 +80,15 @@ function defaultsFromEnv(): ServerDefaults {
   const by = envBool("BADGE_YEAR")
   const br = envBool("BADGE_RATING")
   const mq = getEnv("MANUAL_QUALITY")?.trim()
+  const blurM = getEnv("BLUR_MODE")?.trim().toLowerCase()
   const blurEn = envBool("BLUR_ENABLED")
+  if (blurM === "off" || blurM === "smart" || blurM === "always") {
+    d.blurMode = blurM
+    d.blurEnabled = blurM !== "off"
+  } else if (blurEn !== undefined) {
+    d.blurEnabled = blurEn
+    d.blurMode = blurEn ? "smart" : "off"
+  }
   const netLogo = envBool("NETWORK_LOGO")
   const autoRotate = envBool("AUTO_ROTATE_CLEAN")
   const disClean = envBool("DISABLE_CLEAN_POSTERS")

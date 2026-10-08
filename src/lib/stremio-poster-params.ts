@@ -1,5 +1,6 @@
 import { POSTER_URL_VERSION } from "@/lib/render-version"
 import type { BadgeStyle, RankingBadgeStyle } from "@/lib/badge-styles"
+import type { BlurMode } from "@/lib/types"
 
 export interface StremioPosterParamsInput {
   readonly apiKey?: string
@@ -21,6 +22,7 @@ export interface StremioPosterParamsInput {
   readonly blurIntensity?: number
   readonly blurFade?: number
   readonly blurDarkness?: number
+  readonly blurMode?: BlurMode
   readonly blurEnabled?: boolean
   readonly networkLogo?: boolean
   readonly ribbonSide?: "left" | "right"
@@ -41,6 +43,7 @@ const DEFAULT_STREMIO_POSTER_PARAMS = {
   blurIntensity: 5,
   blurFade: 60,
   blurDarkness: 40,
+  blurMode: "smart" as BlurMode,
   blurEnabled: true,
   networkLogo: true,
 } as const
@@ -49,7 +52,8 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   const params = new URLSearchParams()
   const globalBadges = input.globalBadges ?? DEFAULT_STREMIO_POSTER_PARAMS.globalBadges
   const rankingBadges = input.rankingBadges ?? DEFAULT_STREMIO_POSTER_PARAMS.rankingBadges
-  const blurEnabled = input.blurEnabled ?? DEFAULT_STREMIO_POSTER_PARAMS.blurEnabled
+  const blurMode = input.blurMode ?? (input.blurEnabled === false ? "off" : DEFAULT_STREMIO_POSTER_PARAMS.blurMode)
+  const blurEnabled = blurMode !== "off" && (input.blurEnabled ?? true)
   const networkLogo = input.networkLogo ?? DEFAULT_STREMIO_POSTER_PARAMS.networkLogo
 
   if (input.config) params.set("config", input.config)
@@ -76,7 +80,13 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   else if (input.ribbonSide === "left") params.set("side", "left")
 
   params.set("lang", input.lang || "it")
-  if (!blurEnabled) params.set("be", "0")
+  if (!blurEnabled || blurMode === "off") {
+    params.set("be", "0")
+  } else if (blurMode === "always") {
+    params.set("be", "always")
+  } else if (input.blurMode === "smart") {
+    params.set("be", "smart")
+  }
   params.set("gradHeight", String(input.gradientHeight ?? DEFAULT_STREMIO_POSTER_PARAMS.gradientHeight))
   params.set("blur", String(input.blurIntensity ?? DEFAULT_STREMIO_POSTER_PARAMS.blurIntensity))
   params.set("bf", String(input.blurFade ?? DEFAULT_STREMIO_POSTER_PARAMS.blurFade))

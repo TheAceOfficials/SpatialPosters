@@ -40,9 +40,12 @@ export interface PosterRenderConfigInput {
   lang?: string
 }
 
+import type { BlurMode } from "./types"
+
 export interface PosterRenderConfig {
   badgeStyle: BadgeStyle
   rankingBadgeStyle: RankingBadgeStyle
+  blurMode: BlurMode
   blurEnabled: boolean
   blurHeight: number
   blurIntensity: number
@@ -64,7 +67,6 @@ export interface PosterRenderConfig {
   qNetLogo: string | null
   networkLogo: boolean
   ribbonSide: "left" | "right"
-
 }
 
 export function resolvePosterRenderConfig(input: PosterRenderConfigInput): PosterRenderConfig {
@@ -95,9 +97,35 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   // Fix M3: includere i campi blur salvati nel mapping nella catena di fallback
   // (query > mapping > configOverride > default), come già fatto per badgeGenre/badgeStyle.
   // Prima il mapping salvato con blur custom non veniva mai applicato.
-  const blurEnabled = q.get("be") !== null
-    ? q.get("be") !== "0"
-    : (mapping?.blurEnabled != null ? mapping.blurEnabled : (configOverride !== null ? configOverride.blurEnabled : true))
+  const qBe = q.get("be")
+  let blurMode: BlurMode
+  if (qBe !== null) {
+    const lower = qBe.toLowerCase()
+    if (lower === "0" || lower === "false" || lower === "off") {
+      blurMode = "off"
+    } else if (lower === "always" || lower === "all" || lower === "1" || lower === "true" || lower === "on") {
+      blurMode = "always"
+    } else if (lower === "smart" || lower === "clean" || lower === "auto") {
+      blurMode = "smart"
+    } else {
+      blurMode = "smart"
+    }
+  } else if (mapping?.blurMode != null) {
+    blurMode = mapping.blurMode
+  } else if (mapping?.blurEnabled != null) {
+    blurMode = mapping.blurEnabled ? "smart" : "off"
+  } else if (configOverride !== null) {
+    blurMode = configOverride.blurMode ?? (configOverride.blurEnabled ? "smart" : "off")
+  } else if (sd.defaultBlurMode != null) {
+    blurMode = sd.defaultBlurMode
+  } else if (sd.blurMode != null) {
+    blurMode = sd.blurMode
+  } else if (sd.blurEnabled != null) {
+    blurMode = sd.blurEnabled ? "smart" : "off"
+  } else {
+    blurMode = "smart"
+  }
+  const blurEnabled = blurMode !== "off"
   // Clamp espliciti: impediscono a valori estremi (query o config) di arrivare a
   // sharp.blur con sigma enormi o gradienti fuori scala (potenziale DoS CPU).
   const rawGradHeight = q.get("gradHeight") ? Number(q.get("gradHeight")) : NaN
@@ -187,6 +215,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   return {
     badgeStyle,
     rankingBadgeStyle,
+    blurMode,
     blurEnabled,
     blurHeight,
     blurIntensity,

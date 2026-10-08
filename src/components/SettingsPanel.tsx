@@ -40,6 +40,7 @@ import {
   Lock,
   KeyRound,
   Heart,
+  XCircle,
 } from "lucide-react"
 
 interface Props {
@@ -570,22 +571,66 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
 
       {/* Sfumatura & Blur Predefiniti */}
       <div className="bg-surface/50 border border-surface2/60 rounded-xl p-3.5 space-y-2.5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-zinc-300 font-medium flex items-center gap-1.5">
-            <Cloud className="w-3.5 h-3.5 text-cyan-400" />
-            {t("ui.blurDefault")}
-          </span>
-          <Toggle
-            value={ed.defaultBlurEnabled}
-            onChange={(v) => {
-              ed.setDefaultBlurEnabled(v)
-              ed.setBlurEnabled(v)
-            }}
-            label={t("ui.blurDefault")}
-          />
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-zinc-300">
+            <span className="flex items-center gap-1.5">
+              <Cloud className="w-3.5 h-3.5 text-cyan-400" />
+              {t("ui.blurDefault")}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-1 p-1 bg-black/40 rounded-lg border border-white/5">
+            <button
+              type="button"
+              onClick={() => {
+                ed.setDefaultBlurMode("off")
+                ed.setBlurMode("off")
+              }}
+              className={`py-1.5 px-2 text-[11px] font-medium rounded-md transition-all flex items-center justify-center gap-1 ${
+                ed.defaultBlurMode === "off"
+                  ? "bg-white/15 text-white shadow-sm border border-white/10 font-semibold"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+              }`}
+            >
+              <XCircle className="w-3 h-3 text-zinc-500" />
+              {t("ui.blurOff")}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                ed.setDefaultBlurMode("smart")
+                ed.setBlurMode("smart")
+              }}
+              className={`py-1.5 px-2 text-[11px] font-medium rounded-md transition-all flex items-center justify-center gap-1 ${
+                ed.defaultBlurMode === "smart"
+                  ? "bg-accent-orange/20 text-accent-orange border border-accent-orange/30 shadow-sm font-semibold"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+              }`}
+            >
+              <Sparkles className="w-3 h-3 text-accent-orange" />
+              {t("ui.blurSmart")}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                ed.setDefaultBlurMode("always")
+                ed.setBlurMode("always")
+              }}
+              className={`py-1.5 px-2 text-[11px] font-medium rounded-md transition-all flex items-center justify-center gap-1 ${
+                ed.defaultBlurMode === "always"
+                  ? "bg-white/15 text-white shadow-sm border border-white/10 font-semibold"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+              }`}
+            >
+              <Check className="w-3 h-3 text-emerald-400" />
+              {t("ui.blurAlways")}
+            </button>
+          </div>
         </div>
 
-        {ed.defaultBlurEnabled && (
+        {ed.defaultBlurMode !== "off" && (
           <div className="space-y-1.5 pt-1.5 border-t border-surface2/50 animate-fade-in">
             <SliderRow
               icon={<Ruler className="w-3.5 h-3.5" />}

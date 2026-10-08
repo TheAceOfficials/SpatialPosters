@@ -341,6 +341,8 @@ export function usePictorium(): PictoriumCtx {
     defaultBadgeFormat,
     defaultRibbonSide,
     setRibbonSide,
+    defaultBlurMode,
+    setDefaultBlurMode,
     defaultBlurEnabled,
     defaultBlurIntensity,
     defaultBlurFade,
@@ -350,6 +352,7 @@ export function usePictorium(): PictoriumCtx {
     defaultNetworkLogo,
     loadDefaultsToState,
     // Blur
+    blurMode, setBlurMode,
     blurEnabled, setBlurEnabled,
     blurIntensity, setBlurIntensity,
     blurFade, setBlurFade,
@@ -792,6 +795,7 @@ export function usePictorium(): PictoriumCtx {
       setBlurIntensity(existing.blurIntensity ?? defaultBlurIntensity)
       setBlurFade(existing.blurFade ?? defaultBlurFade)
       setBlurDarkness(existing.blurDarkness ?? defaultBlurDarkness)
+      setBlurMode(existing.blurMode ?? (existing.blurEnabled === false ? "off" : defaultBlurMode))
       setBlurEnabled(existing.blurEnabled ?? defaultBlurEnabled)
       setCustomBadge(existing.customBadge ?? null)
       setRotationPosters(existing.cleanPosters || [])
@@ -924,7 +928,7 @@ export function usePictorium(): PictoriumCtx {
     setBackdropScale, setBackdropOffsetX, setBackdropOffsetY,
     globalBadges, rankingBadges, customBadge, badgeStyle, rankingBadgeStyle,
     badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat,
-    defaultBadgeStyle, defaultRankingBadgeStyle, blurEnabled, blurIntensity, blurFade, blurDarkness, gradientHeight,
+    defaultBadgeStyle, defaultRankingBadgeStyle, blurMode, blurEnabled, blurIntensity, blurFade, blurDarkness, gradientHeight,
     setGradientHeight,
     rotationPosters, autoRotateClean, defaultAutoRotateClean, excludedPosters, accentColor, logoDisabled, setLogoDisabled,
     setLogoScale, setLogoOffsetX, setLogoOffsetY, networkLogo, ribbonSide, lang, episodeGroupId,

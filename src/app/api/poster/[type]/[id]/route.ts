@@ -335,6 +335,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   let tmdbNetworksDetailed: { name: string; logoPath: string | null }[] = []
   let productionCompaniesDetailed: { name: string; logoPath: string | null }[] = []
   let imdbId: string | null = null
+  let posterImages: Awaited<ReturnType<typeof getImages>> | null = null
 
   const queryPoster = req.nextUrl.searchParams.get("poster")
   const queryLogo = req.nextUrl.searchParams.get("logo")
@@ -441,6 +442,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
           : imgs
         setTMDBSessionCache(mediaType, tmdbId, { details: det, images, externalIds: ext })
       }
+      posterImages = images
       imdbId = extIds.imdb_id
       // A1: fetch deferito — la media TMDB+IMDb parte subito ma non blocca.
       ratingAbort = imdbId ? new AbortController() : null
@@ -817,14 +819,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
     })
     const {
       badgeStyle, rankingBadgeStyle,
-      blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
+      blurMode, blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
       badgesEnabled, rankingEnabled,
       badgeGenre, badgeYear, badgeRating, badgeFormat,
       logoScale, logoOffsetX, logoOffsetY,
       queryExtra, qNetLogo, networkLogo, ribbonSide,
     } = renderConfig
-
-
 
     const locale = req.nextUrl.searchParams.get("lang") || mapping?.language || "it"
     const targetCenter = Math.round(30 * STD_H / 570)
@@ -836,6 +836,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       : mapping?.accentColor
         ? { genreColor: mapping.accentColor, rankColor: mapping.accentColor }
         : null
+
+    const matchingPoster = posterImages?.posters?.find((p: TMDBImage) => p.file_path === posterPath)
+    const isCleanPoster = matchingPoster ? matchingPoster.iso_639_1 === null : (mapping ? (mapping.language === null || !!mapping.logoPath) : (!!logoPath || req.nextUrl.searchParams.get("clean") === "1"))
 
     // 9. Debug mode — return JSON with all computed data instead of rendering
     const isDebug = req.nextUrl.searchParams.get("debug") === "1"
@@ -919,12 +922,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         },
         appearance: {
           topLight,
+          blurMode,
           blurEnabled,
           blurHeight,
           blurIntensity,
           blurFade,
           blurDarkness,
           gradientHeight: blurHeight,
+          isClean: isCleanPoster,
           accentColor: accentOverride?.genreColor || null,
         },
         logos: {
@@ -949,7 +954,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
     const genInput: GenerationInput = {
       posterBuf, logoFetch, backdropFetch,
       backdropScale, backdropOffsetX, backdropOffsetY,
-      blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
+      blurMode, blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
+      isClean: isCleanPoster,
       badgesEnabled, rankingEnabled, genreName, voteAverage, badgeStyle,
       rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat,
       topLight, targetCenter, ribbonSide,

@@ -18,7 +18,7 @@ import fs from "fs"
 import path from "path"
 import { estimateTextWidth, fontFamilyFor } from "./badge-svg-shared"
 import { computeTopBadge, isNetworkStudio, type BadgeInput } from "./poster-badge"
-import type { Mapping } from "./types"
+import type { Mapping, BlurMode } from "./types"
 import type { ServerDefaults } from "./server-defaults"
 import type { WikidataResult } from "./awards"
 import type { BadgeT } from "./poster-badge"
@@ -49,11 +49,13 @@ export interface GenerationInput {
   backdropOffsetY: number
 
   // Blur
+  blurMode?: BlurMode
   blurEnabled: boolean
   blurHeight: number
   blurIntensity: number
   blurFade: number
   blurDarkness: number
+  isClean?: boolean
 
   // Badge flags
   badgesEnabled: boolean
@@ -423,7 +425,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
   const {
     posterBuf, logoFetch, backdropFetch,
     backdropScale, backdropOffsetX, backdropOffsetY,
-    blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness,
+    blurMode, blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness, isClean,
     badgesEnabled, rankingEnabled, genreName, voteAverage, badgeStyle,
     rankingBadgeStyle, badgeGenre, badgeYear, badgeRating, manualQuality, badgeFormat,
     topLight, targetCenter, ribbonSide,
@@ -451,7 +453,7 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
     let bResizedW = Math.round(STD_W * bScale)
     let bResizedH = Math.round(bh * (bResizedW / bw))
     if (bResizedW > STD_W) { bResizedH = Math.round(bResizedH * (STD_W / bResizedW)); bResizedW = STD_W }
-    if (bResizedH > STD_H) { bResizedW = Math.round(bResizedW * (STD_H / bResizedH)); bResizedH = STD_H }
+    if (bResizedH > STD_H) { bResizedH = Math.round(bResizedH * (STD_H / bResizedH)); bResizedH = STD_H }
     const bX = Math.round((STD_W - bResizedW) / 2 + backdropOffsetX)
     const bY = Math.round((STD_H - bResizedH) / 2 + backdropOffsetY)
     const backdropResized = await resizeBackdropCached(backdropFetch, bResizedW, bResizedH, backdropSrc)
@@ -471,8 +473,12 @@ export async function generatePosterBuffer(input: GenerationInput): Promise<Buff
 
   const needBadgeColors = hasGenreBadge || rankingEnabled
 
+  // Smart blur: se la modalità è "smart", il blur viene applicato solo se il poster è clean (testless/logo allowed).
+  // Se il poster è texted (ha già testo/titolo in basso), il blur viene saltato per evitare di oscurarlo.
+  const effectiveBlurEnabled = blurEnabled && (blurMode !== "smart" || isClean !== false)
+
   const [blurOverlay, badgeColors, logoResult] = await Promise.all([
-    applyBlur({ posterBuf, blurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness }),
+    applyBlur({ posterBuf, blurEnabled: effectiveBlurEnabled, blurHeight, blurIntensity, blurFade, blurDarkness }),
     needBadgeColors
       ? (accentOverride
           ? Promise.resolve(accentOverride)

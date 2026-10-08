@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { BadgeStyle, RankingBadgeStyle } from "./badge-styles"
+import type { BlurMode } from "./types"
 import { normalizeRegion } from "./regions"
 import { t } from "./i18n"
 
@@ -10,6 +11,7 @@ export type RibbonSide = "left" | "right"
 export interface DefaultsState {
   defaultBadgeStyle: BadgeStyle
   defaultRankingBadgeStyle: RankingBadgeStyle
+  defaultBlurMode: BlurMode
   defaultBlurEnabled: boolean
   defaultBlurIntensity: number
   defaultBlurFade: number
@@ -49,6 +51,7 @@ export interface DefaultsState {
   blurIntensity: number
   blurFade: number
   blurDarkness: number
+  blurMode: BlurMode
   blurEnabled: boolean
   badgeStyle: BadgeStyle
   rankingBadgeStyle: RankingBadgeStyle
@@ -57,6 +60,7 @@ export interface DefaultsState {
 const DEFAULTS: DefaultsState = {
   defaultBadgeStyle: "shadow",
   defaultRankingBadgeStyle: "default",
+  defaultBlurMode: "smart",
   defaultBlurEnabled: true,
   defaultBlurIntensity: 5,
   defaultBlurFade: 60,
@@ -93,6 +97,7 @@ const DEFAULTS: DefaultsState = {
   blurIntensity: 5,
   blurFade: 60,
   blurDarkness: 40,
+  blurMode: "smart",
   blurEnabled: true,
   badgeStyle: "shadow",
   rankingBadgeStyle: "default",
@@ -112,11 +117,13 @@ interface StoredDefaults {
   blurIntensity?: number
   blurFade?: number
   blurDarkness?: number
+  blurMode?: BlurMode
   blurEnabled?: boolean
   badgeStyle?: BadgeStyle
   rankingBadgeStyle?: RankingBadgeStyle
   defaultBadgeStyle?: BadgeStyle
   defaultRankingBadgeStyle?: RankingBadgeStyle
+  defaultBlurMode?: BlurMode
   defaultBlurEnabled?: boolean
   defaultBlurIntensity?: number
   defaultBlurFade?: number
@@ -162,10 +169,13 @@ function safeSetItem(key: string, val: string) {
 
 function buildFromStored(d: StoredDefaults | null): DefaultsState {
   if (!d) return { ...DEFAULTS }
+  const resolvedDefaultBlurMode = d.defaultBlurMode ?? d.blurMode ?? (d.defaultBlurEnabled === false || d.blurEnabled === false ? "off" : "smart")
+  const resolvedCurrentBlurMode = d.blurMode ?? d.defaultBlurMode ?? (d.blurEnabled === false || d.defaultBlurEnabled === false ? "off" : "smart")
   return {
     defaultBadgeStyle: d.defaultBadgeStyle ?? d.badgeStyle ?? "shadow",
     defaultRankingBadgeStyle: d.defaultRankingBadgeStyle ?? d.rankingBadgeStyle ?? "default",
-    defaultBlurEnabled: d.defaultBlurEnabled ?? d.blurEnabled ?? true,
+    defaultBlurMode: resolvedDefaultBlurMode,
+    defaultBlurEnabled: resolvedDefaultBlurMode !== "off",
     defaultBlurIntensity: d.defaultBlurIntensity ?? d.blurIntensity ?? 5,
     defaultBlurFade: d.defaultBlurFade ?? d.blurFade ?? 60,
     defaultBlurDarkness: d.defaultBlurDarkness ?? d.blurDarkness ?? 40,
@@ -201,7 +211,8 @@ function buildFromStored(d: StoredDefaults | null): DefaultsState {
     blurIntensity: d.blurIntensity ?? d.defaultBlurIntensity ?? 5,
     blurFade: d.blurFade ?? d.defaultBlurFade ?? 60,
     blurDarkness: d.blurDarkness ?? d.defaultBlurDarkness ?? 40,
-    blurEnabled: d.blurEnabled ?? d.defaultBlurEnabled ?? true,
+    blurMode: resolvedCurrentBlurMode,
+    blurEnabled: resolvedCurrentBlurMode !== "off",
     badgeStyle: d.badgeStyle ?? d.defaultBadgeStyle ?? "shadow",
     rankingBadgeStyle: d.rankingBadgeStyle ?? d.defaultRankingBadgeStyle ?? "default",
   }
@@ -217,7 +228,8 @@ function defaultsToPayload(d: DefaultsState): Record<string, unknown> {
   return {
     badgeStyle: d.defaultBadgeStyle,
     rankingBadgeStyle: d.defaultRankingBadgeStyle,
-    blurEnabled: d.defaultBlurEnabled,
+    blurMode: d.defaultBlurMode,
+    blurEnabled: d.defaultBlurMode !== "off",
     blurIntensity: d.defaultBlurIntensity,
     blurFade: d.defaultBlurFade,
     blurDarkness: d.defaultBlurDarkness,

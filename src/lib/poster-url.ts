@@ -4,7 +4,7 @@ import { getPosterPublicBaseUrl } from "./poster-public-url"
 import { buildStremioPosterSearchParams } from "./stremio-poster-params"
 import { RENDER_VERSION } from "./render-version"
 import { TOP_LIGHT_LUMINANCE } from "./constants"
-import type { SearchResult, TMDBImage } from "./types"
+import type { SearchResult, TMDBImage, BlurMode } from "./types"
 import type { EnrichedAnimeItem } from "./validation"
 import type { BadgeStyle, RankingBadgeStyle } from "./badge-styles"
 
@@ -25,6 +25,7 @@ interface BadgeParams {
   blurIntensity: number
   blurFade: number
   blurDarkness: number
+  blurMode?: BlurMode
   blurEnabled: boolean
   networkLogo?: boolean
   ribbonSide?: "left" | "right"
@@ -85,6 +86,7 @@ export function buildUrlPattern(bp: BadgeParams & { tmdbKey: string; lang: strin
     blurIntensity: bp.blurIntensity,
     blurFade: bp.blurFade,
     blurDarkness: bp.blurDarkness,
+    blurMode: bp.blurMode,
     blurEnabled: bp.blurEnabled,
     networkLogo: bp.networkLogo,
     ribbonSide: bp.ribbonSide,
@@ -108,6 +110,7 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams): string {
   if (bp.ratingSources && bp.ratingSources.length > 0) params.push(`rsrc=${encodeURIComponent(bp.ratingSources.join(","))}`)
   if (ps.previewPoster) {
     params.push(`poster=${encodeURIComponent(ps.previewPoster.file_path)}`)
+    if (ps.previewPoster.iso_639_1 === null) params.push("clean=1")
     const genre = ps.metaInfo.genres[0]?.name
     if (genre) params.push(`genreName=${encodeURIComponent(genre)}`)
     if (ps.metaInfo.voteAverage > 0) params.push(`voteAverage=${ps.metaInfo.voteAverage}`)
@@ -139,7 +142,13 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams): string {
   params.push(`bd=${bp.blurDarkness}`)
   params.push(`bs=${bp.badgeStyle}`)
   params.push(`rs=${bp.rankingBadgeStyle}`)
-  if (!bp.blurEnabled) params.push("be=0")
+  if (bp.blurMode === "off" || !bp.blurEnabled) {
+    params.push("be=0")
+  } else if (bp.blurMode === "always") {
+    params.push("be=always")
+  } else if (bp.blurMode === "smart") {
+    params.push("be=smart")
+  }
   params.push(`netLogo=${bp.networkLogo !== false ? "1" : "0"}`)
   // Fix M2: side viene emesso SEMPRE (left|right) — prima soltanto "right";
   // senza il parametro il server risolve dal mapping/config salvati (di

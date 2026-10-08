@@ -441,30 +441,66 @@ export function BadgeControls() {
 
       {/* CARD 4: Sfumatura & Blur di Sfondo */}
       <div className="bg-surface/50 border border-surface2/60 rounded-xl p-3 space-y-2.5 shadow-sm">
-        <button
-          type="button"
-          aria-label={ed.blurEnabled ? t("ui.blurDisabled") : t("ui.blurEnabled")}
-          onClick={() => ed.setBlurEnabled(!ed.blurEnabled)}
-          className={`w-full py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-150 flex items-center justify-center gap-1.5 ${
-            ed.blurEnabled
-              ? "bg-white/15 text-white shadow-sm border border-white/10"
-              : "bg-white/5 text-muted hover:bg-white/10 hover:text-zinc-200 border border-transparent"
-          }`}
-        >
-          {ed.blurEnabled ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-accent-orange" />
-              {t("ui.blurEnabled")}
-            </>
-          ) : (
-            <>
-              <XCircle className="w-3.5 h-3.5 text-zinc-500" />
-              {t("ui.blurDisabled")}
-            </>
-          )}
-        </button>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-zinc-300">
+            <span className="flex items-center gap-1.5">
+              <Cloud className="w-3.5 h-3.5 text-cyan-400" />
+              {t("ui.blurMode")}
+            </span>
+          </div>
 
-        {ed.blurEnabled && (
+          <div className="grid grid-cols-3 gap-1 p-1 bg-black/40 rounded-lg border border-white/5">
+            <button
+              type="button"
+              onClick={() => ed.setBlurMode("off")}
+              className={`py-1.5 px-2 text-[11px] font-medium rounded-md transition-all flex items-center justify-center gap-1 ${
+                ed.blurMode === "off"
+                  ? "bg-white/15 text-white shadow-sm border border-white/10 font-semibold"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+              }`}
+            >
+              <XCircle className="w-3 h-3 text-zinc-500" />
+              {t("ui.blurOff")}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => ed.setBlurMode("smart")}
+              className={`py-1.5 px-2 text-[11px] font-medium rounded-md transition-all flex items-center justify-center gap-1 ${
+                ed.blurMode === "smart"
+                  ? "bg-accent-orange/20 text-accent-orange border border-accent-orange/30 shadow-sm font-semibold"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+              }`}
+            >
+              <Sparkles className="w-3 h-3 text-accent-orange" />
+              {t("ui.blurSmart")}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => ed.setBlurMode("always")}
+              className={`py-1.5 px-2 text-[11px] font-medium rounded-md transition-all flex items-center justify-center gap-1 ${
+                ed.blurMode === "always"
+                  ? "bg-white/15 text-white shadow-sm border border-white/10 font-semibold"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+              }`}
+            >
+              <Check className="w-3 h-3 text-emerald-400" />
+              {t("ui.blurAlways")}
+            </button>
+          </div>
+
+          {ed.blurMode === "smart" && (
+            <p className="text-[10px] text-zinc-400 px-0.5 leading-tight flex items-center gap-1 pt-0.5">
+              <span className={`w-1.5 h-1.5 rounded-full inline-block shrink-0 ${previewPoster?.iso_639_1 !== null ? "bg-amber-400/80" : "bg-emerald-400/80 animate-pulse"}`} />
+              {previewPoster?.iso_639_1 !== null
+                ? t("ui.blurSmartTextedHint")
+                : t("ui.blurSmartCleanHint")}
+            </p>
+          )}
+        </div>
+
+        {ed.blurMode !== "off" && (
           <div className="space-y-1.5 pt-1 animate-fade-in">
             <SliderRow
               icon={<Ruler className="w-3.5 h-3.5" />}
